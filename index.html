@@ -1593,6 +1593,10 @@
     }
 
 .ad-container {
+    grid-column: 1 / -1;
+    justify-self: center;
+    align-self: start;
+    position: relative;
     width: 100%;
     max-width: 970px;
     min-height: 90px;
@@ -1607,6 +1611,7 @@
     border: 1px solid rgba(255,255,255,0.07);
     border-radius: 12px;
     background: rgba(255,255,255,0.02);
+    will-change: transform;
 }
 
 .ad-label {
@@ -1616,6 +1621,7 @@
 }
 
 .ad-container ins.adsbygoogle {
+    display: block;
     width: 100%;
 }
 
@@ -1791,9 +1797,10 @@
             </label>
         </div>
 
-        <!-- CXZ-Home-Banner -->
-        <div class="ad-container">
+        <!-- Responsive AdSense banner: remains below the search/header on every tab -->
+        <div class="ad-container" id="cxz-ad-banner">
             <span class="ad-label">ADVERTISEMENT</span>
+            <!-- CXZ-Home-Banner -->
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-1418936537805122"
@@ -2822,19 +2829,23 @@
         function morphHeader(apply, content) {
             const clock = document.querySelector('.live-datetime');
             const search = document.querySelector('.search-box');
+            const ad = document.querySelector('.ad-container');
             const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
             if (!clock || reduce) { apply(); return; }
 
             const c0 = clock.getBoundingClientRect();
             const s0 = search ? search.getBoundingClientRect() : null;
+            const a0 = ad ? ad.getBoundingClientRect() : null;
             const flowEnd = () => {
-                if (!search) return 0;
-                const r = search.getBoundingClientRect();
-                return r.top + r.height + (parseFloat(getComputedStyle(search).marginBottom) || 0);
+                const el = ad || search;
+                if (!el) return 0;
+                const r = el.getBoundingClientRect();
+                return r.top + r.height + (parseFloat(getComputedStyle(el).marginBottom) || 0);
             };
             const e0 = flowEnd();
             clock.getAnimations().forEach(a => a.cancel());
             if (search) search.getAnimations().forEach(a => { if (a instanceof CSSTransition) return; a.cancel(); });
+            if (ad) ad.getAnimations().forEach(a => a.cancel());
 
             apply();
 
@@ -2870,6 +2881,16 @@
                 if (s1.height > 0 && Math.abs(sdy) > 1) {
                     search.animate([
                         { transform: `translateY(${sdy}px)` },
+                        { transform: 'translateY(0)' }
+                    ], { duration: MORPH_MS, easing: MORPH_EASE });
+                }
+            }
+            if (ad && a0) {
+                const a1 = ad.getBoundingClientRect();
+                const adDy = a0.top - a1.top;
+                if (a1.height > 0 && Math.abs(adDy) > 1) {
+                    ad.animate([
+                        { transform: `translateY(${adDy}px)` },
                         { transform: 'translateY(0)' }
                     ], { duration: MORPH_MS, easing: MORPH_EASE });
                 }
@@ -4635,7 +4656,7 @@ function openProxyTab(btn) {
     document.body.dataset.tab = 'proxy';
 
     CXZPlayer.open(
-        'https://shajhgsjhgajshgkjajasfhlkahlalfd.github.io/g/games/other/GUST.html',
+        'https://shajhgsjhgajshgkjajasfhlkahlalfd.github.io/shajhgsjhgajshgkjajasfhlkahlalfd/g/games/other/GUST.html',
         'Proxy'
     );
 }
