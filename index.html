@@ -1557,8 +1557,7 @@
     .search-icon { transition: right 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
     .search-icon svg { transition: width 0.7s cubic-bezier(0.65, 0, 0.35, 1), height 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
     body[data-tab="suggest"] .search-box,
-    body[data-tab="settings"] .search-box,
-    body[data-tab="proxy"] .search-box {
+    body[data-tab="settings"] .search-box {
         max-height: 0;
         margin-bottom: 0;
         opacity: 0;
@@ -1571,9 +1570,6 @@
                     opacity 0.3s ease, visibility 0s linear 0.7s;
     }
 
-    body[data-tab="proxy"] .tab-content {
-    display:none !important;
-}
     /* The clock is animated by morphHeader() (transform only), so its own
        layout properties must switch instantly — including in auto-lite mode,
        which otherwise forces a 0.14s transition on every property. */
@@ -2274,14 +2270,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>
         </button>
 
-        <button class="dock-item"
-        id="proxy-dock-btn"
-        onclick="openProxyTab(this)"
-        title="Proxy">
-
-    <i data-lucide="network"></i>
-
-</button>
+       
         
         <!-- Lucide lightbulb -->
         <button class="dock-item" onclick="switchTab('suggest', this)" title="Suggest a Game">
@@ -2928,7 +2917,7 @@
             let activeBtn = btn;
             if (!activeBtn) {
                 // Find matching button
-                const btnIdx = ['home', 'games', 'tools','proxy', 'partners', 'suggest', 'settings'].indexOf(tabId);
+                const btnIdx = ['home', 'games', 'tools', 'partners', 'suggest', 'settings'].indexOf(tabId);
                 const buttons = document.querySelectorAll('.dock-item');
                 if (btnIdx >= 0 && buttons[btnIdx]) activeBtn = buttons[btnIdx];
             }
@@ -4645,21 +4634,6 @@ if (
         updateDateTime();
         window.setInterval(updateDateTime, 1000);
     })();
-
-function openProxyTab(btn) {
-
-    document.querySelectorAll('.dock-item')
-        .forEach(b => b.classList.remove('active'));
-
-    btn.classList.add('active');
-
-    document.body.dataset.tab = 'proxy';
-
-    CXZPlayer.open(
-        'https://shajhgsjhgajshgkjajasfhlkahlalfd.github.io/g/games/other/GUST.html',
-        'Proxy'
-    );
-}
 </script>
 </body>
 </html>
