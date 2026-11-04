@@ -22,47 +22,417 @@
     width="1920"
     height="1080">
 
-    <xhtml:div
-      style="position:relative;width:100%;height:100%;overflow:hidden;background:#090b10;">
+    <xhtml:div class="app">
 
-      <xhtml:div
-        id="status"
-        role="status"
-        style="padding:40px;color:#eee;font:16px system-ui;line-height:1.6;">
+      <xhtml:style>
+        * {
+          box-sizing: border-box;
+        }
 
-        <xhtml:h1>Join a class</xhtml:h1>
-        <xhtml:p>Enter your class code to continue.</xhtml:p>
+        .app {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background: #f0f2f3;
+          color: #202124;
+          font-family: Arial, sans-serif;
+        }
 
-        <xhtml:form id="join-form">
-          <xhtml:label for="class-code">Class code</xhtml:label>
-          <xhtml:br />
+        .topbar {
+          height: 70px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          padding: 0 25px;
+          background: #fff;
+          border-bottom: 1px solid #dadce0;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
 
-          <xhtml:input
-            id="class-code"
-            type="text"
-            autocomplete="off"
-            required="required"
-            style="padding:10px;margin:10px 0;" />
+        .menu-icon {
+          font-size: 24px;
+          color: #202124;
+        }
 
+        .brand {
+          font-size: 24px;
+          color: #5f6368;
+        }
+
+        .top-actions {
+          margin-left: auto;
+          display: flex;
+          align-items: center;
+          gap: 22px;
+        }
+
+        .icon-button {
+          border: 0;
+          background: transparent;
+          color: #202124;
+          cursor: pointer;
+          font-size: 30px;
+          line-height: 1;
+          padding: 4px;
+        }
+
+        .apps-icon {
+          font-size: 24px;
+          letter-spacing: -3px;
+        }
+
+        .avatar {
+          width: 32px;
+          height: 32px;
+          display: grid;
+          place-items: center;
+          border-radius: 50%;
+          background: #e8eaed;
+          color: #5f6368;
+          font-size: 18px;
+        }
+
+        .layout {
+          display: flex;
+          min-height: calc(100% - 70px);
+        }
+
+        .sidebar {
+          width: 240px;
+          flex-shrink: 0;
+          padding: 14px 12px 20px 7px;
+        }
+
+        .nav-item {
+          height: 46px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 0 16px;
+          color: #3c4043;
+          font-size: 15px;
+        }
+
+        .nav-item.active {
+          border-radius: 0 28px 28px 0;
+          background: #e8f0fe;
+          color: #1a73e8;
+        }
+
+        .nav-icon {
+          width: 19px;
+          text-align: center;
+          color: #202124;
+          font-size: 18px;
+        }
+
+        .divider {
+          height: 1px;
+          margin: 12px 10px;
+          background: #dadce0;
+        }
+
+        .content {
+          flex: 1;
+          display: flex;
+          align-items: flex-start;
+          gap: 24px;
+          padding: 34px 22px;
+        }
+
+        .cards {
+          width: 224px;
+          display: grid;
+          gap: 24px;
+        }
+
+        .card {
+          min-height: 230px;
+          padding: 24px 20px;
+          border: 1px solid #dadce0;
+          border-radius: 10px;
+          background: #fff;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+        }
+
+        .card-heading {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          font-weight: bold;
+          font-size: 16px;
+        }
+
+        .circle-icon {
+          width: 38px;
+          height: 38px;
+          display: grid;
+          place-items: center;
+          flex-shrink: 0;
+          border-radius: 50%;
+          background: #e8f0fe;
+          font-size: 20px;
+        }
+
+        .green {
+          background: #e6f4ea;
+        }
+
+        .card-link {
+          margin-left: auto;
+          color: #1a73e8;
+          font-weight: normal;
+          font-size: 14px;
+        }
+
+        .card-message {
+          margin-top: 70px;
+          text-align: center;
+          color: #5f6368;
+          font-size: 15px;
+        }
+
+        .hint {
+          max-width: 430px;
+          padding: 18px;
+          color: #5f6368;
+          font-size: 14px;
+        }
+
+        .overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 5;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: rgba(0, 0, 0, 0.38);
+        }
+
+        .overlay.open {
+          display: flex;
+        }
+
+        .dialog {
+          width: 100%;
+          max-width: 420px;
+          padding: 26px;
+          border-radius: 10px;
+          background: #fff;
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .dialog h2 {
+          margin: 0 0 12px;
+          font-size: 22px;
+          font-weight: 500;
+        }
+
+        .dialog p {
+          color: #5f6368;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        .code-input {
+          width: 100%;
+          margin-top: 12px;
+          padding: 13px;
+          border: 1px solid #9aa0a6;
+          border-radius: 4px;
+          font-size: 16px;
+        }
+
+        .error {
+          min-height: 20px;
+          color: #b3261e !important;
+        }
+
+        .dialog-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+          margin-top: 18px;
+        }
+
+        .dialog-button {
+          padding: 10px 18px;
+          border: 0;
+          border-radius: 4px;
+          cursor: pointer;
+          color: #1a73e8;
+          background: transparent;
+          font-size: 14px;
+        }
+
+        .primary {
+          color: #fff;
+          background: #1a73e8;
+        }
+
+        .primary:disabled {
+          opacity: 0.6;
+          cursor: default;
+        }
+
+        .site-frame {
+          position: absolute;
+          inset: 0;
+          z-index: 10;
+          width: 100%;
+          height: 100%;
+          border: 0;
+          visibility: hidden;
+          background: #fff;
+        }
+
+        @media (max-width: 600px) {
+          .sidebar {
+            width: 190px;
+          }
+
+          .content {
+            padding: 24px 12px;
+          }
+
+          .hint {
+            display: none;
+          }
+
+          .topbar {
+            padding: 0 14px;
+          }
+
+          .top-actions {
+            gap: 12px;
+          }
+        }
+      </xhtml:style>
+
+      <xhtml:header class="topbar">
+        <xhtml:span class="menu-icon" aria-hidden="true">☰</xhtml:span>
+        <xhtml:span class="brand">Classroom</xhtml:span>
+
+        <xhtml:div class="top-actions">
           <xhtml:button
-            type="submit"
-            style="padding:10px;">
-            Join
-          </xhtml:button>
-        </xhtml:form>
+            id="open-join"
+            class="icon-button"
+            type="button"
+            aria-label="Join a class">+</xhtml:button>
 
-        <xhtml:p
-          id="code-error"
-          style="color:#ff8888;"></xhtml:p>
+          <xhtml:span class="apps-icon" aria-hidden="true">⠿</xhtml:span>
+          <xhtml:span class="avatar" aria-hidden="true">●</xhtml:span>
+        </xhtml:div>
+      </xhtml:header>
+
+      <xhtml:div class="layout">
+        <xhtml:nav class="sidebar" aria-label="Navigation">
+          <xhtml:div class="nav-item active">
+            <xhtml:span class="nav-icon">⌂</xhtml:span>
+            <xhtml:span>Home</xhtml:span>
+          </xhtml:div>
+
+          <xhtml:div class="nav-item">
+            <xhtml:span class="nav-icon">▣</xhtml:span>
+            <xhtml:span>Calendar</xhtml:span>
+          </xhtml:div>
+
+          <xhtml:div class="nav-item">
+            <xhtml:span class="nav-icon">▮</xhtml:span>
+            <xhtml:span>Archived classes</xhtml:span>
+          </xhtml:div>
+
+          <xhtml:div class="nav-item">
+            <xhtml:span class="nav-icon">⚙</xhtml:span>
+            <xhtml:span>Settings</xhtml:span>
+          </xhtml:div>
+
+          <xhtml:div class="divider"></xhtml:div>
+
+          <xhtml:div class="nav-item">
+            <xhtml:span class="nav-icon">?</xhtml:span>
+            <xhtml:span>Help and Feedback</xhtml:span>
+          </xhtml:div>
+        </xhtml:nav>
+
+        <xhtml:main class="content">
+          <xhtml:div class="cards">
+            <xhtml:section class="card">
+              <xhtml:div class="card-heading">
+                <xhtml:span class="circle-icon">◷</xhtml:span>
+                <xhtml:span>Due soon</xhtml:span>
+                <xhtml:span class="card-link">View<br />To-do</xhtml:span>
+              </xhtml:div>
+
+              <xhtml:p class="card-message">
+                You don't have any work due in the next 7 days
+              </xhtml:p>
+            </xhtml:section>
+
+            <xhtml:section class="card">
+              <xhtml:div class="card-heading">
+                <xhtml:span class="circle-icon green">◆</xhtml:span>
+                <xhtml:span>Class learning tools</xhtml:span>
+              </xhtml:div>
+
+              <xhtml:p class="card-message">
+                You don't have any assigned class learning tools
+              </xhtml:p>
+            </xhtml:section>
+          </xhtml:div>
+
+          <xhtml:div class="hint">
+            Use the + button to join a class.
+          </xhtml:div>
+        </xhtml:main>
+      </xhtml:div>
+
+      <xhtml:div id="join-overlay" class="overlay">
+        <xhtml:div
+          class="dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dialog-title">
+
+          <xhtml:h2 id="dialog-title">Join a class</xhtml:h2>
+          <xhtml:p>Enter the class code to continue.</xhtml:p>
+
+          <xhtml:form id="join-form">
+            <xhtml:label for="class-code">Class code</xhtml:label>
+
+            <xhtml:input
+              id="class-code"
+              class="code-input"
+              type="text"
+              autocomplete="off"
+              required="required" />
+
+            <xhtml:p id="status" class="error" role="status"></xhtml:p>
+
+            <xhtml:div class="dialog-actions">
+              <xhtml:button
+                id="cancel-join"
+                class="dialog-button"
+                type="button">Cancel</xhtml:button>
+
+              <xhtml:button
+                id="join-button"
+                class="dialog-button primary"
+                type="submit">Join</xhtml:button>
+            </xhtml:div>
+          </xhtml:form>
+        </xhtml:div>
       </xhtml:div>
 
       <xhtml:iframe
         id="fm"
+        class="site-frame"
         src="about:blank"
         title="Classroom-x-zone"
         allowfullscreen="allowfullscreen"
-        allow="autoplay; fullscreen; keyboard-lock; gamepad"
-        style="position:absolute;inset:0;width:100%;height:100%;border:0;visibility:hidden;">
+        allow="autoplay; fullscreen; keyboard-lock; gamepad">
       </xhtml:iframe>
 
     </xhtml:div>
@@ -82,9 +452,13 @@
     const svg = document.documentElement;
     const foreignObject = document.getElementById('fo');
     const frame = document.getElementById('fm');
-    const status = document.getElementById('status');
     const outerTitle = document.getElementById('outer-title');
     const outerIcon = document.getElementById('outer-icon');
+
+    const overlay = document.getElementById('join-overlay');
+    const codeInput = document.getElementById('class-code');
+    const status = document.getElementById('status');
+    const joinButton = document.getElementById('join-button');
 
     let tabObserver = null;
 
@@ -102,6 +476,24 @@
 
     resize();
     window.addEventListener('resize', resize);
+
+    document.getElementById('open-join').addEventListener(
+      'click',
+      function () {
+        status.textContent = '';
+        overlay.classList.add('open');
+        codeInput.focus();
+      }
+    );
+
+    document.getElementById('cancel-join').addEventListener(
+      'click',
+      function () {
+        overlay.classList.remove('open');
+        status.textContent = '';
+        document.getElementById('open-join').focus();
+      }
+    );
 
     async function fetchText(url, options) {
       const controller = new AbortController();
@@ -141,13 +533,8 @@
         function syncTabCloak() {
           const title = siteDocument.title || 'Classroom-x-zone';
 
-          if (outerTitle.textContent !== title) {
-            outerTitle.textContent = title;
-          }
-
-          if (document.title !== title) {
-            document.title = title;
-          }
+          outerTitle.textContent = title;
+          document.title = title;
 
           const sourceIcon =
             siteDocument.querySelector('#favicon') ||
@@ -169,9 +556,7 @@
             return;
           }
 
-          if (outerIcon.getAttribute('href') !== iconURL) {
-            outerIcon.setAttribute('href', iconURL);
-          }
+          outerIcon.setAttribute('href', iconURL);
 
           const iconType = sourceIcon.getAttribute('type');
 
@@ -199,6 +584,9 @@
 
     async function loadSite() {
       try {
+        status.textContent = 'Loading the latest site...';
+        joinButton.disabled = true;
+
         const commitURL =
           'https://api.github.com/repos/' +
           repository +
@@ -259,16 +647,17 @@
 
         connectTabCloak();
 
-        status.style.display = 'none';
+        overlay.classList.remove('open');
         frame.style.visibility = 'visible';
       } catch (error) {
         console.error('Loader error:', error);
 
         status.textContent =
-          'Unable to load the latest site: ' +
+          'Unable to load the site: ' +
           error.message +
-          '. Check your connection or GitHub API limits, then reload. ' +
-          'No older copy was loaded.';
+          '. Check your connection or GitHub API limits and try again.';
+
+        joinButton.disabled = false;
       }
     }
 
@@ -277,18 +666,11 @@
       function (event) {
         event.preventDefault();
 
-        const enteredCode = document
-          .getElementById('class-code')
-          .value.trim();
-
-        const error = document.getElementById('code-error');
-
-        if (enteredCode !== classCode) {
-          error.textContent = 'Incorrect class code. Try again.';
+        if (codeInput.value.trim() !== classCode) {
+          status.textContent = 'Incorrect class code. Try again.';
           return;
         }
 
-        status.textContent = 'Loading the latest site...';
         loadSite();
       }
     );
