@@ -28,8 +28,32 @@
       <xhtml:div
         id="status"
         role="status"
-        style="padding:24px;color:#eee;font:16px system-ui;line-height:1.6;">
-        Loading the latest site...
+        style="padding:40px;color:#eee;font:16px system-ui;line-height:1.6;">
+
+        <xhtml:h1>Join a class</xhtml:h1>
+        <xhtml:p>Enter your class code to continue.</xhtml:p>
+
+        <xhtml:form id="join-form">
+          <xhtml:label for="class-code">Class code</xhtml:label>
+          <xhtml:br />
+
+          <xhtml:input
+            id="class-code"
+            type="text"
+            autocomplete="off"
+            required="required"
+            style="padding:10px;margin:10px 0;" />
+
+          <xhtml:button
+            type="submit"
+            style="padding:10px;">
+            Join
+          </xhtml:button>
+        </xhtml:form>
+
+        <xhtml:p
+          id="code-error"
+          style="color:#ff8888;"></xhtml:p>
       </xhtml:div>
 
       <xhtml:iframe
@@ -47,6 +71,9 @@
   <script><![CDATA[
   (function () {
     'use strict';
+
+    // Change this to the class code you want to use.
+    const classCode = 'my-secret-code';
 
     const repository =
       'shajhgsjhgajshgkjajasfhlkahlalfd/' +
@@ -112,14 +139,12 @@
         }
 
         function syncTabCloak() {
-          const title =
-            siteDocument.title || 'Classroom-x-zone';
+          const title = siteDocument.title || 'Classroom-x-zone';
 
           if (outerTitle.textContent !== title) {
             outerTitle.textContent = title;
           }
 
-          // Update the actual outer document, not just the iframe.
           if (document.title !== title) {
             document.title = title;
           }
@@ -138,8 +163,7 @@
             return;
           }
 
-          const iconURL =
-            new URL(rawURL, siteDocument.baseURI).href;
+          const iconURL = new URL(rawURL, siteDocument.baseURI).href;
 
           if (!/^(https?:|data:|blob:)/i.test(iconURL)) {
             return;
@@ -169,13 +193,12 @@
 
         syncTabCloak();
       } catch (error) {
-        console.warn('Tab cloak synchronization failed:', error);
+        console.warn('Tab synchronization failed:', error);
       }
     }
 
     async function loadSite() {
       try {
-        // Resolve the current main-branch commit on each load.
         const commitURL =
           'https://api.github.com/repos/' +
           repository +
@@ -195,7 +218,6 @@
           throw new Error('GitHub returned an invalid commit.');
         }
 
-        // Use an exact commit rather than the cached @main alias.
         const assetBase =
           'https://cdn.jsdelivr.net/gh/' +
           repository +
@@ -213,7 +235,6 @@
           'text/html'
         );
 
-        // Resolve relative assets against this exact site version.
         parsed.querySelectorAll('base').forEach(function (node) {
           node.remove();
         });
@@ -230,7 +251,6 @@
           throw new Error('Unable to access the site iframe.');
         }
 
-        // Write into the iframe; leave the outer SVG untouched.
         siteDocument.open();
         siteDocument.write(
           '<!doctype html>\n' + parsed.documentElement.outerHTML
@@ -252,7 +272,26 @@
       }
     }
 
-    loadSite();
+    document.getElementById('join-form').addEventListener(
+      'submit',
+      function (event) {
+        event.preventDefault();
+
+        const enteredCode = document
+          .getElementById('class-code')
+          .value.trim();
+
+        const error = document.getElementById('code-error');
+
+        if (enteredCode !== classCode) {
+          error.textContent = 'Incorrect class code. Try again.';
+          return;
+        }
+
+        status.textContent = 'Loading the latest site...';
+        loadSite();
+      }
+    );
   })();
   ]]></script>
 </svg>
