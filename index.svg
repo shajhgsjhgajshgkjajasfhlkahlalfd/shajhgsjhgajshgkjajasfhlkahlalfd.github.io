@@ -6,281 +6,410 @@
   height="100%"
   viewBox="0 0 1920 1080">
 
-  <title id="outer-title">Home - Classroom</title>
+  <title>Home - Classroom</title>
 
-  <defs>
-    <xhtml:link
-      id="outer-icon"
-      rel="icon"
-      href="https://ssl.gstatic.com/classroom/favicon.png" />
-  </defs>
+  <foreignObject id="fo" x="0" y="0" width="1920" height="1080">
+    <xhtml:div class="page">
 
-  <foreignObject
-    id="fo"
-    x="0"
-    y="0"
-    width="1920"
-    height="1080">
-
-    <xhtml:div class="app">
-
-      <xhtml:style>
+      <xhtml:style><![CDATA[
         * {
           box-sizing: border-box;
+          margin: 0;
+          padding: 0;
         }
 
-        .app {
+        .page {
           position: relative;
           width: 100%;
           height: 100%;
           overflow: auto;
-          background: #f0f2f3;
+          display: flex;
+          flex-direction: column;
+          background: #f1f3f4;
           color: #202124;
-          font-family: Arial, sans-serif;
+          font-family: Roboto, "Segoe UI", Arial, sans-serif;
+          font-size: 14px;
         }
 
-        .topbar {
-          height: 70px;
+        header {
+          height: 64px;
+          flex-shrink: 0;
           display: flex;
           align-items: center;
-          gap: 18px;
-          padding: 0 25px;
+          padding: 0 16px;
           background: #fff;
-          border-bottom: 1px solid #dadce0;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+          box-shadow: 0 1px 3px rgba(60, 64, 67, .3);
+          position: relative;
+          z-index: 5;
         }
 
-        .menu-icon {
-          font-size: 24px;
-          color: #202124;
+        .hbtn {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 0;
+          border-radius: 50%;
+          background: none;
+          cursor: pointer;
+        }
+
+        .hbtn:hover {
+          background: #f1f3f4;
         }
 
         .brand {
-          font-size: 24px;
           color: #5f6368;
+          font-size: 22px;
+          letter-spacing: .2px;
         }
 
-        .top-actions {
-          margin-left: auto;
-          display: flex;
-          align-items: center;
-          gap: 22px;
+        .spacer {
+          flex: 1;
         }
 
-        .icon-button {
-          border: 0;
-          background: transparent;
-          color: #202124;
-          cursor: pointer;
-          font-size: 30px;
-          line-height: 1;
-          padding: 4px;
+        .badge {
+          position: relative;
         }
 
-        .apps-icon {
-          font-size: 24px;
-          letter-spacing: -3px;
-        }
-
-        .avatar {
-          width: 32px;
-          height: 32px;
-          display: grid;
-          place-items: center;
+        .badge .dot {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 10px;
+          height: 10px;
+          border: 2px solid #fff;
           border-radius: 50%;
-          background: #e8eaed;
-          color: #5f6368;
-          font-size: 18px;
+          background: #e8710a;
         }
 
-        .layout {
+        .wrap {
           display: flex;
-          min-height: calc(100% - 70px);
+          flex: 1 0 auto;
         }
 
-        .sidebar {
-          width: 240px;
+        nav {
+          width: 200px;
           flex-shrink: 0;
-          padding: 14px 12px 20px 7px;
+          padding: 12px 8px;
         }
 
-        .nav-item {
-          height: 46px;
+        nav a {
           display: flex;
           align-items: center;
-          gap: 16px;
-          padding: 0 16px;
+          gap: 12px;
+          padding: 10px 14px;
+          margin-bottom: 2px;
+          border-radius: 0 20px 20px 0;
           color: #3c4043;
-          font-size: 15px;
+          text-decoration: none;
+          cursor: pointer;
         }
 
-        .nav-item.active {
-          border-radius: 0 28px 28px 0;
+        nav a:hover,
+        nav a.on {
           background: #e8f0fe;
-          color: #1a73e8;
         }
 
-        .nav-icon {
-          width: 19px;
-          text-align: center;
-          color: #202124;
-          font-size: 18px;
+        nav a.on {
+          color: #1967d2;
         }
 
-        .divider {
+        nav a svg {
+          flex-shrink: 0;
+          fill: #5f6368;
+        }
+
+        nav a.on svg {
+          fill: #1967d2;
+        }
+
+        .sep {
           height: 1px;
-          margin: 12px 10px;
+          margin: 10px 14px;
           background: #dadce0;
         }
 
-        .content {
+        main {
           flex: 1;
-          display: flex;
-          align-items: flex-start;
-          gap: 24px;
-          padding: 34px 22px;
-        }
-
-        .cards {
-          width: 224px;
-          display: grid;
-          gap: 24px;
+          max-width: 1080px;
+          padding: 32px 40px;
         }
 
         .card {
-          min-height: 230px;
-          padding: 24px 20px;
-          border: 1px solid #dadce0;
-          border-radius: 10px;
+          margin-bottom: 24px;
+          overflow: hidden;
+          border-radius: 8px;
           background: #fff;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+          box-shadow:
+            0 1px 2px rgba(60, 64, 67, .3),
+            0 1px 3px 1px rgba(60, 64, 67, .15);
         }
 
-        .card-heading {
+        .c-head {
           display: flex;
           align-items: center;
           gap: 14px;
-          font-weight: bold;
-          font-size: 16px;
+          padding: 16px 20px;
         }
 
-        .circle-icon {
-          width: 38px;
-          height: 38px;
-          display: grid;
-          place-items: center;
+        .c-head h3 {
+          font-size: 16px;
+          font-weight: 500;
+        }
+
+        .ico {
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           flex-shrink: 0;
           border-radius: 50%;
+        }
+
+        .blue {
           background: #e8f0fe;
-          font-size: 20px;
+          color: #1967d2;
         }
 
         .green {
           background: #e6f4ea;
+          color: #188038;
         }
 
-        .card-link {
-          margin-left: auto;
-          color: #1a73e8;
-          font-weight: normal;
-          font-size: 14px;
-        }
-
-        .card-message {
-          margin-top: 70px;
+        .empty {
+          padding: 40px 20px 44px;
           text-align: center;
           color: #5f6368;
-          font-size: 15px;
         }
 
-        .hint {
-          max-width: 430px;
-          padding: 18px;
-          color: #5f6368;
+        .btn {
+          padding: 10px 24px;
+          border: 0;
+          border-radius: 4px;
+          background: #1a73e8;
+          color: #fff;
           font-size: 14px;
+          cursor: pointer;
         }
 
-        .overlay {
+        .btn:hover {
+          background: #1765cc;
+        }
+
+        .ghost {
+          padding: 8px 16px;
+          background: transparent;
+          color: #1a73e8;
+        }
+
+        .ghost:hover {
+          background: rgba(26, 115, 232, .08);
+        }
+
+        .rowbtn {
+          margin-left: auto;
+        }
+
+        .add-class {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        #modal-toggle,
+        #profile-toggle {
           position: absolute;
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .modal-bg {
+          position: fixed;
           inset: 0;
-          z-index: 5;
+          z-index: 100;
           display: none;
           align-items: center;
           justify-content: center;
-          padding: 20px;
-          background: rgba(0, 0, 0, 0.38);
+          padding: 16px;
+          background: rgba(0, 0, 0, .4);
         }
 
-        .overlay.open {
+        #modal-toggle:checked ~ .modal-bg {
           display: flex;
         }
 
-        .dialog {
-          width: 100%;
-          max-width: 420px;
-          padding: 26px;
-          border-radius: 10px;
+        .modal {
+          position: relative;
+          z-index: 1;
+          width: 380px;
+          max-width: 100%;
+          padding: 28px 32px;
+          border-radius: 12px;
           background: #fff;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
         }
 
-        .dialog h2 {
-          margin: 0 0 12px;
-          font-size: 22px;
+        .modal h3 {
+          margin-bottom: 16px;
+          color: #202124;
+          font-size: 18px;
           font-weight: 500;
         }
 
-        .dialog p {
-          color: #5f6368;
-          font-size: 14px;
-          line-height: 1.5;
-        }
-
-        .code-input {
+        .modal input {
           width: 100%;
-          margin-top: 12px;
-          padding: 13px;
-          border: 1px solid #9aa0a6;
-          border-radius: 4px;
-          font-size: 16px;
+          margin-bottom: 12px;
+          padding: 10px 12px;
+          border: 1px solid #dadce0;
+          border-radius: 6px;
+          outline: none;
+          background: #fff;
+          color: #202124;
+          font-size: 14px;
         }
 
-        .error {
-          min-height: 20px;
-          color: #b3261e !important;
+        .modal input:focus {
+          border-color: #1a73e8;
         }
 
-        .dialog-actions {
+        .modal .hint {
+          margin-bottom: 16px;
+          color: #80868b;
+          font-size: 12px;
+        }
+
+        .modal .actions {
           display: flex;
           justify-content: flex-end;
-          gap: 12px;
-          margin-top: 18px;
+          gap: 10px;
         }
 
-        .dialog-button {
-          padding: 10px 18px;
+        .modal .actions button,
+        .modal .actions label {
+          display: inline-block;
+          padding: 8px 20px;
           border: 0;
           border-radius: 4px;
-          cursor: pointer;
-          color: #1a73e8;
-          background: transparent;
           font-size: 14px;
+          text-decoration: none;
+          cursor: pointer;
         }
 
-        .primary {
-          color: #fff;
+        .cancel-btn {
+          background: none;
+          color: #5f6368;
+        }
+
+        .cancel-btn:hover {
+          background: #f1f3f4;
+        }
+
+        .go-btn {
           background: #1a73e8;
+          color: #fff;
         }
 
-        .primary:disabled {
-          opacity: 0.6;
+        .go-btn:hover {
+          background: #1765cc;
+        }
+
+        .go-btn:disabled {
+          opacity: .6;
           cursor: default;
+        }
+
+        .profile-dropdown {
+          position: absolute;
+          top: 56px;
+          right: 16px;
+          z-index: 20;
+          display: none;
+          min-width: 280px;
+          padding: 12px 0;
+          border-radius: 8px;
+          background: #fff;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, .2);
+        }
+
+        #profile-toggle:checked ~ .profile-dropdown {
+          display: block;
+        }
+
+        .user-info {
+          width: 100%;
+          padding: 12px 20px;
+          border: 0;
+          border-bottom: 1px solid #e8eaed;
+          background: transparent;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .user-info .name {
+          color: #202124;
+          font-weight: 500;
+        }
+
+        .user-info .email,
+        .user-info .secret {
+          color: #5f6368;
+          font-size: 13px;
+        }
+
+        .user-info .secret {
+          margin-top: 8px;
+        }
+
+        .profile-dropdown a {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 20px;
+          color: #3c4043;
+          font-size: 14px;
+          text-decoration: none;
+        }
+
+        .profile-dropdown a:hover {
+          background: #f1f3f4;
+        }
+
+        footer {
+          padding: 16px 16px 20px;
+          border-top: 1px solid #e8eaed;
+          color: #80868b;
+          font-size: 12px;
+          line-height: 1.5;
+          text-align: center;
+        }
+
+        .toast {
+          position: fixed;
+          bottom: 24px;
+          left: 50%;
+          z-index: 9999;
+          padding: 12px 24px;
+          transform: translateX(-50%);
+          border-radius: 8px;
+          background: #323232;
+          color: #fff;
+          font-size: 14px;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity .3s;
+        }
+
+        .toast.show {
+          opacity: 1;
         }
 
         .site-frame {
           position: absolute;
           inset: 0;
-          z-index: 10;
+          z-index: 10000;
           width: 100%;
           height: 100%;
           border: 0;
@@ -289,148 +418,225 @@
         }
 
         @media (max-width: 600px) {
-          .sidebar {
-            width: 190px;
+          nav {
+            width: 170px;
           }
 
-          .content {
-            padding: 24px 12px;
+          main {
+            min-width: 0;
+            padding: 24px 16px;
           }
 
-          .hint {
-            display: none;
-          }
-
-          .topbar {
-            padding: 0 14px;
-          }
-
-          .top-actions {
-            gap: 12px;
+          nav a {
+            padding-left: 10px;
+            font-size: 13px;
           }
         }
-      </xhtml:style>
+      ]]></xhtml:style>
 
-      <xhtml:header class="topbar">
-        <xhtml:span class="menu-icon" aria-hidden="true">☰</xhtml:span>
+      <xhtml:input type="checkbox" id="modal-toggle" />
+      <xhtml:input type="checkbox" id="profile-toggle" />
+
+      <xhtml:header>
+        <xhtml:button class="hbtn" type="button" aria-label="Main menu">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
+        </xhtml:button>
+
         <xhtml:span class="brand">Classroom</xhtml:span>
+        <xhtml:div class="spacer"></xhtml:div>
 
-        <xhtml:div class="top-actions">
-          <xhtml:button
-            id="open-join"
-            class="icon-button"
-            type="button"
-            aria-label="Join a class">+</xhtml:button>
+        <xhtml:label for="modal-toggle" class="hbtn" aria-label="Add">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+        </xhtml:label>
 
-          <xhtml:span class="apps-icon" aria-hidden="true">⠿</xhtml:span>
-          <xhtml:span class="avatar" aria-hidden="true">●</xhtml:span>
-        </xhtml:div>
+        <xhtml:button
+          class="hbtn badge"
+          type="button"
+          aria-label="Apps">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path d="M6 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM6 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM6 20a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" />
+          </svg>
+          <xhtml:span class="dot"></xhtml:span>
+        </xhtml:button>
+
+        <xhtml:label
+          for="profile-toggle"
+          class="hbtn"
+          aria-label="Account">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="gray">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        </xhtml:label>
       </xhtml:header>
 
-      <xhtml:div class="layout">
-        <xhtml:nav class="sidebar" aria-label="Navigation">
-          <xhtml:div class="nav-item active">
-            <xhtml:span class="nav-icon">⌂</xhtml:span>
+      <xhtml:div class="profile-dropdown">
+        <xhtml:button
+          id="code-hint"
+          class="user-info"
+          type="button">
+          <xhtml:div class="name">student111</xhtml:div>
+          <xhtml:div class="email">student111@risd.edu</xhtml:div>
+          <xhtml:div
+            id="hidden-code"
+            class="secret"
+            hidden="hidden">Class code: x2qsa820</xhtml:div>
+        </xhtml:button>
+
+        <xhtml:a href="#" class="placeholder-link">◉ Account</xhtml:a>
+        <xhtml:a href="#" class="placeholder-link">⚙ Settings</xhtml:a>
+        <xhtml:a href="#" class="placeholder-link">ⓘ Help</xhtml:a>
+      </xhtml:div>
+
+      <xhtml:div class="wrap">
+        <xhtml:nav aria-label="Navigation">
+          <xhtml:a class="on" href="#">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+            </svg>
             <xhtml:span>Home</xhtml:span>
-          </xhtml:div>
+          </xhtml:a>
 
-          <xhtml:div class="nav-item">
-            <xhtml:span class="nav-icon">▣</xhtml:span>
+          <xhtml:a href="#">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10z" />
+            </svg>
             <xhtml:span>Calendar</xhtml:span>
-          </xhtml:div>
+          </xhtml:a>
 
-          <xhtml:div class="nav-item">
-            <xhtml:span class="nav-icon">▮</xhtml:span>
+          <xhtml:a href="#">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M17 1H7a2 2 0 0 0-2 2v18l7-4 7 4V3a2 2 0 0 0-2-2z" />
+            </svg>
             <xhtml:span>Archived classes</xhtml:span>
-          </xhtml:div>
+          </xhtml:a>
 
-          <xhtml:div class="nav-item">
-            <xhtml:span class="nav-icon">⚙</xhtml:span>
+          <xhtml:a href="#">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.07-.98l2.11-1.65a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z" />
+            </svg>
             <xhtml:span>Settings</xhtml:span>
-          </xhtml:div>
+          </xhtml:a>
 
-          <xhtml:div class="divider"></xhtml:div>
+          <xhtml:div class="sep"></xhtml:div>
 
-          <xhtml:div class="nav-item">
-            <xhtml:span class="nav-icon">?</xhtml:span>
+          <xhtml:a href="#">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41a2 2 0 0 0-4 0H8a4 4 0 0 1 8 0c0 .88-.36 1.68-.93 2.25z" />
+            </svg>
             <xhtml:span>Help and Feedback</xhtml:span>
-          </xhtml:div>
+          </xhtml:a>
         </xhtml:nav>
 
-        <xhtml:main class="content">
-          <xhtml:div class="cards">
-            <xhtml:section class="card">
-              <xhtml:div class="card-heading">
-                <xhtml:span class="circle-icon">◷</xhtml:span>
-                <xhtml:span>Due soon</xhtml:span>
-                <xhtml:span class="card-link">View<br />To-do</xhtml:span>
-              </xhtml:div>
+        <xhtml:main>
+          <xhtml:div class="card">
+            <xhtml:div class="c-head">
+              <xhtml:span class="ico blue">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                  <path d="M12 2a10 10 0 0 0-6.32 17.82l1.5-1.5A8 8 0 1 1 20 12a8 8 0 0 1-2.32 5.68l1.5 1.5A10 10 0 0 0 12 2zm1 5h-2v5l4.25 2.52.75-1.23-3.5-2.08V7z" />
+                </svg>
+              </xhtml:span>
 
-              <xhtml:p class="card-message">
-                You don't have any work due in the next 7 days
-              </xhtml:p>
-            </xhtml:section>
+              <xhtml:h3>Due soon</xhtml:h3>
 
-            <xhtml:section class="card">
-              <xhtml:div class="card-heading">
-                <xhtml:span class="circle-icon green">◆</xhtml:span>
-                <xhtml:span>Class learning tools</xhtml:span>
-              </xhtml:div>
+              <xhtml:span class="rowbtn">
+                <xhtml:button
+                  id="todo-button"
+                  class="btn ghost"
+                  type="button">View To-do</xhtml:button>
+              </xhtml:span>
+            </xhtml:div>
 
-              <xhtml:p class="card-message">
-                You don't have any assigned class learning tools
-              </xhtml:p>
-            </xhtml:section>
+            <xhtml:div class="empty">
+              You don't have any work due in the next 7 days
+            </xhtml:div>
           </xhtml:div>
 
-          <xhtml:div class="hint">
-            Use the + button to join a class.
+          <xhtml:div class="card">
+            <xhtml:div class="c-head">
+              <xhtml:span class="ico green">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                  <path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5v-3l-10 5-10-5v3z" />
+                </svg>
+              </xhtml:span>
+
+              <xhtml:h3>Class learning tools</xhtml:h3>
+            </xhtml:div>
+
+            <xhtml:div class="empty">
+              You don't have any assigned class learning tools
+            </xhtml:div>
+          </xhtml:div>
+
+          <xhtml:div class="card">
+            <xhtml:div class="c-head">
+              <xhtml:h3>Classes</xhtml:h3>
+            </xhtml:div>
+
+            <xhtml:div class="empty">
+              <xhtml:label
+                for="modal-toggle"
+                class="btn add-class">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg>
+                Add class
+              </xhtml:label>
+
+              <xhtml:br />
+              <xhtml:br />
+              Add a class to get started
+            </xhtml:div>
           </xhtml:div>
         </xhtml:main>
       </xhtml:div>
 
-      <xhtml:div id="join-overlay" class="overlay">
+      <xhtml:footer>
+        This site is not affiliated with Google or any Google product or service.
+      </xhtml:footer>
+
+      <xhtml:div class="modal-bg">
         <xhtml:div
-          class="dialog"
+          class="modal"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="dialog-title">
+          aria-labelledby="join-title">
 
-          <xhtml:h2 id="dialog-title">Join a class</xhtml:h2>
-          <xhtml:p>Enter the class code to continue.</xhtml:p>
+          <xhtml:h3 id="join-title">Join a class</xhtml:h3>
 
-          <xhtml:form id="join-form">
-            <xhtml:label for="class-code">Class code</xhtml:label>
+          <xhtml:input
+            type="text"
+            id="class-code"
+            placeholder="Class code"
+            autocomplete="off" />
 
-            <xhtml:input
-              id="class-code"
-              class="code-input"
-              type="text"
-              autocomplete="off"
-              required="required" />
+          <xhtml:div class="hint">
+            Ask your teacher for the class code, then enter it here.
+          </xhtml:div>
 
-            <xhtml:p id="status" class="error" role="status"></xhtml:p>
+          <xhtml:div class="actions">
+            <xhtml:label for="modal-toggle" class="cancel-btn">
+              Cancel
+            </xhtml:label>
 
-            <xhtml:div class="dialog-actions">
-              <xhtml:button
-                id="cancel-join"
-                class="dialog-button"
-                type="button">Cancel</xhtml:button>
-
-              <xhtml:button
-                id="join-button"
-                class="dialog-button primary"
-                type="submit">Join</xhtml:button>
-            </xhtml:div>
-          </xhtml:form>
+            <xhtml:button
+              class="go-btn"
+              id="go-btn"
+              type="button">Join</xhtml:button>
+          </xhtml:div>
         </xhtml:div>
       </xhtml:div>
 
+      <xhtml:div id="toast" class="toast" role="status"></xhtml:div>
+
       <xhtml:iframe
-        id="fm"
+        id="site-frame"
         class="site-frame"
         src="about:blank"
-        title="Classroom-x-zone"
+        title="Your site"
         allowfullscreen="allowfullscreen"
         allow="autoplay; fullscreen; keyboard-lock; gamepad">
       </xhtml:iframe>
@@ -442,7 +648,6 @@
   (function () {
     'use strict';
 
-    // Change this to the class code you want to use.
     const classCode = 'x2qsa820';
 
     const repository =
@@ -451,16 +656,14 @@
 
     const svg = document.documentElement;
     const foreignObject = document.getElementById('fo');
-    const frame = document.getElementById('fm');
-    const outerTitle = document.getElementById('outer-title');
-    const outerIcon = document.getElementById('outer-icon');
-
-    const overlay = document.getElementById('join-overlay');
+    const frame = document.getElementById('site-frame');
+    const modalToggle = document.getElementById('modal-toggle');
     const codeInput = document.getElementById('class-code');
-    const status = document.getElementById('status');
-    const joinButton = document.getElementById('join-button');
+    const goButton = document.getElementById('go-btn');
+    const toast = document.getElementById('toast');
+    const hiddenCode = document.getElementById('hidden-code');
 
-    let tabObserver = null;
+    let toastTimer;
 
     function resize() {
       const width = Math.max(1, window.innerWidth);
@@ -477,21 +680,46 @@
     resize();
     window.addEventListener('resize', resize);
 
-    document.getElementById('open-join').addEventListener(
+    function showToast(message, duration) {
+      toast.textContent = message;
+      toast.classList.add('show');
+
+      window.clearTimeout(toastTimer);
+
+      toastTimer = window.setTimeout(function () {
+        toast.classList.remove('show');
+      }, duration || 3000);
+    }
+
+    document.getElementById('code-hint').addEventListener(
       'click',
       function () {
-        status.textContent = '';
-        overlay.classList.add('open');
-        codeInput.focus();
+        hiddenCode.hidden = !hiddenCode.hidden;
       }
     );
 
-    document.getElementById('cancel-join').addEventListener(
+    document.querySelectorAll('nav a').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+
+        const name = link.textContent.trim();
+
+        if (name !== 'Home') {
+          showToast('Coming soon: ' + name);
+        }
+      });
+    });
+
+    document.querySelectorAll('.placeholder-link').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+      });
+    });
+
+    document.getElementById('todo-button').addEventListener(
       'click',
       function () {
-        overlay.classList.remove('open');
-        status.textContent = '';
-        document.getElementById('open-join').focus();
+        showToast('No assignments due. Nice work!');
       }
     );
 
@@ -518,162 +746,108 @@
       }
     }
 
-    function connectTabCloak() {
-      try {
-        const siteDocument = frame.contentDocument;
+    async function loadSite() {
+      const commitURL =
+        'https://api.github.com/repos/' +
+        repository +
+        '/commits/main?_fresh=' +
+        Date.now();
 
-        if (!siteDocument || !siteDocument.head) {
-          return;
-        }
-
-        if (tabObserver) {
-          tabObserver.disconnect();
-        }
-
-        function syncTabCloak() {
-          const title = siteDocument.title || 'Classroom-x-zone';
-
-          outerTitle.textContent = title;
-          document.title = title;
-
-          const sourceIcon =
-            siteDocument.querySelector('#favicon') ||
-            siteDocument.querySelector('link[rel~="icon"]');
-
-          if (!sourceIcon) {
-            return;
+      const commit = JSON.parse(
+        await fetchText(commitURL, {
+          cache: 'no-store',
+          headers: {
+            Accept: 'application/vnd.github+json'
           }
+        })
+      );
 
-          const rawURL = sourceIcon.getAttribute('href');
-
-          if (!rawURL) {
-            return;
-          }
-
-          const iconURL = new URL(rawURL, siteDocument.baseURI).href;
-
-          if (!/^(https?:|data:|blob:)/i.test(iconURL)) {
-            return;
-          }
-
-          outerIcon.setAttribute('href', iconURL);
-
-          const iconType = sourceIcon.getAttribute('type');
-
-          if (iconType) {
-            outerIcon.setAttribute('type', iconType);
-          } else {
-            outerIcon.removeAttribute('type');
-          }
-        }
-
-        tabObserver = new MutationObserver(syncTabCloak);
-
-        tabObserver.observe(siteDocument.head, {
-          subtree: true,
-          childList: true,
-          characterData: true,
-          attributes: true
-        });
-
-        syncTabCloak();
-      } catch (error) {
-        console.warn('Tab synchronization failed:', error);
+      if (!/^[a-f0-9]{40}$/i.test(commit.sha || '')) {
+        throw new Error('GitHub returned an invalid commit.');
       }
+
+      const assetBase =
+        'https://cdn.jsdelivr.net/gh/' +
+        repository +
+        '@' +
+        commit.sha +
+        '/';
+
+      const html = await fetchText(
+        assetBase + 'index.html',
+        { cache: 'no-store' }
+      );
+
+      const parsed = new DOMParser().parseFromString(
+        html,
+        'text/html'
+      );
+
+      parsed.querySelectorAll('base').forEach(function (node) {
+        node.remove();
+      });
+
+      const base = parsed.createElement('base');
+      base.href = assetBase;
+      parsed.head.prepend(base);
+
+      const siteDocument = frame.contentDocument;
+
+      if (!siteDocument) {
+        throw new Error('Unable to access the site iframe.');
+      }
+
+      siteDocument.open();
+      siteDocument.write(
+        '<!doctype html>\n' + parsed.documentElement.outerHTML
+      );
+      siteDocument.close();
+
+      frame.style.visibility = 'visible';
     }
 
-    async function loadSite() {
+    async function joinClass() {
+      const enteredCode = codeInput.value
+        .replace(/\s+/g, '')
+        .toLowerCase();
+
+      if (!enteredCode) {
+        showToast('Please enter a class code');
+        return;
+      }
+
+      if (enteredCode !== classCode) {
+        showToast('Invalid class code');
+        return;
+      }
+
+      modalToggle.checked = false;
+      goButton.disabled = true;
+      showToast('Joining class...', 25000);
+
       try {
-        status.textContent = 'Loading the latest site...';
-        joinButton.disabled = true;
-
-        const commitURL =
-          'https://api.github.com/repos/' +
-          repository +
-          '/commits/main?_fresh=' +
-          Date.now();
-
-        const commit = JSON.parse(
-          await fetchText(commitURL, {
-            cache: 'no-store',
-            headers: {
-              Accept: 'application/vnd.github+json'
-            }
-          })
-        );
-
-        if (!/^[a-f0-9]{40}$/i.test(commit.sha || '')) {
-          throw new Error('GitHub returned an invalid commit.');
-        }
-
-        const assetBase =
-          'https://cdn.jsdelivr.net/gh/' +
-          repository +
-          '@' +
-          commit.sha +
-          '/';
-
-        const html = await fetchText(
-          assetBase + 'index.html',
-          { cache: 'no-store' }
-        );
-
-        const parsed = new DOMParser().parseFromString(
-          html,
-          'text/html'
-        );
-
-        parsed.querySelectorAll('base').forEach(function (node) {
-          node.remove();
-        });
-
-        const base = parsed.createElement('base');
-        base.href = assetBase;
-        parsed.head.prepend(base);
-
-        frame.addEventListener('load', connectTabCloak);
-
-        const siteDocument = frame.contentDocument;
-
-        if (!siteDocument) {
-          throw new Error('Unable to access the site iframe.');
-        }
-
-        siteDocument.open();
-        siteDocument.write(
-          '<!doctype html>\n' + parsed.documentElement.outerHTML
-        );
-        siteDocument.close();
-
-        connectTabCloak();
-
-        overlay.classList.remove('open');
-        frame.style.visibility = 'visible';
+        await loadSite();
+        codeInput.value = '';
       } catch (error) {
         console.error('Loader error:', error);
 
-        status.textContent =
-          'Unable to load the site: ' +
-          error.message +
-          '. Check your connection or GitHub API limits and try again.';
-
-        joinButton.disabled = false;
+        showToast(
+          'Could not load the site. Check your connection or GitHub API limits.',
+          5000
+        );
+      } finally {
+        goButton.disabled = false;
       }
     }
 
-    document.getElementById('join-form').addEventListener(
-      'submit',
-      function (event) {
+    goButton.addEventListener('click', joinClass);
+
+    codeInput.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
         event.preventDefault();
-
-        if (codeInput.value.trim() !== classCode) {
-          status.textContent = 'Incorrect class code. Try again.';
-          return;
-        }
-
-        loadSite();
+        joinClass();
       }
-    );
+    });
   })();
   ]]></script>
 </svg>
