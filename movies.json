@@ -7,13 +7,27 @@
   },
   {
     "title": "Five Nights at Freddy's",
-    "url": "https://drive.google.com/file/d/1OyO1OdhtfwR883Uvi0QPP5iooGcxTVSY/preview",
-    "poster": "./g/games/movies/posters/movie2.png"
+    "url": "https://pub-4eb2c96786cf4651893068321112abd6.r2.dev/fnaf-movie.mp4",
+    "poster": "./g/games/movies/posters/movie2.png",
+    "captions": [
+    {
+      "label": "English",
+      "language": "en",
+      "url": "https://pub-4eb2c96786cf4651893068321112abd6.r2.dev/five-nights-at-freddys.english-en.vtt"
+    }
+  ]
   },
   {
     "title": "Home Alone 2: Lost in New York",
-    "url": "https://drive.google.com/file/d/1sH3RXs-OiYr7ROKCtmB5miWVpX9G2b4Q/preview",
-    "poster": "./g/games/movies/posters/movie3.png"
+    "url": "https://pub-4eb2c96786cf4651893068321112abd6.r2.dev/Home-Alone-2-Lost-in-New-York.mp4",
+    "poster": "./g/games/movies/posters/movie3.png",
+    "captions": [
+    {
+      "label": "English",
+      "language": "en",
+      "url": "https://pub-4eb2c96786cf4651893068321112abd6.r2.dev/home.alone.2.lost.in.new.york.eng-en.vtt"
+    }
+  ]
   },
  {
   "title": "The Super Mario Bros. Movie",
