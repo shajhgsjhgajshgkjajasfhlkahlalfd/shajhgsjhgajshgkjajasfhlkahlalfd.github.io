@@ -1681,7 +1681,6 @@
     position: relative;
     z-index: 4;
 
-    display: none;
     align-items: center;
 
     gap: 14px;
@@ -4780,7 +4779,9 @@ if (
     function showMovieControls() {
 
     const controls =
-        document.getElementById('movie-controls');
+        document.getElementById(
+            'movie-controls'
+        );
 
     if (!controls) return;
 
@@ -4793,17 +4794,18 @@ if (
         !cxzActiveVideo.paused
     ) {
 
-        cxzControlsTimer = setTimeout(() => {
+        cxzControlsTimer =
+            setTimeout(() => {
 
-            controls.classList.remove(
-                'visible'
-            );
+                controls.classList.remove(
+                    'visible'
+                );
 
-        }, 2500);
+            }, 3000);
 
     }
-}
 
+}
     function cxzFormatTime(seconds) {
         if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
         const h = Math.floor(seconds / 3600);
