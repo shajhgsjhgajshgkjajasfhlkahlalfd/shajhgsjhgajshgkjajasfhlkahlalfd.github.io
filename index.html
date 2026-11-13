@@ -1698,6 +1698,9 @@
     pointer-events: none;
     transition: opacity .25s ease;
 }
+.movie-controls:not(.visible) {
+    display: none;
+}
 .movie-controls.visible {  display: flex;
     opacity: 1;
     pointer-events: auto; }
@@ -4940,10 +4943,52 @@ setTimeout(() => {
         cxzActiveVideo = null;
         cxzSeekDragging = false;
         const rawUrl = String(movie.url).trim();
+        const isGoogleDrive =
+    rawUrl.includes('drive.google.com') ||
+    rawUrl.includes('docs.google.com');
         let parsed = null;
         try { parsed = new URL(rawUrl, window.location.href); }
         catch (_) { stage.innerHTML = '<div class="movie-player-error"><strong>Unable to play this title</strong>The movie URL is invalid.</div>'; }
         if (parsed) {
+        if (isGoogleDrive) {
+
+    controls?.classList.remove('visible');
+
+    let embedUrl = rawUrl;
+
+    const match =
+        rawUrl.match(/\/d\/([^/]+)/);
+
+    if (match && match[1]) {
+
+        embedUrl =
+            `https://drive.google.com/file/d/${match[1]}/preview`;
+
+    }
+
+    const frame =
+        document.createElement('iframe');
+
+    frame.src = embedUrl;
+
+    frame.allow =
+        'autoplay; fullscreen';
+
+    frame.allowFullscreen = true;
+
+    frame.style.width = '100%';
+    frame.style.height = '100%';
+    frame.style.border = '0';
+
+    stage.appendChild(frame);
+
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+
+    document.body.style.overflow = 'hidden';
+
+    return;
+}
             const isVideo = /\.(mp4|webm|ogg|m4v)(?:$|[?#])/i.test(parsed.pathname + parsed.search);
             const isYouTube = /(^|\.)youtube\.com$/.test(parsed.hostname) || parsed.hostname === 'youtu.be' || parsed.hostname === 'www.youtube-nocookie.com';
             const isVimeo = parsed.hostname === 'vimeo.com' || parsed.hostname === 'www.vimeo.com' || parsed.hostname === 'player.vimeo.com';
@@ -4992,12 +5037,25 @@ setTimeout(() => {
         }
         overlay.addEventListener(
     'mousemove',
-    showMovieControls
+    () => {
+
+        if (!cxzActiveVideo) return;
+
+        showMovieControls();
+
+    }
 );
 
 overlay.addEventListener(
     'touchstart',
-    showMovieControls
+    'mousemove',
+    () => {
+
+        if (!cxzActiveVideo) return;
+
+        showMovieControls();
+
+    }
 );
         overlay.classList.add('open');
         overlay.setAttribute('aria-hidden', 'false');
