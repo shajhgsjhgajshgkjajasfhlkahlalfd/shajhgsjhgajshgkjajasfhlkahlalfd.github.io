@@ -1668,15 +1668,25 @@
 .cinema-empty { color:var(--ink-soft); padding:18px 4px; font-size:13px; }
 #cxz-movie-player { position:fixed; inset:0; z-index:300000; display:none; flex-direction:column; background:#050608; color:#fff; }
 #cxz-movie-player.open { display:flex; }
-.movie-player-top { position:absolute; z-index:3; top:0; left:0; right:0; display:flex; align-items:center; gap:14px; padding:22px 26px; background:linear-gradient(#000b,transparent); }
+.movie-player-top { position:absolute; z-index:5; top:0; left:0; right:0; display:flex; align-items:center; gap:14px; padding:22px 26px; background:linear-gradient(#000d,transparent); pointer-events:none; }
+.movie-player-top > * { pointer-events:auto; }
 .movie-player-close { width:40px; height:40px; border:1px solid #ffffff30; border-radius:50%; background:#111a; color:#fff; font-size:22px; cursor:pointer; }
-.movie-player-name { font:700 16px var(--font-display); }
-.movie-player-stage { flex:1; min-height:0; display:grid; place-items:center; background:#000; }
+.movie-player-name { font:700 16px var(--font-display); text-shadow:0 2px 8px #000; }
+.movie-player-stage { flex:1; min-height:0; display:grid; place-items:center; background:#000; position:relative; }
 .movie-player-stage video,.movie-player-stage iframe { width:100%; height:100%; max-height:100%; border:0; object-fit:contain; background:#000; }
 .movie-player-stage video { outline:none; }
 .movie-player-error { max-width:520px; padding:28px; text-align:center; color:#d7dbe5; line-height:1.7; }
 .movie-player-error strong { display:block; color:#fff; font-size:20px; margin-bottom:8px; }
-@media(max-width:700px){ .cinema-hero{min-height:300px}.cinema-hero-copy{padding:24px}.cinema-shelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.movie-player-top{padding:14px}.movie-player-name{font-size:13px} }
+.movie-controls { position:relative; z-index:4; display:none; align-items:center; gap:12px; padding:12px clamp(12px,3vw,28px) max(14px,env(safe-area-inset-bottom)); background:linear-gradient(transparent,#050608 30%); }
+.movie-controls.visible { display:flex; }
+.movie-control-btn { display:grid; place-items:center; flex:0 0 auto; min-width:38px; height:38px; padding:0 9px; border:1px solid #ffffff20; border-radius:9px; background:#ffffff10; color:#fff; font-size:15px; cursor:pointer; }
+.movie-control-btn:hover { background:var(--accent-color); color:#101114; }
+.movie-time { flex:0 0 auto; color:#d6d9e0; font:11px/1.2 ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+.movie-seek { flex:1; min-width:35px; accent-color:var(--accent-color); cursor:pointer; }
+.movie-volume { width:clamp(55px,8vw,100px); accent-color:var(--accent-color); cursor:pointer; }
+.movie-captions { max-width:130px; height:38px; border:1px solid #ffffff20; border-radius:9px; padding:0 8px; background:#15171d; color:#fff; font-size:11px; }
+.movie-controls button:focus-visible,.movie-controls select:focus-visible,.movie-controls input:focus-visible,.movie-player-close:focus-visible { outline:2px solid var(--accent-color); outline-offset:3px; }
+@media(max-width:700px){ .cinema-hero{min-height:300px}.cinema-hero-copy{padding:24px}.cinema-shelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.movie-player-top{padding:14px}.movie-player-name{font-size:13px}.movie-controls{gap:6px;padding-left:9px;padding-right:9px}.movie-control-btn{min-width:34px;height:35px;padding:0 6px}.movie-time{font-size:10px}.movie-volume{width:48px}.movie-captions{max-width:92px;font-size:10px} }
 
 </style>
 </head>
@@ -1873,6 +1883,16 @@
                 <div class="movie-player-name" id="movie-player-name">Now playing</div>
             </div>
             <div class="movie-player-stage" id="movie-player-stage"></div>
+            <div class="movie-controls" id="movie-controls" aria-label="Video controls">
+                <button class="movie-control-btn" id="movie-play-toggle" type="button" aria-label="Play">▶</button>
+                <span class="movie-time" id="movie-current-time">0:00</span>
+                <input class="movie-seek" id="movie-seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek movie">
+                <span class="movie-time" id="movie-duration">0:00</span>
+                <button class="movie-control-btn" id="movie-mute-toggle" type="button" aria-label="Mute">🔊</button>
+                <input class="movie-volume" id="movie-volume" type="range" min="0" max="1" value="1" step="0.01" aria-label="Volume">
+                <select class="movie-captions" id="movie-captions" aria-label="Captions"><option value="off">Captions off</option></select>
+                <button class="movie-control-btn" id="movie-fullscreen" type="button" aria-label="Enter fullscreen">⛶</button>
+            </div>
         </section>
 
         <!-- TAB: PARTNERS -->
@@ -4694,16 +4714,99 @@ if (
     let cxzMovies = [];
     const cinemaEscape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
+    let cxzActiveVideo = null;
+    let cxzSeekDragging = false;
+
+    function cxzFormatTime(seconds) {
+        if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const sec = Math.floor(seconds % 60).toString().padStart(2, '0');
+        return h ? `${h}:${m.toString().padStart(2, '0')}:${sec}` : `${m}:${sec}`;
+    }
+
+    function cxzSyncVideoControls() {
+        const video = cxzActiveVideo;
+        if (!video) return;
+        const current = document.getElementById('movie-current-time');
+        const duration = document.getElementById('movie-duration');
+        const seek = document.getElementById('movie-seek');
+        const play = document.getElementById('movie-play-toggle');
+        const mute = document.getElementById('movie-mute-toggle');
+        if (current) current.textContent = cxzFormatTime(video.currentTime);
+        if (duration) duration.textContent = cxzFormatTime(video.duration);
+        if (seek && !cxzSeekDragging) seek.value = video.duration ? String(Math.round(video.currentTime / video.duration * 1000)) : '0';
+        if (play) { play.textContent = video.paused ? '▶' : 'Ⅱ'; play.setAttribute('aria-label', video.paused ? 'Play' : 'Pause'); }
+        if (mute) { mute.textContent = video.muted || video.volume === 0 ? '🔇' : '🔊'; mute.setAttribute('aria-label', video.muted ? 'Unmute' : 'Mute'); }
+    }
+
+    function cxzSetupMovieControls(video, movie) {
+        const controls = document.getElementById('movie-controls');
+        const seek = document.getElementById('movie-seek');
+        const volume = document.getElementById('movie-volume');
+        const captions = document.getElementById('movie-captions');
+        controls?.classList.add('visible');
+        cxzActiveVideo = video;
+        if (captions) {
+            captions.innerHTML = '<option value="off">Captions off</option>';
+            let tracks = movie.captions || movie.subtitles || [];
+            if (typeof tracks === 'string') tracks = [{ url: tracks, label: 'English', language: 'en' }];
+            if (!Array.isArray(tracks)) tracks = [];
+            tracks.forEach((track, index) => {
+                if (typeof track === 'string') track = { url: track, label: `Track ${index + 1}`, language: 'en' };
+                if (!track || !track.url) return;
+                const el = document.createElement('track');
+                el.kind = track.kind || 'subtitles';
+                el.src = track.url;
+                el.srclang = track.language || track.srclang || 'en';
+                el.label = track.label || track.language || `Track ${index + 1}`;
+                if (track.default || (tracks.length === 1 && movie.defaultCaptions)) el.default = true;
+                video.appendChild(el);
+                const option = document.createElement('option');
+                option.value = String(video.textTracks.length - 1);
+                option.textContent = el.label;
+                captions.appendChild(option);
+            });
+            captions.onchange = () => {
+                Array.from(video.textTracks).forEach((track, index) => { track.mode = captions.value === String(index) ? 'showing' : 'disabled'; });
+            };
+            if (video.textTracks.length) {
+                const defaultIndex = Array.from(video.textTracks).findIndex(track => track.mode === 'showing');
+                if (defaultIndex >= 0) captions.value = String(defaultIndex);
+            }
+        }
+        if (volume) volume.value = String(video.volume);
+        ['timeupdate','durationchange','loadedmetadata','play','pause','volumechange','seeking','seeked'].forEach(name => video.addEventListener(name, cxzSyncVideoControls));
+        video.addEventListener('ended', cxzSyncVideoControls);
+        if (seek) {
+            seek.oninput = () => {
+                cxzSeekDragging = true;
+                if (video.duration) document.getElementById('movie-current-time').textContent = cxzFormatTime(video.duration * Number(seek.value) / 1000);
+            };
+            seek.onchange = () => {
+                if (video.duration) video.currentTime = video.duration * Number(seek.value) / 1000;
+                cxzSeekDragging = false;
+                cxzSyncVideoControls();
+            };
+        }
+        if (volume) volume.oninput = () => { video.volume = Number(volume.value); video.muted = video.volume === 0; };
+        cxzSyncVideoControls();
+    }
+
     function openMovie(movie) {
         if (!movie || !movie.url) return;
         const overlay = document.getElementById('cxz-movie-player');
         const stage = document.getElementById('movie-player-stage');
         const title = document.getElementById('movie-player-name');
+        const controls = document.getElementById('movie-controls');
         if (!overlay || !stage) return;
         title.textContent = movie.title || 'Now playing';
         stage.replaceChildren();
+        controls?.classList.remove('visible');
+        cxzActiveVideo = null;
+        cxzSeekDragging = false;
         const rawUrl = String(movie.url).trim();
-        let parsed;
+        let parsed = null;
         try { parsed = new URL(rawUrl, window.location.href); }
         catch (_) { stage.innerHTML = '<div class="movie-player-error"><strong>Unable to play this title</strong>The movie URL is invalid.</div>'; }
         if (parsed) {
@@ -4713,15 +4816,19 @@ if (
             if (isVideo) {
                 const video = document.createElement('video');
                 video.src = parsed.href;
-                video.controls = true;
                 video.autoplay = true;
                 video.playsInline = true;
                 video.preload = 'metadata';
+                video.controls = false;
+                video.setAttribute('aria-label', movie.title || 'Movie');
                 video.addEventListener('error', () => {
                     stage.innerHTML = '<div class="movie-player-error"><strong>Video could not be loaded</strong>Check that the movie URL points to a playable MP4, WebM, or OGG file and that the host allows playback.</div>';
+                    controls?.classList.remove('visible');
+                    cxzActiveVideo = null;
                 }, { once:true });
                 stage.appendChild(video);
-                video.play().catch(() => {});
+                cxzSetupMovieControls(video, movie);
+                video.play().catch(() => { const play = document.getElementById('movie-play-toggle'); if (play) play.textContent = '▶'; });
             } else if (isYouTube || isVimeo) {
                 let embed = parsed.href;
                 if (parsed.hostname === 'youtu.be') embed = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(parsed.pathname.slice(1));
@@ -4761,6 +4868,8 @@ if (
         overlay.classList.remove('open');
         overlay.setAttribute('aria-hidden', 'true');
         if (stage) stage.replaceChildren();
+        document.getElementById('movie-controls')?.classList.remove('visible');
+        cxzActiveVideo = null;
         document.body.style.overflow = '';
     }
 
@@ -4812,6 +4921,27 @@ if (
         if (movie) openMovie(movie);
     });
     document.getElementById('movie-player-close')?.addEventListener('click', closeMovie);
+    document.getElementById('movie-play-toggle')?.addEventListener('click', () => {
+        if (!cxzActiveVideo) return;
+        if (cxzActiveVideo.paused) cxzActiveVideo.play().catch(() => {});
+        else cxzActiveVideo.pause();
+    });
+    document.getElementById('movie-mute-toggle')?.addEventListener('click', () => {
+        if (!cxzActiveVideo) return;
+        cxzActiveVideo.muted = !cxzActiveVideo.muted;
+        cxzSyncVideoControls();
+    });
+    document.getElementById('movie-fullscreen')?.addEventListener('click', async () => {
+        const target = document.getElementById('cxz-movie-player');
+        try {
+            if (!document.fullscreenElement) await target.requestFullscreen();
+            else await document.exitFullscreen();
+        } catch (error) { console.warn('[CXZ] Fullscreen unavailable:', error); }
+    });
+    document.addEventListener('fullscreenchange', () => {
+        const button = document.getElementById('movie-fullscreen');
+        if (button) { button.textContent = document.fullscreenElement ? '×' : '⛶'; button.setAttribute('aria-label', document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'); }
+    });
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && document.getElementById('cxz-movie-player')?.classList.contains('open')) closeMovie();
     });
