@@ -1695,8 +1695,13 @@
         );
 
     backdrop-filter: blur(10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
 }
-.movie-controls.visible { display:flex; }
+.movie-controls.visible {  display: flex;
+    opacity: 1;
+    pointer-events: auto; }
 .movie-control-btn { display:grid; place-items:center; flex:0 0 auto; min-width:38px; height:38px; padding:0 9px; border:1px solid #ffffff20; border-radius:9px; background:#ffffff10; color:#fff; font-size:15px; cursor:pointer; }
 .movie-control-btn:hover { background:var(--accent-color); color:#101114; }
 .movie-control-btn svg {
@@ -4770,6 +4775,34 @@ if (
 
     let cxzActiveVideo = null;
     let cxzSeekDragging = false;
+    let cxzControlsTimer = null;
+
+    function showMovieControls() {
+
+    const controls =
+        document.getElementById('movie-controls');
+
+    if (!controls) return;
+
+    controls.classList.add('visible');
+
+    clearTimeout(cxzControlsTimer);
+
+    if (
+        cxzActiveVideo &&
+        !cxzActiveVideo.paused
+    ) {
+
+        cxzControlsTimer = setTimeout(() => {
+
+            controls.classList.remove(
+                'visible'
+            );
+
+        }, 2500);
+
+    }
+}
 
     function cxzFormatTime(seconds) {
         if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
