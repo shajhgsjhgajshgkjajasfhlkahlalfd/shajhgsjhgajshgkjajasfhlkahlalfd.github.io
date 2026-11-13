@@ -4990,6 +4990,15 @@ setTimeout(() => {
                 stage.appendChild(frame);
             }
         }
+        overlay.addEventListener(
+    'mousemove',
+    showMovieControls
+);
+
+overlay.addEventListener(
+    'touchstart',
+    showMovieControls
+);
         overlay.classList.add('open');
         overlay.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
