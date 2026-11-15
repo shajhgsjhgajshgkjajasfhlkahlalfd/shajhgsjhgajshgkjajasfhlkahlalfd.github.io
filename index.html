@@ -140,6 +140,74 @@
             height: 92vh;
         }
 
+        /* ══════════════════════════════════════════════════════
+           WEB PROXY TAB
+        ══════════════════════════════════════════════════════ */
+        #proxy-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        #proxy-url-input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: var(--r);
+            border: 1px solid var(--line-solid);
+            background: var(--bg-3);
+            color: var(--ink);
+            font-size: 14px;
+            font-family: var(--font-ui);
+            outline: none;
+            transition: border-color var(--transition);
+        }
+        #proxy-url-input:focus {
+            border-color: var(--accent-color);
+        }
+        #proxy-url-input::placeholder { color: var(--ink-soft); }
+        #proxy-go-btn {
+            padding: 10px 20px;
+            border-radius: var(--r);
+            border: none;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 700;
+            font-family: var(--font-ui);
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity var(--transition), transform var(--transition);
+            white-space: nowrap;
+        }
+        #proxy-go-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        #proxy-go-btn:active { transform: scale(0.97); }
+        #proxy-refresh-btn {
+            padding: 10px 12px;
+            border-radius: var(--r);
+            border: 1px solid var(--line-solid);
+            background: var(--bg-3);
+            color: var(--ink-soft);
+            font-size: 16px;
+            cursor: pointer;
+            transition: color var(--transition), border-color var(--transition);
+        }
+        #proxy-refresh-btn:hover { color: var(--ink); border-color: var(--accent-color); }
+        #proxy-frame {
+            width: 100%;
+            height: calc(100vh - 230px);
+            min-height: 400px;
+            border: 1px solid var(--line-solid);
+            border-radius: var(--r-lg);
+            background: #000;
+            display: block;
+        }
+        #proxy-status {
+            font-size: 12px;
+            color: var(--ink-soft);
+            margin-bottom: 10px;
+            height: 16px;
+        }
+        #proxy-status.error { color: var(--danger); }
+
         @media (prefers-reduced-motion: reduce) {
             * { animation: none !important; transition: none !important; }
             canvas#bg-canvas { display: none !important; }
@@ -2244,6 +2312,30 @@ aria-label="Fullscreen">
 
     </div>
 
+        <!-- TAB: WEB PROXY -->
+        <div id="proxy" class="tab-content">
+            <h2 class="section-title">Web Proxy</h2>
+            <p class="page-description">Browse the web through Corrosion. Enter a URL and hit Go — or press Enter.</p>
+            <div id="proxy-bar">
+                <input
+                    type="text"
+                    id="proxy-url-input"
+                    placeholder="https://example.com"
+                    autocomplete="off"
+                    spellcheck="false"
+                    onkeydown="if(event.key==='Enter')loadProxy()"
+                >
+                <button id="proxy-go-btn" onclick="loadProxy()">Go</button>
+                <button id="proxy-refresh-btn" onclick="reloadProxy()" title="Reload">↺</button>
+            </div>
+            <div id="proxy-status"></div>
+            <iframe
+                id="proxy-frame"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
+                title="Web Proxy"
+            ></iframe>
+        </div>
+
 
 <!-- =========================================================
      INTEGRATED GAME PLAYER
@@ -2411,6 +2503,10 @@ aria-label="Fullscreen">
         <!-- Lucide settings -->
         <button class="dock-item" onclick="switchTab('settings', this)" title="Settings">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <!-- Lucide globe (web proxy) -->
+        <button class="dock-item" onclick="switchTab('proxy', this)" title="Web Proxy">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         </button>
         <!-- Lucide volume-x -->
         <button class="dock-item" onclick="toggleMuteSound()" id="dock-mute-btn" title="Mute audio" aria-label="Mute audio" aria-pressed="false">
@@ -3049,7 +3145,7 @@ aria-label="Fullscreen">
             let activeBtn = btn;
             if (!activeBtn) {
                 // Find matching button
-const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'settings'].indexOf(tabId);                const buttons = document.querySelectorAll('.dock-item');
+const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'settings', 'proxy'].indexOf(tabId);                const buttons = document.querySelectorAll('.dock-item');
                 if (btnIdx >= 0 && buttons[btnIdx]) activeBtn = buttons[btnIdx];
             }
             if (activeBtn) {
@@ -5157,6 +5253,94 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     });
     refreshCXZIcons();
     loadMovies();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     WEB PROXY — Corrosion backend
+     Deploy server.js to Railway/Render, paste your URL below.
+     Repo: https://github.com/titaniumnetwork-dev/Corrosion
+════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    // ── CONFIG ─────────────────────────────────────────────────
+    // Replace with your deployed Corrosion instance URL.
+    // Must end with the proxy prefix you set in server.js (/fetch/)
+    var CORROSION_BASE = 'https://cxz-prox.onrender.com/fetch/';
+    // ───────────────────────────────────────────────────────────
+
+    var proxyFrame  = null;
+    var proxyInput  = null;
+    var proxyStatus = null;
+
+    function getEls() {
+        proxyFrame  = document.getElementById('proxy-frame');
+        proxyInput  = document.getElementById('proxy-url-input');
+        proxyStatus = document.getElementById('proxy-status');
+    }
+
+    function setStatus(msg, isError) {
+        if (!proxyStatus) return;
+        proxyStatus.textContent = msg;
+        proxyStatus.className   = isError ? 'error' : '';
+    }
+
+    function normalizeURL(raw) {
+        raw = raw.trim();
+        if (!raw) return null;
+        // If it looks like a bare search term (no dot, no colon), route to Google
+        if (!/\./.test(raw) && !/^https?:\/\//.test(raw)) {
+            return 'https://www.google.com/search?q=' + encodeURIComponent(raw);
+        }
+        // Auto-prepend https
+        if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+        return raw;
+    }
+
+    window.loadProxy = function () {
+        getEls();
+        var url = normalizeURL(proxyInput ? proxyInput.value : '');
+        if (!url) { setStatus('Enter a URL first.', true); return; }
+
+        setStatus('Loading…', false);
+
+        // Corrosion expects the target URL base64-encoded appended to the prefix
+        var encoded = btoa(url).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        proxyFrame.src = CORROSION_BASE + encoded;
+
+        proxyFrame.onload = function () { setStatus('', false); };
+        proxyFrame.onerror = function () {
+            setStatus('Failed to load — check that your Corrosion server is running.', true);
+        };
+    };
+
+    window.reloadProxy = function () {
+        getEls();
+        if (!proxyFrame || !proxyFrame.src || proxyFrame.src === 'about:blank') return;
+        proxyFrame.src = proxyFrame.src;
+    };
+
+    // Keep the URL bar in sync when the proxy navigates internally
+    // (best-effort — cross-origin frames won't expose href)
+    document.addEventListener('DOMContentLoaded', function () {
+        getEls();
+        if (!proxyFrame) return;
+        proxyFrame.addEventListener('load', function () {
+            try {
+                var loc = proxyFrame.contentWindow.location.href;
+                if (loc && loc !== 'about:blank' && proxyInput) {
+                    // Decode back from the proxy path if possible
+                    var match = loc.match(/\/fetch\/([A-Za-z0-9\-_]+)/);
+                    if (match) {
+                        try {
+                            var decoded = atob(match[1].replace(/-/g, '+').replace(/_/g, '/'));
+                            proxyInput.value = decoded;
+                        } catch (e) { /* cross-origin, leave as-is */ }
+                    }
+                }
+            } catch (e) { /* cross-origin iframe — expected */ }
+        });
+    });
+})();
 </script>
 </body>
 </html>
