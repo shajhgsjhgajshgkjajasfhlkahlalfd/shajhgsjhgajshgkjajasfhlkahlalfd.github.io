@@ -4485,7 +4485,6 @@ const CXZPlayer = (() => {
     function isGNMathGame(url) {
         return window.gnMathGameURLs instanceof Set && window.gnMathGameURLs.has(url);
     }
-
     async function loadGNMathHTML(url, token) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 30000);
@@ -4522,16 +4521,13 @@ const CXZPlayer = (() => {
             log('[GN-Math] Fetched HTML installed as the player document.');
         } catch (error) {
             if (token !== launchToken) return;
-            clearTimeout(loaderFailsafe);
-            clearInterval(progressTimer);
             const frame = $('cxz-game-frame');
             frame.onload = null;
             frame.onerror = null;
             frame.removeAttribute('src');
             frame.srcdoc = '<!DOCTYPE html><html><body style="background:#111;color:#eee;font:16px system-ui;padding:24px"><h2>Game could not be loaded</h2><p>The HTML request failed. Check the player console for details.</p></body></html>';
-            const overlay = $('cxz-loader');
-            if (overlay) overlay.classList.add('hidden');
             log('[GN-Math fetch error] ' + error.message);
+            finishLoader(token);
             showToast('Could not fetch GN-Math game HTML');
         } finally { clearTimeout(timeout); }
     }
@@ -5365,6 +5361,7 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     const htmlBase='https://cdn.jsdelivr.net/gh/freebuisness/html@latest';
     const coverBase='https://cdn.jsdelivr.net/gh/freebuisness/covers@latest';
     const catalog='https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json';
+    const excludedIDs=new Set(['-1','596']);
     window.gnMathGameURLs=new Set();
     let loaded=false, loading=false;
     function resolve(value,base) {
@@ -5376,24 +5373,25 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
         loading=true;
         const status=document.getElementById('gn-status');
         status.textContent='Loading GN-Math games…';
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort(),30000);
         try{
-            const response=await fetch(catalog);
+            const response=await fetch(catalog,{signal:controller.signal});
             if(!response.ok)throw new Error('HTTP '+response.status);
             const zones=await response.json();
             if(!Array.isArray(zones))throw new Error('Expected catalog array');
-            const games=zones.filter(z =>
-    z &&
-    !['-1', '596'].includes(String(z.id)) &&
-    typeof z.name === 'string' &&
-    typeof z.url === 'string'
-).map(z=>({title:z.name.trim(),file:resolve(z.url,htmlBase),img:resolve(z.cover,coverBase),tagline:typeof z.description==='string'?z.description:''})).filter(g=>g.title&&g.file).sort((a,b)=>a.title.localeCompare(b.title,undefined,{numeric:true}));
+            const games=zones
+                .filter(z=>z&&!excludedIDs.has(String(z.id).trim())&&typeof z.name==='string'&&typeof z.url==='string')
+                .map(z=>({title:z.name.trim(),file:resolve(z.url,htmlBase),img:resolve(z.cover,coverBase),tagline:typeof z.description==='string'?z.description:''}))
+                .filter(g=>g.title&&g.file)
+                .sort((a,b)=>a.title.localeCompare(b.title,undefined,{numeric:true}));
             if(!games.length)throw new Error('No usable entries');
             const fragment=document.createDocumentFragment();
             games.forEach(g=>{window.gnMathGameURLs.add(g.file);fragment.appendChild(buildGameCard(g));});
             document.getElementById('gn-grid').replaceChildren(fragment);
             status.textContent=games.length+' GN-Math entries';loaded=true;
             if(document.getElementById('games').classList.contains('active'))filterItems();
-        }catch(error){console.error('[GN-Math catalog]',error);status.textContent='GN-Math could not be loaded. Your Classroom-X-Zone games are unaffected.';}finally{loading=false;}
+        }catch(error){console.error('[GN-Math catalog]',error);status.textContent='GN-Math could not be loaded. Your Classroom-X-Zone games are unaffected.';}finally{clearTimeout(timer);loading=false;}
     }
     function init(){
         const tabs=[document.getElementById('cxz-provider'),document.getElementById('gn-provider')];
