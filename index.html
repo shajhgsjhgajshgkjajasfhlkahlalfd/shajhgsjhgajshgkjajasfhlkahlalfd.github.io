@@ -4485,6 +4485,61 @@ const CXZPlayer = (() => {
     function isGNMathGame(url) {
         return window.gnMathGameURLs instanceof Set && window.gnMathGameURLs.has(url);
     }
+
+    // Remove recognizable advertising markup from GN-Math documents only.
+    // Game/application scripts and ordinary game assets are intentionally preserved.
+    function stripGNMathAds(doc) {
+        const adHostPattern = /(?:^|\.)(?:doubleclick\.net|googlesyndication\.com|googleadservices\.com|googletagservices\.com|adservice\.google\.|adnxs\.com|adsrvr\.org|taboola\.com|outbrain\.com|propellerads\.com|popads\.net|adsterra\.com|exoclick\.com|hilltopads\.net|monetag\.com)$/i;
+        const adCodePattern = /(?:adsbygoogle|googletag\.(?:cmd|pubads)|googletagservices|google_ad_client|google_ad_slot|\b(?:adsterra|propellerads|popads|taboola|outbrain)\b)/i;
+        const adElementPattern = /(?:^|[-_\s])(?:ad|ads|advert|advertisement|advertising|sponsor)(?:$|[-_\s])/i;
+        let removed = 0;
+
+        const isAdURL = value => {
+            if (!value) return false;
+            try {
+                const host = new URL(value, doc.baseURI).hostname;
+                return adHostPattern.test(host) ||
+                    /(?:^|\.)(?:ads|adserver|advertising)\./i.test(host);
+            } catch (_) {
+                return false;
+            }
+        };
+
+        // Remove explicitly identified ad containers, not generic elements that
+        // merely happen to contain the letters "ad".
+        doc.querySelectorAll('[id], [class]').forEach(node => {
+            const id = node.id || '';
+            const classes = typeof node.className === 'string' ? node.className : '';
+            const tokens = (id + ' ' + classes).split(/\s+/).filter(Boolean);
+            if (tokens.some(token =>
+                /^(?:adsbygoogle|ad-container|ad-wrapper|ad-slot|ad-banner|advertisement|advertising|sponsor-ad|sponsored-content)$/i.test(token) ||
+                adElementPattern.test(token)
+            )) {
+                node.remove();
+                removed++;
+            }
+        });
+
+        // Remove ad-network frames and external ad scripts.
+        doc.querySelectorAll('iframe[src], frame[src], script[src], link[href]').forEach(node => {
+            const url = node.getAttribute('src') || node.getAttribute('href') || '';
+            if (isAdURL(url)) {
+                node.remove();
+                removed++;
+            }
+        });
+
+        // Remove inline ad bootstrap/configuration scripts while keeping game code.
+        doc.querySelectorAll('script:not([src])').forEach(script => {
+            if (adCodePattern.test(script.textContent || '')) {
+                script.remove();
+                removed++;
+            }
+        });
+
+        return removed;
+    }
+
     async function loadGNMathHTML(url, token) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 30000);
@@ -4495,8 +4550,10 @@ const CXZPlayer = (() => {
             const html = await response.text();
             if (!html.trim()) throw new Error('Empty game document.');
             if (token !== launchToken) return;
-            currentHTML = html;
             const doc = new DOMParser().parseFromString(html, 'text/html');
+            const removedAdNodes = stripGNMathAds(doc);
+            currentHTML = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+            log('[GN-Math] Removed ' + removedAdNodes + ' recognizable ad element(s)/script(s).');
             const existingBase = doc.querySelector('base[href]');
             if (existingBase) {
                 existingBase.setAttribute('href', new URL(existingBase.getAttribute('href'), response.url || url).href);
