@@ -1800,6 +1800,37 @@
     text-align: center;}.movie-volume{width:48px}.movie-captions{max-width:92px;font-size:10px} }
 
 </style>
+
+<style id="gust-fullscreen-proxy-styles">
+    body.gust-proxy-open { overflow: hidden !important; }
+    #proxy.tab-content {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background: #000;
+        z-index: 220000;
+        animation: none !important;
+        transform: none !important;
+    }
+    #proxy.tab-content:not(.active) { display: none !important; }
+    #proxy.tab-content.active { display: block !important; }
+    #proxy #proxy-frame {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: #000;
+    }
+    body.gust-proxy-open .bottom-dock { z-index: 220001 !important; }
+</style>
 </head>
 <body data-tab="home">
     <!-- Startup block screen: shown in an iframe, then dismissed automatically -->
@@ -2314,15 +2345,8 @@ aria-label="Fullscreen">
 
         <!-- TAB: WEB PROXY -->
         <div id="proxy" class="tab-content">
-            <h2 class="section-title">Web Proxy</h2>
-            <p class="page-description">Open Scramjet, then enter a website in its address bar.</p>
-            <div id="proxy-bar">
-                <button id="proxy-go-btn" onclick="loadProxy()">Open Scramjet</button>
-                <button id="proxy-refresh-btn" onclick="reloadProxy()" title="Restart browser">Restart browser</button>
-                <a href="https://cxz-prox.onrender.com/" target="_blank" rel="noopener noreferrer">Open directly</a>
-            </div>
-            <div id="proxy-status" role="status">Select Open Scramjet to start.</div>
-            <iframe id="proxy-frame" title="Scramjet browser" allow="fullscreen"></iframe>
+            <iframe id="proxy-frame" data-src="./g/games/other/GUST.html"
+                title="GUST Proxy" allow="fullscreen; clipboard-read; clipboard-write"></iframe>
         </div>
 
 <!-- =========================================================
@@ -5243,50 +5267,34 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     loadMovies();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════
-     WEB PROXY — Remote Scramjet-App integration
-     GitHub Pages frontend; Scramjet application hosted on Render.
-════════════════════════════════════════════════════════════ -->
+<!-- GUST fullscreen proxy tab -->
 <script>
 (function () {
     'use strict';
-
-    var SCRAMJET_APP = 'https://cxz-prox.onrender.com/';
-    var navigationTimer = null;
-
-    function setProxyStatus(message, isError) {
-        var element = document.getElementById('proxy-status');
-        if (!element) return;
-        element.textContent = message;
-        element.className = isError ? 'error' : '';
-    }
-
-    window.loadProxy = function () {
+    function setupGust() {
+        var tab = document.getElementById('proxy');
         var frame = document.getElementById('proxy-frame');
-        if (!frame) return;
-
-        window.clearTimeout(navigationTimer);
-        setProxyStatus('Opening Scramjet. Enter a website in its address bar below.', false);
-
-        frame.onload = function () {
-            window.clearTimeout(navigationTimer);
-            setProxyStatus('Frame navigation finished. If the browser is blank or shows an error, select Open directly.', false);
-        };
-        frame.onerror = function () {
-            window.clearTimeout(navigationTimer);
-            setProxyStatus('The frame reported an error. Select Open directly to check the Render deployment.', true);
-        };
-
-        navigationTimer = window.setTimeout(function () {
-            setProxyStatus('Still waiting. Select Open directly to test the Scramjet deployment in its own tab.', false);
-        }, 20000);
-
-        frame.src = SCRAMJET_APP;
-    };
-
-    window.reloadProxy = function () {
-        window.loadProxy();
-    };
+        if (!tab || !frame) return;
+        // Keep the fixed viewport outside animated page containers.
+        document.body.appendChild(tab);
+        function syncProxy() {
+            var active = tab.classList.contains('active');
+            document.body.classList.toggle('gust-proxy-open', active);
+            if (active && !frame.hasAttribute('src')) {
+                frame.src = frame.getAttribute('data-src');
+            }
+        }
+        new MutationObserver(syncProxy).observe(tab, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+        syncProxy();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupGust);
+    } else {
+        setupGust();
+    }
 })();
 </script>
 </body>
