@@ -2319,7 +2319,7 @@ aria-label="Fullscreen">
             <div id="proxy-bar">
                 <button id="proxy-go-btn" onclick="loadProxy()">Open Scramjet</button>
                 <button id="proxy-refresh-btn" onclick="reloadProxy()" title="Restart browser">Restart browser</button>
-                <a href="/browser.html" target="_blank" rel="noopener noreferrer">Open directly</a>
+                <a href="https://cxz-prox.onrender.com/" target="_blank" rel="noopener noreferrer">Open directly</a>
             </div>
             <div id="proxy-status" role="status">Select Open Scramjet to start.</div>
             <iframe id="proxy-frame" title="Scramjet browser" allow="fullscreen"></iframe>
@@ -5244,27 +5244,49 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════
-     WEB PROXY — Local Scramjet-App integration
-     Preserve the upstream application entry page as /browser.html.
+     WEB PROXY — Remote Scramjet-App integration
+     GitHub Pages frontend; Scramjet application hosted on Render.
 ════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
-    var browserURL = '/browser.html';
-    function status(message) {
+
+    var SCRAMJET_APP = 'https://cxz-prox.onrender.com/';
+    var navigationTimer = null;
+
+    function setProxyStatus(message, isError) {
         var element = document.getElementById('proxy-status');
-        if (element) element.textContent = message;
+        if (!element) return;
+        element.textContent = message;
+        element.className = isError ? 'error' : '';
     }
+
     window.loadProxy = function () {
         var frame = document.getElementById('proxy-frame');
         if (!frame) return;
-        status('Opening Scramjet. Enter a website in the browser interface below.');
+
+        window.clearTimeout(navigationTimer);
+        setProxyStatus('Opening Scramjet. Enter a website in its address bar below.', false);
+
         frame.onload = function () {
-            status('Browser frame navigation finished. Use its address bar, or open the browser directly.');
+            window.clearTimeout(navigationTimer);
+            setProxyStatus('Frame navigation finished. If the browser is blank or shows an error, select Open directly.', false);
         };
-        frame.src = browserURL;
+        frame.onerror = function () {
+            window.clearTimeout(navigationTimer);
+            setProxyStatus('The frame reported an error. Select Open directly to check the Render deployment.', true);
+        };
+
+        navigationTimer = window.setTimeout(function () {
+            setProxyStatus('Still waiting. Select Open directly to test the Scramjet deployment in its own tab.', false);
+        }, 20000);
+
+        frame.src = SCRAMJET_APP;
     };
-    window.reloadProxy = window.loadProxy;
+
+    window.reloadProxy = function () {
+        window.loadProxy();
+    };
 })();
 </script>
 </body>
