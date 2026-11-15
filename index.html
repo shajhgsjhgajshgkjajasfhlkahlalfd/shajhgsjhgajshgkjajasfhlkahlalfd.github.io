@@ -4486,56 +4486,138 @@ const CXZPlayer = (() => {
         return window.gnMathGameURLs instanceof Set && window.gnMathGameURLs.has(url);
     }
 
-    // Remove recognizable advertising markup from GN-Math documents only.
-    // Game/application scripts and ordinary game assets are intentionally preserved.
+    // Best-effort ad filtering for GN-Math documents only.
+    // This checks both the initial document and elements/resources added later.
     function stripGNMathAds(doc) {
-        const adHostPattern = /(?:^|\.)(?:doubleclick\.net|googlesyndication\.com|googleadservices\.com|googletagservices\.com|adservice\.google\.|adnxs\.com|adsrvr\.org|taboola\.com|outbrain\.com|propellerads\.com|popads\.net|adsterra\.com|exoclick\.com|hilltopads\.net|monetag\.com)$/i;
-        const adCodePattern = /(?:adsbygoogle|googletag\.(?:cmd|pubads)|googletagservices|google_ad_client|google_ad_slot|\b(?:adsterra|propellerads|popads|taboola|outbrain)\b)/i;
-        const adElementPattern = /(?:^|[-_\s])(?:ad|ads|advert|advertisement|advertising|sponsor)(?:$|[-_\s])/i;
+        const adHostPattern = /(?:doubleclick\.net|googlesyndication\.com|googleadservices\.com|googletagservices\.com|adservice\.google\.|adnxs\.com|adsrvr\.org|criteo\.com|criteo\.net|rubiconproject\.com|Magnite\.com|openx\.net|pubmatic\.com|smartadserver\.com|media\.net|amazon-adsystem\.com|casalemedia\.com|taboola\.com|outbrain\.com|mgid\.com|revcontent\.com|propellerads\.com|popads\.net|adsterra\.com|exoclick\.com|hilltopads\.net|monetag\.com|monetag\.com|trafficjunky\.net|juicyads\.com|yllix\.com|adcash\.com|adcash\.com|bidvertiser\.com|adform\.net|adroll\.com|sharethrough\.com|inmobi\.com|unityads\.unify\.com|applovin\.com|ironsrc\.com|ironsrc\.com|vungle\.com|chartboost\.com|chartboost\.com|fyber\.com|startapp\.com|startapp\.com|themediagrid\.com|themediagrid\.com)/i;
+        const adNamePattern = /(?:^|[-_.])(?:ads?|adserver|adservice|adnetwork|advert|advertising|sponsor|sponsored|prebid|doubleclick|googlesyndication)(?:$|[-_.])/i;
+        const adElementPattern = /(?:^|[-_\s])(?:ad|ads|advert|advertisement|advertising|sponsor|sponsored|ad-container|ad-wrapper|ad-slot|ad-banner|ad-unit|ad-placement|banner-ad|video-ad)(?:$|[-_\s])/i;
+        const adCodePattern = /(?:adsbygoogle|googletag\.(?:cmd|pubads)|googletagservices|google_ad_(?:client|slot)|(?:criteo|taboola|outbrain|mgid|propellerads|popads|adsterra|exoclick|hilltopads|monetag|adcash|bidvertiser|prebid)\b)/i;
         let removed = 0;
 
         const isAdURL = value => {
             if (!value) return false;
             try {
-                const host = new URL(value, doc.baseURI).hostname;
+                const parsed = new URL(value, doc.baseURI);
+                const host = parsed.hostname.toLowerCase();
+                const path = (parsed.pathname + parsed.search).toLowerCase();
                 return adHostPattern.test(host) ||
-                    /(?:^|\.)(?:ads|adserver|advertising)\./i.test(host);
+                    host.split('.').some(part => adNamePattern.test(part)) ||
+                    /(?:^|\/)(?:ads?|advert|advertising|adserver|adservice|adunit|prebid)(?:\/|[-_.?=]|$)/i.test(path);
             } catch (_) {
                 return false;
             }
         };
 
-        // Remove explicitly identified ad containers, not generic elements that
-        // merely happen to contain the letters "ad".
-        doc.querySelectorAll('[id], [class]').forEach(node => {
-            const id = node.id || '';
-            const classes = typeof node.className === 'string' ? node.className : '';
+        const isAdElement = node => {
+            if (!node || node.nodeType !== 1) return false;
+            const id = node.getAttribute('id') || '';
+            const classes = typeof node.className === 'string' ? node.className : (node.getAttribute('class') || '');
             const tokens = (id + ' ' + classes).split(/\s+/).filter(Boolean);
-            if (tokens.some(token =>
-                /^(?:adsbygoogle|ad-container|ad-wrapper|ad-slot|ad-banner|advertisement|advertising|sponsor-ad|sponsored-content)$/i.test(token) ||
-                adElementPattern.test(token)
-            )) {
-                node.remove();
-                removed++;
+            if (tokens.some(token => adElementPattern.test(token) ||
+                /^(?:adsbygoogle|adchoices|adbadge|adlabel|advertisement|sponsored-content)$/i.test(token))) {
+                return true;
             }
-        });
+            const role = (node.getAttribute('data-ad') || node.getAttribute('data-ad-slot') ||
+                node.getAttribute('data-ad-unit') || node.getAttribute('data-ad-client') || '').trim();
+            return !!role;
+        };
 
-        // Remove ad-network frames and external ad scripts.
-        doc.querySelectorAll('iframe[src], frame[src], script[src], link[href]').forEach(node => {
-            const url = node.getAttribute('src') || node.getAttribute('href') || '';
-            if (isAdURL(url)) {
+        const removeIfAd = node => {
+            if (!node || node.nodeType !== 1 || !node.isConnected) return 0;
+            if (isAdElement(node)) {
                 node.remove();
-                removed++;
+                return 1;
             }
-        });
+            const resource = node.getAttribute('src') || node.getAttribute('href') ||
+                node.getAttribute('data-src') || node.getAttribute('data');
+            if (/^(?:IFRAME|FRAME|SCRIPT|LINK|OBJECT|EMBED)$/i.test(node.tagName) && isAdURL(resource)) {
+                node.remove();
+                return 1;
+            }
+            return 0;
+        };
 
-        // Remove inline ad bootstrap/configuration scripts while keeping game code.
+        const scan = root => {
+            if (!root || !root.querySelectorAll) return 0;
+            let count = removeIfAd(root);
+            const nodes = root.querySelectorAll('[id], [class], [data-ad], [data-ad-slot], [data-ad-unit], iframe[src], frame[src], script[src], link[href], [data-src], object[data], embed[src]');
+            nodes.forEach(node => { count += removeIfAd(node); });
+            return count;
+        };
+
+        removed += scan(doc.documentElement);
         doc.querySelectorAll('script:not([src])').forEach(script => {
             if (adCodePattern.test(script.textContent || '')) {
                 script.remove();
                 removed++;
             }
         });
+
+        // Run early in the document so later dynamically inserted ad frames,
+        // scripts, and containers are removed as soon as they appear.
+        const monitor = doc.createElement('script');
+        monitor.textContent = `
+          (() => {
+            const hostRe = /(?:doubleclick\\.net|googlesyndication\\.com|googleadservices\\.com|googletagservices\\.com|adnxs\\.com|adsrvr\\.org|criteo\\.(?:com|net)|rubiconproject\\.com|openx\\.net|pubmatic\\.com|smartadserver\\.com|media\\.net|amazon-adsystem\\.com|taboola\\.com|outbrain\\.com|mgid\\.com|revcontent\\.com|propellerads\\.com|popads\\.net|adsterra\\.com|exoclick\\.com|hilltopads\\.net|monetag\\.com|trafficjunky\\.net|juicyads\\.com|yllix\\.com|adcash\\.com|bidvertiser\\.com|adform\\.net|adroll\\.com|inmobi\\.com|applovin\\.com|ironsrc\\.com|vungle\\.com|chartboost\\.com|fyber\\.com|startapp\\.com)/i;
+            const nameRe = /(?:^|[-_.])(?:ads?|adserver|adservice|adnetwork|advert|advertising|sponsor|sponsored|prebid)(?:$|[-_.])/i;
+            const elementRe = /(?:^|[-_\\s])(?:ad|ads|advert|advertisement|advertising|sponsor|sponsored|ad-container|ad-wrapper|ad-slot|ad-banner|ad-unit|ad-placement|banner-ad|video-ad)(?:$|[-_\\s])/i;
+            const adCodeRe = /(?:adsbygoogle|googletag\\.(?:cmd|pubads)|google_ad_(?:client|slot)|(?:criteo|taboola|outbrain|mgid|propellerads|popads|adsterra|exoclick|hilltopads|monetag|adcash|bidvertiser|prebid)\\b)/i;
+            const urlIsAd = value => {
+              if (!value) return false;
+              try {
+                const u = new URL(value, document.baseURI);
+                return hostRe.test(u.hostname) || u.hostname.split('.').some(p => nameRe.test(p)) ||
+                  /(?:^|\\/)(?:ads?|advert|advertising|adserver|adservice|adunit|prebid)(?:\\/|[-_.?=]|$)/i.test(u.pathname + u.search);
+              } catch (_) { return false; }
+            };
+            const clean = node => {
+              if (!node || node.nodeType !== 1) return;
+              const id = node.getAttribute('id') || '';
+              const cls = node.getAttribute('class') || '';
+              const tokens = (id + ' ' + cls).split(/\\s+/).filter(Boolean);
+              if (tokens.some(t => elementRe.test(t)) ||
+                  node.hasAttribute('data-ad') || node.hasAttribute('data-ad-slot') ||
+                  node.hasAttribute('data-ad-unit') || node.hasAttribute('data-ad-client')) {
+                node.remove();
+                return;
+              }
+              if (node.tagName === 'SCRIPT' && !node.src && adCodeRe.test(node.textContent || '')) {
+                node.remove();
+                return;
+              }
+              if (/^(IFRAME|FRAME|SCRIPT|LINK|OBJECT|EMBED)$/.test(node.tagName)) {
+                const u = node.getAttribute('src') || node.getAttribute('href') ||
+                  node.getAttribute('data-src') || node.getAttribute('data');
+                if (urlIsAd(u)) node.remove();
+              }
+            };
+            const scan = root => {
+              if (!root || root.nodeType !== 1) return;
+              clean(root);
+              if (root.querySelectorAll) root.querySelectorAll(
+                '[id], [class], [data-ad], [data-ad-slot], [data-ad-unit], iframe[src], frame[src], script[src], link[href], [data-src], object[data], embed[src]'
+              ).forEach(clean);
+            };
+            const start = () => {
+              scan(document.documentElement);
+              new MutationObserver(records => {
+                for (const record of records) {
+                  if (record.type === 'attributes') clean(record.target);
+                  for (const node of record.addedNodes || []) {
+                    if (node.nodeType === 1) scan(node);
+                  }
+                }
+              }).observe(document.documentElement, {
+                subtree: true, childList: true, attributes: true,
+                attributeFilter: ['src', 'href', 'data-src', 'data', 'class', 'id', 'data-ad', 'data-ad-slot', 'data-ad-unit', 'data-ad-client']
+              });
+            };
+            if (document.documentElement) start();
+            else document.addEventListener('DOMContentLoaded', start, { once: true });
+          })();
+        `;
+        doc.head.prepend(monitor);
 
         return removed;
     }
@@ -4553,7 +4635,7 @@ const CXZPlayer = (() => {
             const doc = new DOMParser().parseFromString(html, 'text/html');
             const removedAdNodes = stripGNMathAds(doc);
             currentHTML = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
-            log('[GN-Math] Removed ' + removedAdNodes + ' recognizable ad element(s)/script(s).');
+            log('[GN-Math] Removed ' + removedAdNodes + ' recognizable ad element(s)/script(s); dynamic ad filtering is enabled.');
             const existingBase = doc.querySelector('base[href]');
             if (existingBase) {
                 existingBase.setAttribute('href', new URL(existingBase.getAttribute('href'), response.url || url).href);
