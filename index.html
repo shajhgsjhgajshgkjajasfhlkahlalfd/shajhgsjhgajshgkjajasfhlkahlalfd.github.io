@@ -1831,16 +1831,7 @@
     }
     body.gust-proxy-open .bottom-dock { z-index: 220001 !important; }
 </style>
-
-<style>
-.game-provider-tabs { display:flex; gap:12px; flex-wrap:wrap; margin:0 0 24px; }
-.game-provider-card { width:140px; padding:12px 10px; display:flex; flex-direction:column; align-items:center; gap:10px; border:1px solid rgba(255,255,255,.16); border-radius:14px; background:rgba(255,255,255,.045); color:inherit; font:inherit; cursor:pointer; }
-.game-provider-card img { width:64px; height:64px; object-fit:contain; border-radius:12px; }
-.game-provider-card span { font-size:12px; line-height:1.35; font-weight:600; text-align:center; }
-.game-provider-card[aria-selected="true"] { border-color:var(--accent-color,#ff6600); background:color-mix(in srgb,var(--accent-color,#ff6600) 12%, transparent); }
-.game-provider-card:focus-visible { outline:2px solid var(--accent-color,#ff6600); outline-offset:4px; }
-#provider-cxz-panel[hidden], #provider-gnmath-panel[hidden] { display:none !important; }
-</style>
+<style>.provider-tabs{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 24px}.provider-card{width:140px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;border:1px solid #ffffff29;border-radius:14px;background:#ffffff0b;color:inherit;font:inherit;cursor:pointer}.provider-card img{width:64px;height:64px;object-fit:contain;border-radius:12px}.provider-card span{font-size:12px;font-weight:600}.provider-card[aria-selected="true"]{border-color:var(--accent-color,#ff6600);background:color-mix(in srgb,var(--accent-color,#ff6600) 12%,transparent)}.provider-card:focus-visible{outline:2px solid var(--accent-color);outline-offset:4px}#cxz-panel[hidden],#gn-panel[hidden]{display:none!important}</style>
 </head>
 <body data-tab="home">
     <!-- Startup block screen: shown in an iframe, then dismissed automatically -->
@@ -2000,27 +1991,12 @@
 
         <!-- TAB: GAMES -->
         <div id="games" class="tab-content">
-            <div class="game-provider-tabs" role="tablist" aria-label="Game collection">
-                <button class="game-provider-card" id="provider-cxz" type="button" role="tab" aria-selected="true" aria-controls="provider-cxz-panel">
-                    <img src="./g/assets/favicon-96x96.png" alt="" width="64" height="64">
-                    <span>Classroom-X-Zone</span>
-                </button>
-                <button class="game-provider-card" id="provider-gnmath" type="button" role="tab" aria-selected="false" aria-controls="provider-gnmath-panel" tabindex="-1">
-                    <img src="./g/assets/gnmath.png" alt="" width="64" height="64">
-                    <span>GN-Math</span>
-                </button>
-            </div>
-            <section id="provider-cxz-panel" role="tabpanel" aria-labelledby="provider-cxz">
-                <h2 class="section-title">Classroom-X-Zone Games</h2>
-                <p class="page-description">Browse the Classroom-X-Zone arcade. Search by title, pick a card, and the game opens right here.</p>
-                <div class="grid square-grid" id="all-games-grid"></div>
-            </section>
-            <section id="provider-gnmath-panel" role="tabpanel" aria-labelledby="provider-gnmath" hidden>
-                <h2 class="section-title">GN-Math Games</h2>
-                <p id="gn-math-status" class="page-description" role="status"></p>
-                <div class="grid square-grid" id="gn-math-grid"></div>
-            </section>
-        </div>
+<div class="provider-tabs" role="tablist" aria-label="Game collection">
+<button id="cxz-provider" class="provider-card" role="tab" aria-selected="true" aria-controls="cxz-panel" type="button"><img src="./g/assets/favicon-96x96.png" alt=""><span>Classroom-X-Zone</span></button>
+<button id="gn-provider" class="provider-card" role="tab" aria-selected="false" aria-controls="gn-panel" tabindex="-1" type="button"><img src="./g/assets/gnmath.png" alt=""><span>GN-Math</span></button></div>
+<section id="cxz-panel" role="tabpanel" aria-labelledby="cxz-provider"><h2 class="section-title">Classroom-X-Zone Games</h2><p class="page-description">Browse the Classroom-X-Zone arcade.</p><div class="grid square-grid" id="all-games-grid"></div></section>
+<section id="gn-panel" role="tabpanel" aria-labelledby="gn-provider" hidden><h2 class="section-title">GN-Math Games</h2><p id="gn-status" class="page-description" role="status"></p><div id="gn-grid" class="grid square-grid"></div></section>
+</div>
 
         <!-- TAB: TOOLS -->
         <div id="tools" class="tab-content">
@@ -4505,6 +4481,61 @@ const CXZPlayer = (() => {
         }
     }
 
+
+    function isGNMathGame(url) {
+        return window.gnMathGameURLs instanceof Set && window.gnMathGameURLs.has(url);
+    }
+
+    async function loadGNMathHTML(url, token) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
+        try {
+            log('[GN-Math] Fetching game HTML…');
+            const response = await fetch(cacheBust(url), {signal:controller.signal, credentials:'omit', cache:'no-store'});
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            const html = await response.text();
+            if (!html.trim()) throw new Error('Empty game document.');
+            if (token !== launchToken) return;
+            currentHTML = html;
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const existingBase = doc.querySelector('base[href]');
+            if (existingBase) {
+                existingBase.setAttribute('href', new URL(existingBase.getAttribute('href'), response.url || url).href);
+            } else {
+                const base = doc.createElement('base');
+                base.href = new URL('.', response.url || url).href;
+                doc.head.prepend(base);
+            }
+            const frame = $('cxz-game-frame');
+            frame.onload = () => {
+                if (token !== launchToken) return;
+                applyFrameAudioSettings();
+                finishLoader(token);
+            };
+            frame.onerror = () => {
+                if (token !== launchToken) return;
+                log('[GN-Math] Game document failed to load.');
+                finishLoader(token);
+            };
+            frame.removeAttribute('src');
+            frame.srcdoc = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+            log('[GN-Math] Fetched HTML installed as the player document.');
+        } catch (error) {
+            if (token !== launchToken) return;
+            clearTimeout(loaderFailsafe);
+            clearInterval(progressTimer);
+            const frame = $('cxz-game-frame');
+            frame.onload = null;
+            frame.onerror = null;
+            frame.removeAttribute('src');
+            frame.srcdoc = '<!DOCTYPE html><html><body style="background:#111;color:#eee;font:16px system-ui;padding:24px"><h2>Game could not be loaded</h2><p>The HTML request failed. Check the player console for details.</p></body></html>';
+            const overlay = $('cxz-loader');
+            if (overlay) overlay.classList.add('hidden');
+            log('[GN-Math fetch error] ' + error.message);
+            showToast('Could not fetch GN-Math game HTML');
+        } finally { clearTimeout(timeout); }
+    }
+
     async function open(url, title) {
         if (window.cxzMusicPauseForGame) window.cxzMusicPauseForGame();
         launchToken++;
@@ -4532,7 +4563,9 @@ const CXZPlayer = (() => {
         log('[Open] ' + currentGame);
 
         try {
-            if (localStorage.getItem('cxz_games_in_blob') === 'true') {
+            if (isGNMathGame(currentGame)) {
+                loadGNMathHTML(currentGame, token);
+            } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
             } else {
                 setFrameURL(currentGame, token);
@@ -4622,7 +4655,9 @@ const CXZPlayer = (() => {
         // Re-open using the current blob preference, falling back to the original URL if needed.
         setTimeout(() => {
             if (token !== launchToken || !currentGame) return;
-            if (localStorage.getItem('cxz_games_in_blob') === 'true') {
+            if (isGNMathGame(currentGame)) {
+                loadGNMathHTML(currentGame, token);
+            } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
             } else {
                 setFrameURL(currentGame, token);
@@ -5327,77 +5362,41 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 
 <script>
 (() => {
-    const sources = {
-        catalog: 'https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json',
-        html: 'https://cdn.jsdelivr.net/gh/freebuisness/html@latest',
-        covers: 'https://cdn.jsdelivr.net/gh/freebuisness/covers@latest'
-    };
-    let loaded = false;
-    let loading = false;
-    function asset(value, base) {
-        if (typeof value !== 'string' || !value.trim()) return '';
-        try {
-            const expanded = value.trim().replaceAll('{HTML_URL}', sources.html).replaceAll('{COVER_URL}', sources.covers);
-            const url = new URL(expanded, base + '/');
-            return ['https:', 'http:'].includes(url.protocol) ? url.href : '';
-        } catch { return ''; }
+    const htmlBase='https://cdn.jsdelivr.net/gh/freebuisness/html@latest';
+    const coverBase='https://cdn.jsdelivr.net/gh/freebuisness/covers@latest';
+    const catalog='https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json';
+    window.gnMathGameURLs=new Set();
+    let loaded=false, loading=false;
+    function resolve(value,base) {
+        if(typeof value!=='string'||!value.trim())return '';
+        try {const u=new URL(value.trim().replaceAll('{HTML_URL}',htmlBase).replaceAll('{COVER_URL}',coverBase),base+'/');return ['https:','http:'].includes(u.protocol)?u.href:'';}catch{return '';}
     }
-    async function loadGNMath() {
-        if (loaded || loading) return;
-        loading = true;
-        const status = document.getElementById('gn-math-status');
-        status.textContent = 'Loading GN-Math games…';
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 30000);
-        try {
-            const response = await fetch(sources.catalog, {signal:controller.signal});
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const zones = await response.json();
-            if (!Array.isArray(zones)) throw new Error('Expected a catalog array.');
-            const games = zones.filter(z => z && typeof z.name === 'string' && typeof z.url === 'string')
-                .map(z => ({title:z.name.trim(),file:asset(z.url,sources.html),img:asset(z.cover,sources.covers),tagline:typeof z.description === 'string' ? z.description : ''}))
-                .filter(g => g.title && g.file)
-                .sort((a,b) => a.title.localeCompare(b.title,undefined,{numeric:true}));
-            if (!games.length) throw new Error('No usable catalog entries.');
-            const fragment = document.createDocumentFragment();
-            games.forEach(g => fragment.appendChild(buildGameCard(g)));
-            document.getElementById('gn-math-grid').replaceChildren(fragment);
-            loaded = true;
-            status.textContent = games.length + ' GN-Math entries';
-            if (document.getElementById('games').classList.contains('active')) filterItems();
-        } catch (error) {
-            console.error('[GN-Math]',error);
-            status.textContent = 'GN-Math could not be loaded. Your Classroom-X-Zone games are unaffected.';
-        } finally { clearTimeout(timeout); loading = false; }
+    async function load(){
+        if(loaded||loading)return;
+        loading=true;
+        const status=document.getElementById('gn-status');
+        status.textContent='Loading GN-Math games…';
+        try{
+            const response=await fetch(catalog);
+            if(!response.ok)throw new Error('HTTP '+response.status);
+            const zones=await response.json();
+            if(!Array.isArray(zones))throw new Error('Expected catalog array');
+            const games=zones.filter(z=>z&&typeof z.name==='string'&&typeof z.url==='string').map(z=>({title:z.name.trim(),file:resolve(z.url,htmlBase),img:resolve(z.cover,coverBase),tagline:typeof z.description==='string'?z.description:''})).filter(g=>g.title&&g.file).sort((a,b)=>a.title.localeCompare(b.title,undefined,{numeric:true}));
+            if(!games.length)throw new Error('No usable entries');
+            const fragment=document.createDocumentFragment();
+            games.forEach(g=>{window.gnMathGameURLs.add(g.file);fragment.appendChild(buildGameCard(g));});
+            document.getElementById('gn-grid').replaceChildren(fragment);
+            status.textContent=games.length+' GN-Math entries';loaded=true;
+            if(document.getElementById('games').classList.contains('active'))filterItems();
+        }catch(error){console.error('[GN-Math catalog]',error);status.textContent='GN-Math could not be loaded. Your Classroom-X-Zone games are unaffected.';}finally{loading=false;}
     }
-    function initialize() {
-        const tabs = [document.getElementById('provider-cxz'),document.getElementById('provider-gnmath')];
-        const panels = [document.getElementById('provider-cxz-panel'),document.getElementById('provider-gnmath-panel')];
-        function select(index) {
-            tabs.forEach((tab,i) => {
-                tab.setAttribute('aria-selected',String(i === index));
-                tab.tabIndex = i === index ? 0 : -1;
-                panels[i].hidden = i !== index;
-            });
-            const search = document.getElementById('searchInput');
-            if (search) search.placeholder = index ? 'Search GN-Math games...' : 'Search Classroom-X-Zone games...';
-            filterItems();
-            if (index === 1) loadGNMath();
-        }
-        tabs.forEach((tab,i) => {
-            tab.addEventListener('click',() => select(i));
-            tab.addEventListener('keydown',event => {
-                let next;
-                if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') next = 1-i;
-                else if (event.key === 'Home') next = 0;
-                else if (event.key === 'End') next = 1;
-                else return;
-                event.preventDefault(); select(next); tabs[next].focus();
-            });
-        });
+    function init(){
+        const tabs=[document.getElementById('cxz-provider'),document.getElementById('gn-provider')];
+        const panels=[document.getElementById('cxz-panel'),document.getElementById('gn-panel')];
+        function select(index){tabs.forEach((t,i)=>{t.setAttribute('aria-selected',String(i===index));t.tabIndex=i===index?0:-1;panels[i].hidden=i!==index;});const search=document.getElementById('searchInput');if(search)search.placeholder=index?'Search GN-Math games...':'Search Classroom-X-Zone games...';filterItems();if(index)load();}
+        tabs.forEach((t,i)=>{t.addEventListener('click',()=>select(i));t.addEventListener('keydown',e=>{let n;if(['ArrowLeft','ArrowRight'].includes(e.key))n=1-i;else if(e.key==='Home')n=0;else if(e.key==='End')n=1;else return;e.preventDefault();select(n);tabs[n].focus();});});
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',initialize,{once:true});
-    else initialize();
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
 </body>
