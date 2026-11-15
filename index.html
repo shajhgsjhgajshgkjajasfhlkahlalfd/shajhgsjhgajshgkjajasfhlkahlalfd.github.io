@@ -1909,86 +1909,7 @@
                 // Never let a blocked fetch keep the whole site behind this overlay.
                 fetchTimer = setTimeout(function () {
                     if (token !== loadToken) return;
-                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main>
-<script>
-(() => {
-    const sources = {
-        catalog: 'https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json',
-        html: 'https://cdn.jsdelivr.net/gh/freebuisness/html@latest',
-        covers: 'https://cdn.jsdelivr.net/gh/freebuisness/covers@latest'
-    };
-    let loaded = false;
-    let loading = false;
-
-    function resolveAsset(value, base) {
-        if (typeof value !== 'string' || !value.trim()) return '';
-        const expanded = value.trim()
-            .replaceAll('{HTML_URL}', sources.html)
-            .replaceAll('{COVER_URL}', sources.covers);
-        try {
-            const url = new URL(expanded, base + '/');
-            return ['https:', 'http:'].includes(url.protocol) ? url.href : '';
-        } catch { return ''; }
-    }
-
-    async function loadGNMathGames() {
-        if (loading || loaded) return;
-        loading = true;
-        const status = document.getElementById('gn-math-status');
-        const retry = document.getElementById('gn-math-retry');
-        const grid = document.getElementById('gn-math-grid');
-        status.textContent = 'Loading GN-Math games…';
-        retry.hidden = true;
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 30000);
-        try {
-            const response = await fetch(sources.catalog, { signal: controller.signal });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const zones = await response.json();
-            if (!Array.isArray(zones)) throw new Error('Expected a JSON array.');
-            const games = zones.filter(zone => zone && typeof zone.name === 'string' && typeof zone.url === 'string')
-                .map(zone => ({
-                    title: zone.name.trim(),
-                    file: resolveAsset(zone.url, sources.html),
-                    img: resolveAsset(zone.cover, sources.covers),
-                    tagline: typeof zone.description === 'string' ? zone.description : ''
-                }))
-                .filter(game => game.title && game.file)
-                .sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true }));
-            if (!games.length) throw new Error('No usable game entries found. Check the catalog schema.');
-            const fragment = document.createDocumentFragment();
-            games.forEach(game => fragment.appendChild(buildGameCard(game)));
-            grid.replaceChildren(fragment);
-            loaded = true;
-            status.textContent = games.length + ' GN-Math entries';
-            if (document.getElementById('gn-math').classList.contains('active')) filterItems();
-        } catch (error) {
-            console.error('[GN-Math]', error);
-            status.textContent = 'GN-Math could not be loaded. Your original games are unaffected. ' +
-                (error.name === 'AbortError' ? 'The request timed out.' : error.message);
-            retry.hidden = false;
-        } finally {
-            clearTimeout(timeout);
-            loading = false;
-        }
-    }
-
-    function initialize() {
-        const tab = document.getElementById('gn-math');
-        document.getElementById('gn-math-retry').addEventListener('click', loadGNMathGames);
-        const check = () => {
-            if (tab.classList.contains('active')) loadGNMathGames();
-        };
-        new MutationObserver(check).observe(tab, { attributes: true, attributeFilter: ['class'] });
-        check();
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize, { once: true });
-    } else initialize();
-})();
-</script>
-
-</body></html>', token);
+                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main></body></html>', token);
                 }, 5000);
             } catch (e) {
                 window.__cxzBlockDone = true;
@@ -2072,15 +1993,6 @@
             <h2 class="section-title">All Games</h2>
             <p class="page-description">Browse the Classroom-X-Zone arcade. Search by title, pick a card, and the game opens right here.</p>
             <div class="grid square-grid" id="all-games-grid"></div>
-        </div>
-
-        <!-- TAB: GN-MATH -->
-        <div id="gn-math" class="tab-content">
-            <h2 class="section-title">GN-Math</h2>
-            <p class="page-description">A separate game collection. Use the search bar above to search this collection.</p>
-            <p id="gn-math-status" class="page-description" role="status">Open this tab to load GN-Math games.</p>
-            <button id="gn-math-retry" class="btn-action" type="button" hidden>Retry loading GN-Math</button>
-            <div id="gn-math-grid" class="grid square-grid"></div>
         </div>
 
         <!-- TAB: TOOLS -->
@@ -2585,10 +2497,6 @@ aria-label="Fullscreen">
     <i data-lucide="film"></i>
 
 </button>
-        <!-- GN-Math collection -->
-        <button class="dock-item" onclick="switchTab('gn-math', this)" title="GN-Math" aria-label="GN-Math games">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        </button>
         <!-- Lucide wrench -->
         <button class="dock-item" onclick="switchTab('tools', this)" title="Tools">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
@@ -3239,7 +3147,7 @@ aria-label="Fullscreen">
             if (targetTab) {
                 morphHeader(() => { document.body.dataset.tab = tabId; }, targetTab);
                 if (searchEl) {
-                    const names = { home: 'Search...', games: 'Search games...', 'gn-math': 'Search GN-Math games...', tools: 'Search tools...', partners: 'Search partners...' };
+                    const names = { home: 'Search...', games: 'Search games...', tools: 'Search tools...', partners: 'Search partners...' };
                     searchEl.placeholder = names[tabId] || 'Search...';
                 }
                 targetTab.classList.add('active');
@@ -3249,7 +3157,7 @@ aria-label="Fullscreen">
             let activeBtn = btn;
             if (!activeBtn) {
                 // Find matching button
-const btnIdx = ['home', 'games', 'movies', 'gn-math', 'tools', 'partners', 'suggest', 'settings', 'proxy'].indexOf(tabId);                const buttons = document.querySelectorAll('.dock-item');
+const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'settings', 'proxy'].indexOf(tabId);                const buttons = document.querySelectorAll('.dock-item');
                 if (btnIdx >= 0 && buttons[btnIdx]) activeBtn = buttons[btnIdx];
             }
             if (activeBtn) {
@@ -5387,6 +5295,87 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     } else {
         setupGust();
     }
+})();
+</script>
+
+<script>
+(() => {
+    const sources = {
+        catalog: 'https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json',
+        html: 'https://cdn.jsdelivr.net/gh/freebuisness/html@latest',
+        covers: 'https://cdn.jsdelivr.net/gh/freebuisness/covers@latest'
+    };
+    let loaded = false;
+    let loading = false;
+    function asset(value, base) {
+        if (typeof value !== 'string' || !value.trim()) return '';
+        try {
+            const expanded = value.trim().replaceAll('{HTML_URL}', sources.html).replaceAll('{COVER_URL}', sources.covers);
+            const url = new URL(expanded, base + '/');
+            return ['https:', 'http:'].includes(url.protocol) ? url.href : '';
+        } catch { return ''; }
+    }
+    function initialize() {
+        const existing = document.getElementById('games');
+        if (!existing) return;
+        const tab = document.createElement('div');
+        tab.id = 'gn-math';
+        tab.className = 'tab-content';
+        tab.innerHTML = '<h2 class="section-title">GN-Math</h2><p class="page-description">A separate collection. Search using the search bar above.</p><p id="gn-math-status" class="page-description" role="status">Open this tab to load games.</p><button id="gn-math-retry" class="btn-action" type="button" hidden>Retry loading</button><div id="gn-math-grid" class="grid square-grid"></div>';
+        existing.insertAdjacentElement('afterend', tab);
+        const button = document.createElement('button');
+        button.className = 'dock-item';
+        button.type = 'button';
+        button.title = 'GN-Math';
+        button.setAttribute('aria-label', 'GN-Math games');
+        button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';
+        const dockItem = document.querySelector('.dock-item');
+        if (dockItem) dockItem.parentElement.appendChild(button);
+        const status = document.getElementById('gn-math-status');
+        const retry = document.getElementById('gn-math-retry');
+        const grid = document.getElementById('gn-math-grid');
+        async function load() {
+            if (loaded || loading) return;
+            loading = true;
+            status.textContent = 'Loading GN-Math games…';
+            retry.hidden = true;
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 30000);
+            try {
+                const response = await fetch(sources.catalog, { signal: controller.signal });
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const zones = await response.json();
+                if (!Array.isArray(zones)) throw new Error('Expected a catalog array.');
+                const games = zones.filter(z => z && typeof z.name === 'string' && typeof z.url === 'string')
+                    .map(z => ({ title: z.name.trim(), file: asset(z.url, sources.html), img: asset(z.cover, sources.covers), tagline: typeof z.description === 'string' ? z.description : '' }))
+                    .filter(g => g.title && g.file)
+                    .sort((a,b) => a.title.localeCompare(b.title, undefined, { numeric: true }));
+                if (!games.length) throw new Error('No usable entries. Check the catalog format.');
+                const fragment = document.createDocumentFragment();
+                games.forEach(g => fragment.appendChild(buildGameCard(g)));
+                grid.replaceChildren(fragment);
+                loaded = true;
+                status.textContent = games.length + ' GN-Math entries';
+                if (tab.classList.contains('active')) filterItems();
+            } catch (error) {
+                console.error('[GN-Math]', error);
+                status.textContent = 'GN-Math could not load. Your original games are unaffected. ' + (error.name === 'AbortError' ? 'Request timed out.' : error.message);
+                retry.hidden = false;
+            } finally {
+                clearTimeout(timer);
+                loading = false;
+            }
+        }
+        button.addEventListener('click', () => {
+            switchTab('gn-math', button);
+            const search = document.getElementById('searchInput');
+            if (search) search.placeholder = 'Search GN-Math games...';
+            load();
+        });
+        retry.addEventListener('click', load);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, { once: true });
+    else initialize();
 })();
 </script>
 </body>
