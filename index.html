@@ -2612,19 +2612,11 @@ aria-label="Fullscreen">
             return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
         }
 
-
-        function absoluteCardGameURL(value) {
-            let raw = String(value || '').trim();
-            const prefixed = raw.match(/^(?:https?:\/\/[^/]+)?\/?(?:[^?#]*\/)?g\/games\/html\/(https?:\/\/.+)$/i);
-            if (prefixed) raw = prefixed[1];
-            return raw;
-        }
-
         function buildGameCard(g) {
             const a = document.createElement('a');
             a.className = 'card item-card';
             a.dataset.title = g.title;
-            a.dataset.gameUrl = absoluteCardGameURL(g.file);
+            a.dataset.gameUrl = g.file;
             a.href = '#';
             a.setAttribute('role', 'button');
             a.setAttribute('aria-label', 'Play ' + g.title);
@@ -4359,7 +4351,6 @@ const CXZPlayer = (() => {
     function absoluteGameURL(value) {
         let raw = String(value || '').trim();
         if (!raw) throw new Error('The game URL is empty.');
-        // Repair previously prefixed remote URLs, without altering normal paths.
         const prefixed = raw.match(/^(?:https?:\/\/[^/]+)?\/?(?:[^?#]*\/)?g\/games\/html\/(https?:\/\/.+)$/i);
         if (prefixed) raw = prefixed[1];
         if (/^https?:\/\//i.test(raw)) return new URL(raw).href;
@@ -4635,6 +4626,51 @@ const CXZPlayer = (() => {
         return removed;
     }
 
+
+    function downloadedBannerGuard(doc, runtime) {
+        const ignored = 'script,style,noscript,template,textarea,pre,code,canvas,video,audio,svg';
+        function clean(node) {
+            if (!node || node.nodeType !== 1 || node.matches(ignored)) return;
+            if (/^(HTML|HEAD|BODY)$/.test(node.tagName)) return;
+            const text = (node.textContent || '').replace(/\s+/g,' ').trim();
+            if (text.length > 240 || !/^downloaded\s+from\s+\S/i.test(text)) return;
+            if (/copyright|all rights reserved|\blicen[sc]e\b|©/i.test(text)) return;
+            if (node.querySelector('canvas,video,audio,iframe,object,embed,input,textarea')) return;
+            // Only small rendered messages, never source code or game containers.
+            node.remove();
+        }
+        function scan(root) {
+            if (!root) return;
+            const element = root.nodeType === 3 ? root.parentElement : root;
+            if (!element || element.nodeType !== 1 || element.closest(ignored)) return;
+            clean(element);
+            if (element.querySelectorAll) element.querySelectorAll('div,span,p,aside,section,a,small,label').forEach(clean);
+        }
+        scan(doc.documentElement);
+        if (runtime) {
+            const observer = new MutationObserver(records => {
+                for (const record of records) {
+                    if (record.type === 'characterData') scan(record.target);
+                    else record.addedNodes.forEach(scan);
+                }
+            });
+            observer.observe(doc.documentElement,{subtree:true,childList:true,characterData:true});
+            window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
+        }
+    }
+    function stripDownloadedBanners(doc) {
+        downloadedBannerGuard(doc,false);
+        const script = doc.createElement('script');
+        script.textContent = '('+downloadedBannerGuard.toString()+')(document,true);';
+        doc.head.prepend(script);
+    }
+    function shouldCleanGame(url) {
+        if (isGNMathGame(url)) return true;
+        return typeof GAMES !== 'undefined' && Array.isArray(GAMES) && GAMES.some(g => {
+            try { return absoluteGameURL(g.file) === url; } catch { return false; }
+        });
+    }
+
     async function loadGNMathHTML(url, token) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 30000);
@@ -4647,6 +4683,7 @@ const CXZPlayer = (() => {
             if (token !== launchToken) return;
             const doc = new DOMParser().parseFromString(html, 'text/html');
             const removedAdNodes = stripGNMathAds(doc);
+            stripDownloadedBanners(doc);
             currentHTML = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
             log('[GN-Math] Removed ' + removedAdNodes + ' recognizable ad element(s)/script(s); dynamic ad filtering is enabled.');
             const existingBase = doc.querySelector('base[href]');
@@ -4711,7 +4748,7 @@ const CXZPlayer = (() => {
         log('[Open] ' + currentGame);
 
         try {
-            if (isGNMathGame(currentGame)) {
+            if (shouldCleanGame(currentGame)) {
                 loadGNMathHTML(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
@@ -4803,7 +4840,7 @@ const CXZPlayer = (() => {
         // Re-open using the current blob preference, falling back to the original URL if needed.
         setTimeout(() => {
             if (token !== launchToken || !currentGame) return;
-            if (isGNMathGame(currentGame)) {
+            if (shouldCleanGame(currentGame)) {
                 loadGNMathHTML(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
