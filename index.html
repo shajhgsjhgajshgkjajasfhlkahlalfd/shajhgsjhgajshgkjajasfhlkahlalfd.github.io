@@ -5303,9 +5303,11 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 
         setStatus('Loading…', false);
 
-        // Corrosion expects the target URL base64-encoded appended to the prefix
-        var encoded = btoa(url).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-        proxyFrame.src = CORROSION_BASE + encoded;
+        // Corrosion URL format: /prefix/gateway?url=ENCODED_URL
+        // codec: 'xor' means the URL is XOR-encoded; 'plain' just encodeURIComponent
+        // Using plain here so the client doesn't need the XOR bundle
+        var encoded = encodeURIComponent(url);
+        proxyFrame.src = CORROSION_BASE + 'gateway?url=' + encoded;
 
         proxyFrame.onload = function () { setStatus('', false); };
         proxyFrame.onerror = function () {
