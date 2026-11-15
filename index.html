@@ -5381,7 +5381,12 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
             if(!response.ok)throw new Error('HTTP '+response.status);
             const zones=await response.json();
             if(!Array.isArray(zones))throw new Error('Expected catalog array');
-            const games=zones.filter(z=>z&&typeof z.name==='string'&&typeof z.url==='string').map(z=>({title:z.name.trim(),file:resolve(z.url,htmlBase),img:resolve(z.cover,coverBase),tagline:typeof z.description==='string'?z.description:''})).filter(g=>g.title&&g.file).sort((a,b)=>a.title.localeCompare(b.title,undefined,{numeric:true}));
+            const games=zones.filter(z =>
+    z &&
+    !['-1', '596'].includes(String(z.id)) &&
+    typeof z.name === 'string' &&
+    typeof z.url === 'string'
+).map(z=>({title:z.name.trim(),file:resolve(z.url,htmlBase),img:resolve(z.cover,coverBase),tagline:typeof z.description==='string'?z.description:''})).filter(g=>g.title&&g.file).sort((a,b)=>a.title.localeCompare(b.title,undefined,{numeric:true}));
             if(!games.length)throw new Error('No usable entries');
             const fragment=document.createDocumentFragment();
             games.forEach(g=>{window.gnMathGameURLs.add(g.file);fragment.appendChild(buildGameCard(g));});
