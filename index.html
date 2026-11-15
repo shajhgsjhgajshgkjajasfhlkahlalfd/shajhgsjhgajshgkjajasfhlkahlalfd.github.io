@@ -2315,27 +2315,15 @@ aria-label="Fullscreen">
         <!-- TAB: WEB PROXY -->
         <div id="proxy" class="tab-content">
             <h2 class="section-title">Web Proxy</h2>
-            <p class="page-description">Browse the web through Corrosion. Enter a URL and hit Go — or press Enter.</p>
+            <p class="page-description">Open Scramjet, then enter a website in its address bar.</p>
             <div id="proxy-bar">
-                <input
-                    type="text"
-                    id="proxy-url-input"
-                    placeholder="https://example.com"
-                    autocomplete="off"
-                    spellcheck="false"
-                    onkeydown="if(event.key==='Enter')loadProxy()"
-                >
-                <button id="proxy-go-btn" onclick="loadProxy()">Go</button>
-                <button id="proxy-refresh-btn" onclick="reloadProxy()" title="Reload">↺</button>
+                <button id="proxy-go-btn" onclick="loadProxy()">Open Scramjet</button>
+                <button id="proxy-refresh-btn" onclick="reloadProxy()" title="Restart browser">Restart browser</button>
+                <a href="/browser.html" target="_blank" rel="noopener noreferrer">Open directly</a>
             </div>
-            <div id="proxy-status"></div>
-            <iframe
-                id="proxy-frame"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
-                title="Web Proxy"
-            ></iframe>
+            <div id="proxy-status" role="status">Select Open Scramjet to start.</div>
+            <iframe id="proxy-frame" title="Scramjet browser" allow="fullscreen"></iframe>
         </div>
-
 
 <!-- =========================================================
      INTEGRATED GAME PLAYER
@@ -5256,88 +5244,27 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════
-     WEB PROXY — Corrosion backend
-     Deploy server.js to Railway/Render, paste your URL below.
-     Repo: https://github.com/titaniumnetwork-dev/Corrosion
+     WEB PROXY — Local Scramjet-App integration
+     Preserve the upstream application entry page as /browser.html.
 ════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
     'use strict';
-
-    var CORROSION_BASE = 'https://cxz-prox.onrender.com/fetch/';
-    var lastProxyUrl = '';
-
-    function setStatus(message, isError) {
-        var status = document.getElementById('proxy-status');
-        if (!status) return;
-        status.textContent = message;
-        status.className = isError ? 'error' : '';
+    var browserURL = '/browser.html';
+    function status(message) {
+        var element = document.getElementById('proxy-status');
+        if (element) element.textContent = message;
     }
-
-    function normalizeURL(raw) {
-        raw = String(raw || '').trim();
-        if (!raw) throw new Error('Enter a URL or search term first.');
-
-        if (/^(?:javascript|data|file|blob|about|ftp|mailto):/i.test(raw)) {
-            throw new Error('Only HTTP and HTTPS destinations are supported.');
-        }
-
-        if (raw.indexOf('//') === 0) {
-            raw = 'https:' + raw;
-        } else if (!/^https?:\/\//i.test(raw)) {
-            if (/\s/.test(raw) || (raw.indexOf('.') === -1 &&
-                !/^localhost(?::\d+)?(?:\/|$)/i.test(raw))) {
-                raw = 'https://www.google.com/search?q=' + encodeURIComponent(raw);
-            } else {
-                raw = 'https://' + raw;
-            }
-        }
-
-        var destination;
-        try {
-            destination = new URL(raw);
-        } catch (error) {
-            throw new Error('Enter a valid website URL, such as https://example.com.');
-        }
-        if (destination.protocol !== 'http:' && destination.protocol !== 'https:') {
-            throw new Error('Only HTTP and HTTPS destinations are supported.');
-        }
-        return destination.href;
-    }
-
     window.loadProxy = function () {
-        var input = document.getElementById('proxy-url-input');
         var frame = document.getElementById('proxy-frame');
-        if (!input || !frame) {
-            setStatus('The proxy input or frame is missing.', true);
-            return;
-        }
-
-        try {
-            var destination = normalizeURL(input.value);
-            var gateway = new URL('gateway', CORROSION_BASE);
-            gateway.searchParams.set('url', destination);
-            lastProxyUrl = gateway.href;
-            input.value = destination;
-            setStatus('Loading proxy page...', false);
-            frame.onload = function () {
-                setStatus('Frame navigation finished. If an error is displayed, check the backend logs.', false);
-            };
-            frame.onerror = function () {
-                setStatus('The frame reported a loading error. Check the backend logs.', true);
-            };
-            frame.src = lastProxyUrl;
-        } catch (error) {
-            setStatus(error.message || 'Unable to open that URL.', true);
-        }
+        if (!frame) return;
+        status('Opening Scramjet. Enter a website in the browser interface below.');
+        frame.onload = function () {
+            status('Browser frame navigation finished. Use its address bar, or open the browser directly.');
+        };
+        frame.src = browserURL;
     };
-
-    window.reloadProxy = function () {
-        var frame = document.getElementById('proxy-frame');
-        if (!frame || !lastProxyUrl) return;
-        setStatus('Reloading the last submitted URL...', false);
-        frame.src = lastProxyUrl;
-    };
+    window.reloadProxy = window.loadProxy;
 })();
 </script>
 </body>
