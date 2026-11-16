@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CXZ Browser</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#090d18;color:#eef2ff}*{box-sizing:border-box}body{margin:0;height:100svh;display:flex;flex-direction:column}header{padding:12px;background:#141b2d;border-bottom:1px solid #ffffff20}form{display:flex;gap:8px;max-width:1400px;margin:auto;align-items:center}input{flex:1;min-width:0;background:#080e1c;color:#fff;border:1px solid #475569;border-radius:9px;padding:12px;font:inherit}button,a{font:inherit;border:0;border-radius:9px;padding:12px;background:#818cf8;color:#101329;font-weight:650;text-decoration:none;cursor:pointer}a{background:#27334c;color:#e2e8f0;font-size:13px}input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #c7d2fe;outline-offset:2px}.hint{font-size:12px;color:#adb9d0;margin:10px auto 0;max-width:1400px;line-height:1.5}#message{color:#fda4af}iframe{width:100%;flex:1;min-height:0;border:0;background:white}@media(max-width:550px){form{flex-wrap:wrap}input{flex-basis:70%}a{padding:8px}}
+</style>
+</head>
+<body>
+<header>
+<form id="search" role="search">
+<input id="address" type="text" placeholder="Search or enter a website" aria-label="Search or website address" autocomplete="off" spellcheck="false" value="https://example.com/" required>
+<button type="submit">Go</button>
+<a id="login" target="_blank" rel="noopener noreferrer">Proxy login</a>
+<a id="open" target="_blank" rel="noopener noreferrer">Open tab</a>
+</form>
+<p class="hint">First use: open Proxy login, sign in, and load a website there once. Then return and press Go. If embedding is blocked, use Open tab. <span id="message" role="status"></span></p>
+</header>
+<iframe id="browser" title="Proxied browser" allow="fullscreen" referrerpolicy="no-referrer" src="about:blank"></iframe>
+<script>
+const origin = 'https://shajhgsjhgajshgkjajasfhlkahlalfd.caamanoycia.cl';
+const address = document.getElementById('address');
+const frame = document.getElementById('browser');
+const openLink = document.getElementById('open');
+const message = document.getElementById('message');
+document.getElementById('login').href = origin + '/';
+openLink.href = origin + '/';
+function destination(value) {
+  value = value.trim();
+  if (!value) throw new Error('Enter a website or search.');
+  if (/^https?:\/\//i.test(value)) return new URL(value).href;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(value) && !/^[^\s/:]+:\d+(?:[/?#]|$)/.test(value)) throw new Error('Only HTTP and HTTPS addresses are supported.');
+  if (!/\s/.test(value) && (value.includes('.') || /^localhost(?::\d+)?(?:[/?#]|$)/i.test(value))) return new URL('https://' + value).href;
+  return 'https://www.google.com/search?q=' + encodeURIComponent(value);
+}
+document.getElementById('search').addEventListener('submit', event => {
+  event.preventDefault();
+  try {
+    const target = destination(address.value);
+    const url = origin + '/scramjet/' + encodeURIComponent(target);
+    message.textContent = '';
+    openLink.href = url;
+    frame.src = url;
+  } catch (error) { message.textContent = error.message; }
+});
+</script>
+</body>
+</html>
