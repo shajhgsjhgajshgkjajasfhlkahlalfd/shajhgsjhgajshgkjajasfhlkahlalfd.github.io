@@ -1,39 +1,213 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1"
-    />
-    <title>CXZ Browser</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scramjet Proxy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    <style>
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
-            background: #090d18;
-        }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
 
-        iframe {
-            position: fixed;
-            inset: 0;
-            display: block;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-    </style>
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 0 16px;
+    }
+
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #888;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .bar {
+      display: flex;
+      gap: 8px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus { border-color: #555; }
+
+    button {
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    button:hover { background: #1d4ed8; }
+    button:disabled { background: #1a1a2e; color: #555; cursor: not-allowed; }
+
+    #status {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #555;
+      min-height: 1.2em;
+    }
+
+    #status.ready  { color: #22c55e; }
+    #status.error  { color: #ef4444; }
+    #status.loading { color: #f59e0b; }
+
+    iframe {
+      width: 100%;
+      height: 70vh;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      background: #111;
+      display: none;
+      margin-top: 12px;
+    }
+  </style>
 </head>
-
 <body>
-    <iframe
-        src="https://shajhgsjhgajshgkjajasfhlkahlalfd.caamanoycia.cl/"
-        title="CXZ Browser"
-        allow="fullscreen"
-    ></iframe>
+
+<div class="container">
+  <h1>Scramjet</h1>
+
+  <div class="bar">
+    <input id="urlInput" type="text" placeholder="https://example.com" />
+    <button id="goBtn" disabled>Go</button>
+  </div>
+
+  <p id="status" class="loading">Registering service worker…</p>
+  <iframe id="frame"></iframe>
+</div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────────────────────
+  const BACKEND   = 'https://shajhgsjhgajshgkjajasfhlkahlalfd.caamanoycia.cl';
+  const SW_PATH   = '/scramjet.sw.js';          // served from your backend
+  const SW_SCOPE  = '/scramjet/';               // must match backend routing
+  const CODEC     = 'plain';                    // 'plain' | 'base64' | 'xor'
+
+  // ── Scramjet client bundle ────────────────────────────────────────────────
+  // Loads the client-side runtime from your backend
+  const clientScript = document.createElement('script');
+  clientScript.src = `${BACKEND}/scramjet.client.js`;
+  clientScript.onload  = initSW;
+  clientScript.onerror = () => setStatus('Failed to load Scramjet client', 'error');
+  document.head.appendChild(clientScript);
+
+  // ── Service Worker registration ───────────────────────────────────────────
+  async function initSW() {
+    if (!('serviceWorker' in navigator)) {
+      setStatus('Service workers not supported in this browser', 'error');
+      return;
+    }
+
+    try {
+      const reg = await navigator.serviceWorker.register(
+        `${BACKEND}${SW_PATH}`,
+        { scope: SW_SCOPE }
+      );
+
+      // Wait for SW to become active
+      await waitForSW(reg);
+
+      // Boot the Scramjet client runtime
+      // ScramjetClient is exposed by scramjet.client.js on window
+      if (window.ScramjetClient) {
+        const client = new window.ScramjetClient(reg);
+        await client.init();
+      }
+
+      setStatus('Ready', 'ready');
+      document.getElementById('goBtn').disabled = false;
+
+    } catch (err) {
+      setStatus(`SW registration failed: ${err.message}`, 'error');
+      console.error(err);
+    }
+  }
+
+  function waitForSW(reg) {
+    return new Promise(resolve => {
+      const sw = reg.installing || reg.waiting || reg.active;
+      if (!sw || sw.state === 'activated') { resolve(); return; }
+      sw.addEventListener('statechange', function handler() {
+        if (this.state === 'activated') {
+          this.removeEventListener('statechange', handler);
+          resolve();
+        }
+      });
+    });
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  document.getElementById('goBtn').addEventListener('click', navigate);
+  document.getElementById('urlInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') navigate();
+  });
+
+  function navigate() {
+    let raw = document.getElementById('urlInput').value.trim();
+    if (!raw) return;
+
+    // Auto-prepend https:// if missing
+    if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+
+    // Encode the target URL through Scramjet's codec
+    const encoded = encodeTarget(raw);
+    const proxied  = `${SW_SCOPE}${encoded}`;
+
+    const frame = document.getElementById('frame');
+    frame.style.display = 'block';
+    frame.src = proxied;
+  }
+
+  function encodeTarget(url) {
+    switch (CODEC) {
+      case 'base64': return btoa(url);
+      case 'xor':    return xorEncode(url);
+      default:       return encodeURIComponent(url);   // plain
+    }
+  }
+
+  // Simple XOR codec — key must match your backend config
+  function xorEncode(str, key = 'scramjet') {
+    return Array.from(str)
+      .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length)))
+      .map(c => c.charCodeAt(0).toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function setStatus(msg, cls = '') {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className   = cls;
+  }
+</script>
+
 </body>
 </html>
