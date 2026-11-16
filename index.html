@@ -1802,7 +1802,7 @@
 </style>
 
 <style id="gust-fullscreen-proxy-styles">
-    body.gust-proxy-open { overflow: hidden !important; }
+    body.browser-tab-open { overflow: hidden !important; }
     #proxy.tab-content {
         position: fixed !important;
         inset: 0 !important;
@@ -1829,7 +1829,7 @@
         border-radius: 0 !important;
         background: #000;
     }
-    body.gust-proxy-open .bottom-dock { z-index: 220001 !important; }
+    body.browser-tab-open .bottom-dock { z-index: 220001 !important; }
 </style>
 <style>.provider-tabs{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 24px}.provider-card{width:140px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;border:1px solid #ffffff29;border-radius:14px;background:#ffffff0b;color:inherit;font:inherit;cursor:pointer}.provider-card img{width:64px;height:64px;object-fit:contain;border-radius:12px}.provider-card span{font-size:12px;font-weight:600}.provider-card[aria-selected="true"]{border-color:var(--accent-color,#ff6600);background:color-mix(in srgb,var(--accent-color,#ff6600) 12%,transparent)}.provider-card:focus-visible{outline:2px solid var(--accent-color);outline-offset:4px}#cxz-panel[hidden],#gn-panel[hidden]{display:none!important}</style>
 </head>
@@ -2348,8 +2348,9 @@ aria-label="Fullscreen">
 
         <!-- TAB: WEB PROXY -->
         <div id="proxy" class="tab-content">
-            <iframe id="proxy-frame" data-src="./g/games/other/GUST.html"
-                title="GUST Proxy" allow="fullscreen; clipboard-read; clipboard-write"></iframe>
+            <iframe id="proxy-frame" data-src="./browser.html"
+                title="Web Browser" allow="fullscreen; clipboard-read; clipboard-write"
+                allowfullscreen loading="lazy"></iframe>
         </div>
 
 <!-- =========================================================
@@ -5514,11 +5515,11 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     loadMovies();
 </script>
 
-<!-- GUST fullscreen proxy tab -->
+<!-- Fullscreen browser tab -->
 <script>
 (function () {
     'use strict';
-    function setupGust() {
+    function setupBrowserTab() {
         var tab = document.getElementById('proxy');
         var frame = document.getElementById('proxy-frame');
         if (!tab || !frame) return;
@@ -5526,7 +5527,7 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
         document.body.appendChild(tab);
         function syncProxy() {
             var active = tab.classList.contains('active');
-            document.body.classList.toggle('gust-proxy-open', active);
+            document.body.classList.toggle('browser-tab-open', active);
             if (active && !frame.hasAttribute('src')) {
                 frame.src = frame.getAttribute('data-src');
             }
@@ -5538,9 +5539,9 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
         syncProxy();
     }
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupGust);
+        document.addEventListener('DOMContentLoaded', setupBrowserTab);
     } else {
-        setupGust();
+        setupBrowserTab();
     }
 })();
 </script>
