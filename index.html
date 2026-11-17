@@ -5548,162 +5548,48 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 
 <script>
 (() => {
-    const htmlBase = 'https://cdn.jsdelivr.net/gh/freebuisness/html@latest';
-    const coverBase = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@latest';
-    const catalog = './g/assets/zones.json'
-
-    const excludedIDs = new Set(['-1', '596']);
-
-    window.gnMathGameURLs = new Set();
-
-    let loaded = false;
-    let loading = false;
-
-    function resolve(value, base) {
-        if (!value || typeof value !== 'string') return '';
-
-        try {
-            const fixed = value
-                .trim()
-                .replaceAll('{HTML_URL}', htmlBase)
-                .replaceAll('{COVER_URL}', coverBase);
-
-            return new URL(fixed, base + '/').href;
-        } catch (err) {
-            console.warn('[GN-Math resolve]', value, err);
-            return '';
-        }
-
-        console.log("catalog =", catalog);
+    const htmlBase='https://cdn.jsdelivr.net/gh/freebuisness/html@latest';
+    const coverBase='https://cdn.jsdelivr.net/gh/freebuisness/covers@latest';
+    const catalog='./g/assets/zones.json';
+    const excludedIDs=new Set(['-1','596']);
+    window.gnMathGameURLs=new Set();
+    let loaded=false, loading=false;
+    function resolve(value,base) {
+        if(typeof value!=='string'||!value.trim())return '';
+        try {const u=new URL(value.trim().replaceAll('{HTML_URL}',htmlBase).replaceAll('{COVER_URL}',coverBase),base+'/');return ['https:','http:'].includes(u.protocol)?u.href:'';}catch{return '';}
     }
-
-    async function load() {
-    if (loaded || loading) return;
-
-    loading = true;
-
-    const status = document.getElementById('gn-status');
-    const grid = document.getElementById('gn-grid');
-
-    try {
-        status.textContent = 'Testing connection...';
-
-        const response = await fetch(catalog);
-
-        status.textContent =
-            'HTTP Status: ' + response.status;
-
-        if (!response.ok) {
-            throw new Error(
-                'HTTP ' + response.status
-            );
-        }
-
-        const text = await response.text();
-
-        status.textContent =
-            'Downloaded ' +
-            text.length +
-            ' characters';
-
-        const zones = JSON.parse(text);
-
-        status.textContent =
-            'Found ' +
-            zones.length +
-            ' entries';
-
-    } catch (error) {
-
-        status.textContent =
-            'ERROR: ' +
-            error.name +
-            ' | ' +
-            error.message;
-
-        grid.innerHTML = `
-            <div class="page-description">
-                ${error.name}<br>
-                ${error.message}
-            </div>
-        `;
-
-    } finally {
-        loading = false;
+    async function load(){
+        if(loaded||loading)return;
+        loading=true;
+        const status=document.getElementById('gn-status');
+        status.textContent='Loading GN-Math games…';
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort(),30000);
+        try{
+            const response=await fetch(catalog,{signal:controller.signal});
+            if(!response.ok)throw new Error('HTTP '+response.status);
+            const zones=await response.json();
+            if(!Array.isArray(zones))throw new Error('Expected catalog array');
+            const games=zones
+                .filter(z=>z&&!excludedIDs.has(String(z.id).trim())&&typeof z.name==='string'&&typeof z.url==='string')
+                .map(z=>({title:z.name.trim(),file:resolve(z.url,htmlBase),img:resolve(z.cover,coverBase),tagline:typeof z.description==='string'?z.description:''}))
+                .filter(g=>g.title&&g.file)
+                .sort((a,b)=>a.title.localeCompare(b.title,undefined,{numeric:true}));
+            if(!games.length)throw new Error('No usable entries');
+            const fragment=document.createDocumentFragment();
+            games.forEach(g=>{window.gnMathGameURLs.add(g.file);fragment.appendChild(buildGameCard(g));});
+            document.getElementById('gn-grid').replaceChildren(fragment);
+            status.textContent=games.length+' GN-Math entries';loaded=true;
+            if(document.getElementById('games').classList.contains('active'))filterItems();
+        }catch(error){console.error('[GN-Math catalog]',error);status.textContent='GN-Math could not be loaded. Your Classroom-X-Zone games are unaffected.';}finally{clearTimeout(timer);loading=false;}
     }
-}
-
-
-    function init() {
-        const cxzBtn = document.getElementById('cxz-provider');
-        const gnBtn = document.getElementById('gn-provider');
-
-        const cxzPanel = document.getElementById('cxz-panel');
-        const gnPanel = document.getElementById('gn-panel');
-
-        if (
-            !cxzBtn ||
-            !gnBtn ||
-            !cxzPanel ||
-            !gnPanel
-        ) {
-            console.warn(
-                '[GN-Math] Provider elements missing'
-            );
-            return;
-        }
-
-        function select(index) {
-            const tabs = [cxzBtn, gnBtn];
-            const panels = [cxzPanel, gnPanel];
-
-            tabs.forEach((tab, i) => {
-                tab.setAttribute(
-                    'aria-selected',
-                    String(i === index)
-                );
-
-                tab.tabIndex = i === index ? 0 : -1;
-            });
-
-            panels.forEach((panel, i) => {
-                panel.hidden = i !== index;
-            });
-
-            const search =
-                document.getElementById('searchInput');
-
-            if (search) {
-                search.placeholder =
-                    index === 1
-                        ? 'Search GN-Math games...'
-                        : 'Search Classroom-X-Zone games...';
-            }
-
-            if (index === 1) {
-                load();
-            }
-
-            if (typeof filterItems === 'function') {
-                filterItems();
-            }
-        }
-
-        cxzBtn.addEventListener('click', () => select(0));
-        gnBtn.addEventListener('click', () => select(1));
-
-        console.log('[GN-Math] Provider system initialized');
+    function init(){
+        const tabs=[document.getElementById('cxz-provider'),document.getElementById('gn-provider')];
+        const panels=[document.getElementById('cxz-panel'),document.getElementById('gn-panel')];
+        function select(index){tabs.forEach((t,i)=>{t.setAttribute('aria-selected',String(i===index));t.tabIndex=i===index?0:-1;panels[i].hidden=i!==index;});const search=document.getElementById('searchInput');if(search)search.placeholder=index?'Search GN-Math games...':'Search Classroom-X-Zone games...';filterItems();if(index)load();}
+        tabs.forEach((t,i)=>{t.addEventListener('click',()=>select(i));t.addEventListener('keydown',e=>{let n;if(['ArrowLeft','ArrowRight'].includes(e.key))n=1-i;else if(e.key==='Home')n=0;else if(e.key==='End')n=1;else return;e.preventDefault();select(n);tabs[n].focus();});});
     }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener(
-            'DOMContentLoaded',
-            init,
-            { once: true }
-        );
-    } else {
-        init();
-    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
 </body>
