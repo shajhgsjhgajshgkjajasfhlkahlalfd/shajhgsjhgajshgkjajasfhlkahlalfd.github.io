@@ -5550,7 +5550,11 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 (() => {
     const htmlBase = 'https://cdn.jsdelivr.net/gh/freebuisness/html@latest';
     const coverBase = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@latest';
-    const catalog = 'https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json';
+    const catalog =
+    "https://api.allorigins.win/raw?url=" +
+    encodeURIComponent(
+        "https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json"
+    );
 
     const excludedIDs = new Set(['-1', '596']);
 
