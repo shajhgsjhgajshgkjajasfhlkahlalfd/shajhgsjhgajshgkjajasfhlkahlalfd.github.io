@@ -5573,115 +5573,66 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
             console.warn('[GN-Math resolve]', value, err);
             return '';
         }
+
+        console.log("catalog =", catalog);
     }
 
     async function load() {
-        if (loaded || loading) return;
+    if (loaded || loading) return;
 
-        loading = true;
+    loading = true;
 
-        const status = document.getElementById('gn-status');
-        const grid = document.getElementById('gn-grid');
+    const status = document.getElementById('gn-status');
+    const grid = document.getElementById('gn-grid');
 
-        if (status) {
-            status.textContent = 'Loading GN-Math games...';
+    try {
+        status.textContent = 'Testing connection...';
+
+        const response = await fetch(catalog);
+
+        status.textContent =
+            'HTTP Status: ' + response.status;
+
+        if (!response.ok) {
+            throw new Error(
+                'HTTP ' + response.status
+            );
         }
 
-        try {
-            console.log('[GN-Math] Fetching catalog:', catalog);
+        const text = await response.text();
 
-            const response = await fetch(catalog, {
-                cache: 'no-store'
-            });
+        status.textContent =
+            'Downloaded ' +
+            text.length +
+            ' characters';
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+        const zones = JSON.parse(text);
 
-            const zones = await response.json();
+        status.textContent =
+            'Found ' +
+            zones.length +
+            ' entries';
 
-            console.log('[GN-Math] Zones:', zones);
+    } catch (error) {
 
-            if (!Array.isArray(zones)) {
-                throw new Error('Catalog is not an array');
-            }
+        status.textContent =
+            'ERROR: ' +
+            error.name +
+            ' | ' +
+            error.message;
 
-            const games = zones
-                .filter(z =>
-                    z &&
-                    !excludedIDs.has(String(z.id).trim()) &&
-                    typeof z.name === 'string' &&
-                    typeof z.url === 'string'
-                )
-                .map(z => ({
-                    title: z.name.trim(),
-                    file: resolve(z.url, htmlBase),
-                    img: resolve(z.cover || '', coverBase),
-                    tagline:
-                        typeof z.description === 'string'
-                            ? z.description
-                            : ''
-                }))
-                .filter(g => g.title && g.file);
+        grid.innerHTML = `
+            <div class="page-description">
+                ${error.name}<br>
+                ${error.message}
+            </div>
+        `;
 
-            console.log('[GN-Math] Processed games:', games);
-
-            if (!games.length) {
-                throw new Error('No usable game entries found');
-            }
-
-            const fragment = document.createDocumentFragment();
-
-            games.forEach(game => {
-                window.gnMathGameURLs.add(game.file);
-
-                if (typeof buildGameCard === 'function') {
-                    fragment.appendChild(buildGameCard(game));
-                }
-            });
-
-            if (grid) {
-                grid.replaceChildren(fragment);
-            }
-
-            if (status) {
-                status.textContent =
-                    games.length +
-                    (games.length === 1
-                        ? ' GN-Math game'
-                        : ' GN-Math games');
-            }
-
-            loaded = true;
-
-            if (
-                typeof filterItems === 'function' &&
-                document.getElementById('games')?.classList.contains('active')
-            ) {
-                filterItems();
-            }
-
-            console.log('[GN-Math] Loaded successfully');
-        } catch (error) {
-            console.error('[GN-Math catalog]', error);
-
-            if (status) {
-                status.textContent =
-                    'GN-Math Error: ' + error.message;
-            }
-
-            if (grid) {
-                grid.innerHTML = `
-                    <div class="page-description">
-                        Failed to load GN-Math games.<br>
-                        <strong>${error.message}</strong>
-                    </div>
-                `;
-            }
-        } finally {
-            loading = false;
-        }
+    } finally {
+        loading = false;
     }
+}
+
 
     function init() {
         const cxzBtn = document.getElementById('cxz-provider');
