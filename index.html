@@ -5588,7 +5588,10 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     try {
         status.textContent = 'Testing connection...';
 
-        const response = await fetch(catalog);
+        const response = await fetch(catalog, {
+    mode: "no-cors"
+});
+
 
         status.textContent =
             'HTTP Status: ' + response.status;
