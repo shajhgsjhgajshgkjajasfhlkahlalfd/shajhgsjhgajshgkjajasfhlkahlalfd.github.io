@@ -4441,10 +4441,35 @@ const CXZPlayer = (() => {
     }
 
     async function fetchGameHTML(url) {
-        const response = await fetch(cacheBust(url), {
-            cache: 'no-store',
-            credentials: 'omit'
-        });
+        const proxyUrl =
+    '/__proxy?url=' +
+    encodeURIComponent(cacheBust(url));
+
+const response = await fetch(proxyUrl, {
+    signal: controller.signal,
+    cache: 'no-store'
+});
+let response;
+
+try {
+    response = await fetch(
+        '/__proxy?url=' +
+        encodeURIComponent(cacheBust(url)),
+        {
+            signal: controller.signal,
+            cache: 'no-store'
+        }
+    );
+} catch {
+    response = await fetch(
+        cacheBust(url),
+        {
+            signal: controller.signal,
+            credentials: 'omit',
+            cache: 'no-store'
+        }
+    );
+}
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const html = await response.text();
         if (!html || !html.trim()) throw new Error('The game returned an empty HTML document.');
