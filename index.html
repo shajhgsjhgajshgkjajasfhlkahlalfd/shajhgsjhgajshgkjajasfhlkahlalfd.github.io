@@ -5577,7 +5577,24 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
                 .sort((a,b)=>a.title.localeCompare(b.title,undefined,{numeric:true}));
             if(!games.length)throw new Error('No usable entries');
             const fragment=document.createDocumentFragment();
-            games.forEach(g=>{window.gnMathGameURLs.add(g.file);fragment.appendChild(buildGameCard(g));});
+            games.forEach(g => {
+    console.log(g.file);
+
+    const card = buildGameCard(g);
+
+    card.addEventListener("click", e => {
+        e.preventDefault();
+
+        alert(g.file); // temporary test
+
+        if (window.CXZPlayer) {
+            CXZPlayer.open(g.file, g.title);
+        }
+    });
+
+    window.gnMathGameURLs.add(g.file);
+    fragment.appendChild(card);
+});
             document.getElementById('gn-grid').replaceChildren(fragment);
             status.textContent=games.length+' GN-Math entries';loaded=true;
             if(document.getElementById('games').classList.contains('active'))filterItems();
