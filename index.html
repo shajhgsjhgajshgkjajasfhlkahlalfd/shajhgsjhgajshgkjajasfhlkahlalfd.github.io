@@ -4422,11 +4422,14 @@ const CXZPlayer = (() => {
         if (!frame) throw new Error('Game iframe was not found.');
 
         frame.onload = () => {
-            if (token === launchToken) {
-                applyFrameAudioSettings();
-                finishLoader(token);
-            }
-        };
+
+    document.getElementById(
+        "cxz-console-output"
+    ).innerHTML +=
+        "<br>[Frame loaded successfully]";
+
+    finishLoader(token);
+};
         frame.onerror = () => {
             if (token === launchToken) {
                 log('[Frame Error] The browser could not load this game URL.');
