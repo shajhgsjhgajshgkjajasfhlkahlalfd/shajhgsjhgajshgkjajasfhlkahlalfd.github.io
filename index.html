@@ -4727,6 +4727,8 @@ const CXZPlayer = (() => {
         launchToken++;
         const token = launchToken;
         currentGame = absoluteGameURL(url);
+        document.getElementById('gn-status').textContent =
+    "Opening: " + currentGame;
         currentTitle = title || 'Game';
         currentHTML = '';
 
@@ -4750,8 +4752,7 @@ const CXZPlayer = (() => {
 
         try {
             if (shouldCleanGame(currentGame)) {
-    setFrameURL(currentGame, token);
-
+                loadGNMathHTML(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
             } else {
