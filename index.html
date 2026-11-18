@@ -4771,13 +4771,62 @@ const CXZPlayer = (() => {
                     });
             }
         } catch (error) {
-            clearTimeout(loaderFailsafe);
-            clearInterval(progressTimer);
-            log('[Game Error] ' + error.message);
-            showToast('Could not open game');
-            finishLoader(token);
-            return;
-        }
+    if (token !== launchToken) return;
+
+    const frame = $('cxz-game-frame');
+
+    frame.onload = null;
+    frame.onerror = null;
+    frame.removeAttribute('src');
+
+    const details = [
+        "URL: " + url,
+        "",
+        "Error: " + (error?.name || "Unknown"),
+        "",
+        "Message:",
+        error?.message || String(error),
+        "",
+        "Stack:",
+        error?.stack || "No stack available"
+    ].join("\n");
+
+    frame.srcdoc = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body{
+    margin:0;
+    padding:24px;
+    background:#111;
+    color:#eee;
+    font-family:monospace;
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+h2{
+    color:#ff6666;
+}
+pre{
+    background:#1b1b1b;
+    padding:12px;
+    border-radius:8px;
+    overflow:auto;
+}
+</style>
+</head>
+<body>
+<h2>GN-Math Game Failed To Load</h2>
+<pre>${details.replace(/</g,"&lt;")}</pre>
+</body>
+</html>`;
+    
+    log('[GN-Math fetch error] ' + details);
+
+    finishLoader(token);
+}
     }
 
     function close() {
