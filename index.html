@@ -4418,30 +4418,43 @@ const CXZPlayer = (() => {
     }
 
     function setFrameURL(url, token) {
-        const frame = $('cxz-game-frame');
-        if (!frame) throw new Error('Game iframe was not found.');
+    const frame = $('cxz-game-frame');
 
-        frame.onload = () => {
+    frame.onload = () => {
+
+        document.getElementById(
+            'cxz-console-output'
+        ).innerHTML +=
+            '<br>[Iframe URL] ' +
+            frame.src;
+
+        finishLoader(token);
+    };
+
+    frame.onerror = () => {
+
+        document.getElementById(
+            'cxz-console-output'
+        ).innerHTML +=
+            '<br>[Iframe Error] ' +
+            url;
+    };
+
+    frame.removeAttribute('srcdoc');
+
+    const finalUrl =
+        url.startsWith('blob:')
+            ? url
+            : cacheBust(url);
 
     document.getElementById(
-        "cxz-console-output"
+        'cxz-console-output'
     ).innerHTML +=
-        "<br>[Frame loaded successfully]";
+        '<br>[Loading] ' +
+        finalUrl;
 
-    finishLoader(token);
-};
-        frame.onerror = () => {
-            if (token === launchToken) {
-                log('[Frame Error] The browser could not load this game URL.');
-                finishLoader(token);
-            }
-        };
-
-        // Navigating directly lets the browser resolve relative scripts/assets
-        // against the game's own URL instead of an about:srcdoc document.
-        frame.removeAttribute('srcdoc');
-        frame.src = url.startsWith('blob:') ? url : cacheBust(url);
-    }
+    frame.src = finalUrl;
+}
 
     async function fetchGameHTML(url) {
         const proxyUrl =
