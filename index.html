@@ -4770,47 +4770,27 @@ const CXZPlayer = (() => {
                         if (token === launchToken) log('[Source Note] Download source unavailable: ' + error.message);
                     });
             }
-        } catch (error) {
+       } catch (error) {
     if (token !== launchToken) return;
 
     const frame = $('cxz-game-frame');
 
-    frame.onload = null;
-    frame.onerror = null;
-    frame.removeAttribute('src');
-
-    const details = [
-        "URL: " + url,
-        "",
-        "Error: " + (error?.name || "Unknown"),
-        "",
-        "Message:",
-        error?.message || String(error),
-        "",
-        "Stack:",
-        error?.stack || "No stack available"
-    ].join("\n");
-
-    frame.srcdoc = `
+    const html = `
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
+<title>GN-Math Error</title>
 <style>
 body{
-    margin:0;
-    padding:24px;
-    background:#111;
-    color:#eee;
+    background:#0f1117;
+    color:#fff;
     font-family:monospace;
-    white-space:pre-wrap;
+    padding:20px;
     word-break:break-word;
 }
-h2{
-    color:#ff6666;
-}
 pre{
-    background:#1b1b1b;
+    background:#181b23;
     padding:12px;
     border-radius:8px;
     overflow:auto;
@@ -4818,12 +4798,27 @@ pre{
 </style>
 </head>
 <body>
-<h2>GN-Math Game Failed To Load</h2>
-<pre>${details.replace(/</g,"&lt;")}</pre>
+
+<h2>GN-Math Game Failed</h2>
+
+<p><strong>Game URL:</strong></p>
+
+<pre>${url}</pre>
+
+<p><strong>Error:</strong></p>
+
+<pre>${error.name}</pre>
+
+<p><strong>Message:</strong></p>
+
+<pre>${error.message}</pre>
+
 </body>
-</html>`;
-    
-    log('[GN-Math fetch error] ' + details);
+</html>
+`;
+
+    frame.removeAttribute("src");
+    frame.srcdoc = html;
 
     finishLoader(token);
 }
