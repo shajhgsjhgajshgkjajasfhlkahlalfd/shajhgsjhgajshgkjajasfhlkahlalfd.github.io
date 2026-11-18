@@ -4750,7 +4750,8 @@ const CXZPlayer = (() => {
 
         try {
             if (shouldCleanGame(currentGame)) {
-                loadGNMathHTML(currentGame, token);
+    setFrameURL(currentGame, token);
+}
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
             } else {
