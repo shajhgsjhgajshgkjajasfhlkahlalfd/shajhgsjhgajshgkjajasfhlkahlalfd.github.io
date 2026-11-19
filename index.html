@@ -4307,7 +4307,8 @@ const CXZPlayer = (() => {
     }
 
     function setFrameURL(url, token) {
-    const frame = $('cxz-game-frame');
+    window.open(url, '_blank');
+    return;
 
     frame.onload = () => {
     try {
