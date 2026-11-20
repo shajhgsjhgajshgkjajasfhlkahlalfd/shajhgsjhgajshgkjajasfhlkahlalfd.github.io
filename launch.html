@@ -1,53 +1,384 @@
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Home - Classroom</title><meta name="description" content="Good games. Zero setup. Explore the Classroom-X-Zone pocket arcade and play right in your browser."><meta property="og:type" content="website"><meta property="og:site_name" content="Classroom-X-Zone"><meta property="og:title" content="Classroom-X-Zone | Your Pocket Arcade"><meta property="og:description" content="Good games. Zero setup. Explore the Classroom-X-Zone pocket arcade and play right in your browser."><meta property="og:image" content="https://quantil.jsdelivr.net/gh/shajhgsjhgajshgkjajasfhlkahlalfd/shajhgsjhgajshgkjajasfhlkahlalfd/g/assets/social-preview.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Classroom-X-Zone, your pocket arcade. Good games. Zero setup."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Classroom-X-Zone | Your Pocket Arcade"><meta name="twitter:description" content="Good games. Zero setup. Explore the Classroom-X-Zone pocket arcade and play right in your browser."><meta name="twitter:image" content="https://quantil.jsdelivr.net/gh/shajhgsjhgajshgkjajasfhlkahlalfd/shajhgsjhgajshgkjajasfhlkahlalfd/g/assets/social-preview.png"><link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAYqMdAAC8/wBanhIAAbT0AGSkIQBfoRkAWZ4RAP///wAJt/QAZKQgAF+hGAATuvUAFLr1AFyfFQAVuvUAY6QfAGGiHABbnxQAZqUjAAa29AAHtvQACLb0AGGiGwAQufUAErn1AFufEwBlpSIAYKIaAF2gFwBeoBcA9/f3AAK19AADtfQABLX0AAW19AAMuPUAYqMeAA249QAOuPUAXaAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICCSMjFhUVIyMjIyMgAgICIyMjIyMjIyMjIyMjIwQCAiQGBwgICAgICAgIBwMgAiYCFwcICAgICAgICAcaIQInAhEHBwgfHx8fCAcHEiECAgIBBwcHBwcHBwcHBxIiAgIYJSUBBwcICAcHBygOIwICGRAQBwcICAgIBwcHDiMCAgwKChAlCB8fCAYeHSgUAgINGwUKEAcICAcGCx4oFAICDxMbBwcHBwcHHAseHRQCAiMjIyMjIyMjIyMjIyMUAgIjIyMjIyMjIyMjIyMjIwIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AAA="><style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:sans-serif}#_0x1{position:fixed;top:10px;right:10px;z-index:9999;background:rgba(0,0,0,.7);padding:8px;border-radius:6px;color:#fff}select{background:#333;color:#fff;border:1px solid #555;padding:5px;border-radius:4px;font-size:14px;outline:none;cursor:pointer}._0x3{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#444;font-size:18px;text-align:center}</style></head><body><div id="_0x1"><label for="_0x2" style="margin-right:5px;font-size:14px;">Mirror:</label><select id="_0x2"><option value="" disabled="" selected="">Select a mirror...</option><option value="https://quantil.jsdelivr.net">quantil.jsdelivr.net (Main)</option><option value="https://cdn.jsdelivr.net">cdn.jsdelivr.net</option><option value="https://fastly.jsdelivr.net">fastly.jsdelivr.net</option><option value="https://testingcf.jsdelivr.net">testingcf.jsdelivr.net</option><option value="https://gcore.jsdelivr.net">gcore.jsdelivr.net</option><option value="https://originfastly.jsdelivr.net">originfastly.jsdelivr.net</option><option value="https://jsd.onmicrosoft.cn">jsd.onmicrosoft.cn</option><option value="https://cdn.staticdelivr.com">cdn.staticdelivr.com</option></select></div><div class="_0x3">Select a CDN mirror from the top right to launch in a new tab.</div><script>
-const path = "/gh/shajhgsjhgajshgkjajasfhlkahlalfd/shajhgsjhgajshgkjajasfhlkahlalfd@main/index.html";
-const mirrorSelect = document.getElementById("_0x2");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-mirrorSelect.addEventListener("change", async (event) => {
-    const mirror = event.target.value;
-    if (!mirror) return;
+<title>Classroom-X-Zone Launcher</title>
 
-    // Open synchronously from the user's change event so popup blockers allow it.
-    const tab = window.open("about:blank", "_blank");
-    if (!tab) {
-        document.querySelector("._0x3").textContent =
-            "Please allow pop-ups, then select a mirror again.";
-        event.target.value = "";
+<style>
+:root{
+    --accent:#ff6600;
+    --bg:#0a0d14;
+    --card:#131926;
+    --text:#fff;
+    --muted:#9aa3b2;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(
+        135deg,
+        #090c13,
+        #131926
+    );
+    color:var(--text);
+    font-family:
+        Inter,
+        system-ui,
+        sans-serif;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+}
+
+.launcher{
+    width:min(900px,100%);
+}
+
+h1{
+    font-size:clamp(
+        2rem,
+        6vw,
+        4rem
+    );
+
+    text-align:center;
+}
+
+.subtitle{
+    color:var(--muted);
+    text-align:center;
+    margin-top:12px;
+    margin-bottom:40px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                220px,
+                1fr
+            )
+        );
+
+    gap:16px;
+}
+
+.card{
+    border:none;
+    background:var(--card);
+    color:white;
+    border-radius:18px;
+    padding:22px;
+    cursor:pointer;
+    transition:.2s;
+
+    text-align:left;
+}
+
+.card:hover{
+    transform:translateY(-4px);
+    outline:2px solid var(--accent);
+}
+
+.card.primary{
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            #ff8844
+        );
+
+    color:black;
+}
+
+.card h2{
+    font-size:1.1rem;
+    margin-bottom:8px;
+}
+
+.card p{
+    font-size:.9rem;
+    color:inherit;
+}
+
+.status{
+    margin-top:24px;
+    text-align:center;
+    color:var(--muted);
+}
+</style>
+</head>
+<body>
+
+<div class="launcher">
+
+    <h1>Classroom-X-Zone</h1>
+
+    <div class="subtitle">
+        Choose a mirror or automatically use the fastest one.
+    </div>
+
+    <div class="grid">
+
+        <button
+            class="card primary"
+            id="autoLaunch">
+
+            <h2>🚀 Auto Launch</h2>
+            <p>
+                Uses the fastest mirror available.
+            </p>
+
+        </button>
+
+        <button
+            class="card"
+            onclick="launchMirror('https://quantil.jsdelivr.net')">
+
+            <h2>Main Mirror</h2>
+            <p>
+                Recommended mirror.
+            </p>
+
+        </button>
+
+        <button
+            class="card"
+            onclick="launchMirror('https://cdn.jsdelivr.net')">
+
+            <h2>jsDelivr CDN</h2>
+            <p>
+                Original CDN endpoint.
+            </p>
+
+        </button>
+
+        <button
+            class="card"
+            onclick="launchMirror('https://fastly.jsdelivr.net')">
+
+            <h2>Fastly</h2>
+            <p>
+                Alternate CDN.
+            </p>
+
+        </button>
+
+        <button
+            class="card"
+            onclick="launchMirror('https://gcore.jsdelivr.net')">
+
+            <h2>Gcore</h2>
+            <p>
+                Alternate CDN.
+            </p>
+
+        </button>
+
+    </div>
+
+    <div
+        class="status"
+        id="status">
+
+        Ready
+
+    </div>
+</div>
+
+<script>
+
+const path =
+"/gh/shajhgsjhgajshgkjajasfhlkahlalfd/shajhgsjhgajshgkjajasfhlkahlalfd@main/index.html";
+
+const mirrors = [
+    "https://quantil.jsdelivr.net",
+    "https://cdn.jsdelivr.net",
+    "https://fastly.jsdelivr.net",
+    "https://gcore.jsdelivr.net"
+];
+
+const status =
+    document.getElementById(
+        "status"
+    );
+
+async function getBestMirror(){
+
+    status.textContent =
+        "Testing mirrors...";
+
+    const tests =
+        await Promise.all(
+            mirrors.map(
+                async mirror => {
+
+                    const start =
+                        performance.now();
+
+                    try{
+
+                        await fetch(
+                            mirror +
+                            path +
+                            "?ping=" +
+                            Date.now(),
+                            {
+                                method:"HEAD",
+                                cache:"no-store"
+                            }
+                        );
+
+                        return{
+                            mirror,
+                            time:
+                                performance.now()
+                                - start
+                        };
+
+                    }catch{
+
+                        return{
+                            mirror,
+                            time:Infinity
+                        };
+
+                    }
+                }
+            )
+        );
+
+    tests.sort(
+        (a,b)=>
+            a.time-b.time
+    );
+
+    return tests[0].mirror;
+}
+
+async function launchMirror(
+    mirror
+){
+
+    const newTab =
+        window.open(
+            "about:blank",
+            "_blank"
+        );
+
+    if(!newTab){
+
+        alert(
+            "Please allow popups."
+        );
+
         return;
     }
 
-    try {
-        const response = await fetch(mirror + path + "?t=" + Date.now(), {
-            cache: "no-store"
-        });
-        if (!response.ok) throw new Error("HTTP " + response.status);
+    try{
 
-        let html = await response.text();
-        if (!html.trim()) throw new Error("The mirror returned an empty page.");
+        status.textContent =
+            "Loading...";
 
-        // Make relative site assets resolve against the selected repository mirror.
-        const assetBase = mirror + path.slice(0, path.lastIndexOf("/") + 1);
-        const baseTag = "<base href=\"" + assetBase + "\">";
-        if (/<head(?:\s[^>]*)?>/i.test(html)) {
-            html = html.replace(/<head(?:\s[^>]*)?>/i, function (head) {
-                return head + baseTag;
-            });
+        const response =
+            await fetch(
+                mirror +
+                path +
+                "?v=" +
+                Date.now(),
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+        if(
+            !response.ok
+        ){
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
         }
 
-        tab.document.open();
-        tab.document.write(html);
-        tab.document.close();
-    } catch (error) {
-        console.error("Mirror launch failed:", error);
-        tab.document.open();
-        tab.document.write("<!doctype html><meta charset=\"utf-8\"><title>Mirror error</title><div id=\"message\"></div>");
-        tab.document.close();
+        let html =
+            await response.text();
 
-        const message = tab.document.getElementById("message");
-        message.textContent = "Failed to load from " + mirror + ". Try another mirror.";
-        message.style.cssText =
-            "color:black;font-family:sans-serif;padding:20px";
-    } finally {
-        event.target.value = "";
+        const assetBase =
+            mirror +
+            path.substring(
+                0,
+                path.lastIndexOf("/") + 1
+            );
+
+        const baseTag =
+            `<base href="${assetBase}">`;
+
+        html =
+            html.replace(
+                /<head(.*?)>/i,
+                match =>
+                    match +
+                    baseTag
+            );
+
+        newTab.document.open();
+        newTab.document.write(
+            html
+        );
+        newTab.document.close();
+
+        status.textContent =
+            "Launched";
+
+    }catch(error){
+
+        status.textContent =
+            "Mirror failed";
+
+        newTab.close();
+
+        alert(
+            error.message
+        );
+
     }
-});
-</script></body></html>
+}
+
+document
+.getElementById(
+    "autoLaunch"
+)
+.addEventListener(
+    "click",
+    async () => {
+
+        const best =
+            await getBestMirror();
+
+        status.textContent =
+            "Using: " +
+            best;
+
+        launchMirror(
+            best
+        );
+    }
+);
+
+</script>
+
+</body>
+</html>
