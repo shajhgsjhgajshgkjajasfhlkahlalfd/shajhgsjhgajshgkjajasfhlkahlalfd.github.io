@@ -4667,8 +4667,10 @@ const response = await fetch(proxyUrl, {
         log('[Open] ' + currentGame);
 
         try {
-            if (shouldCleanGame(currentGame)) {
-    setFrameURL(currentGame, token);
+            if (isGNMathGame(currentGame)) {
+                await loadGNMathHTML(currentGame, token);
+            } else if (shouldCleanGame(currentGame)) {
+                setFrameURL(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
             } else {
@@ -4800,12 +4802,15 @@ pre{
         frame.removeAttribute('srcdoc');
         frame.removeAttribute('src');
 
-        // Re-open using the current blob preference, falling back to the original URL if needed.
+        // Re-open using the correct loader for each game provider.
         setTimeout(() => {
             if (token !== launchToken || !currentGame) return;
-            if (shouldCleanGame(currentGame)) {
-    setFrameURL(currentGame, token);
-} else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
+
+            if (isGNMathGame(currentGame)) {
+                loadGNMathHTML(currentGame, token);
+            } else if (shouldCleanGame(currentGame)) {
+                setFrameURL(currentGame, token);
+            } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
             } else {
                 setFrameURL(currentGame, token);
@@ -5511,9 +5516,6 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
             const fragment=document.createDocumentFragment();
             games.forEach(g => {
                 const card = buildGameCard(g);
-
-                // The shared document-level launcher handles clicks for every
-                // card with data-game-url, including GN-Math cards.
                 card.dataset.provider = 'gn-math';
                 window.gnMathGameURLs.add(g.file);
                 fragment.appendChild(card);
