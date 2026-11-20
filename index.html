@@ -4588,31 +4588,54 @@ const response = await fetch(proxyUrl, {
         });
     }
 
-    // GN-Math games are hosted on a separate CDN. Load them as a normal iframe
-    // navigation: fetching their HTML with JavaScript is blocked by the CDN CORS policy.
-    // The browser can navigate an iframe cross-origin without exposing its HTML to this page.
-    function loadGNMathHTML(url, token) {
+    // GN-Math serves many game files as text/plain. Fetch the HTML, then
+    // place it in the iframe as a real document so the browser parses it.
+    // The base URL keeps relative scripts, styles, images, and assets working.
+    async function loadGNMathHTML(url, token) {
         const frame = $('cxz-game-frame');
-        if (!frame) {
-            log('[GN-Math] Player iframe was not found.');
-            finishLoader(token);
-            return;
+        if (!frame) throw new Error('Player iframe was not found.');
+
+        log('[GN-Math] Fetching game HTML…');
+        const response = await fetch(url + (url.includes('?') ? '&' : '?') + '_cxz=' + Date.now(), {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
+            cache: 'no-store'
+        });
+        if (!response.ok) throw new Error('Game server returned HTTP ' + response.status);
+
+        let html = await response.text();
+        if (!html || !html.trim()) throw new Error('The game server returned an empty HTML file.');
+        if (token !== launchToken) return;
+
+        const baseHref = new URL('.', url).href
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;');
+        const baseTag = '<base href="' + baseHref + '">';
+        if (/<base\b[^>]*>/i.test(html)) {
+            html = html.replace(/<base\b[^>]*>/i, baseTag);
+        } else if (/<head\b[^>]*>/i.test(html)) {
+            html = html.replace(/<head\b[^>]*>/i, match => match + baseTag);
+        } else {
+            html = '<!doctype html><html><head><meta charset="utf-8">' + baseTag + '</head><body>' + html + '</body></html>';
         }
 
-        log('[GN-Math] Opening game directly (cross-origin fetch is not required)…');
         frame.onload = () => {
-            if (token !== launchToken) return;
-            log('[GN-Math] Game frame navigation completed.');
-            finishLoader(token);
+            if (token === launchToken) {
+                log('[GN-Math] Game document rendered.');
+                finishLoader(token);
+            }
         };
         frame.onerror = () => {
-            if (token !== launchToken) return;
-            log('[GN-Math] The browser could not navigate to this game.');
-            finishLoader(token);
-            showToast('This GN-Math game could not be opened');
+            if (token === launchToken) {
+                log('[GN-Math] The game document could not be rendered.');
+                finishLoader(token);
+                showToast('This GN-Math game could not be rendered');
+            }
         };
-        frame.removeAttribute('srcdoc');
-        frame.src = url;
+        frame.removeAttribute('src');
+        frame.srcdoc = html;
+        log('[GN-Math] HTML received (' + html.length.toLocaleString() + ' characters).');
     }
 
     async function open(url, title) {
