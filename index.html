@@ -4588,54 +4588,31 @@ const response = await fetch(proxyUrl, {
         });
     }
 
-    async function loadGNMathHTML(url, token) {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 30000);
-        try {
-            log('[GN-Math] Fetching game HTML…');
-            const response = await fetch(cacheBust(url), {signal:controller.signal, credentials:'omit', cache:'no-store'});
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const html = await response.text();
-            if (!html.trim()) throw new Error('Empty game document.');
-            if (token !== launchToken) return;
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const removedAdNodes = stripGNMathAds(doc);
-            stripDownloadedBanners(doc);
-            currentHTML = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
-            log('[GN-Math] Removed ' + removedAdNodes + ' recognizable ad element(s)/script(s); dynamic ad filtering is enabled.');
-            const existingBase = doc.querySelector('base[href]');
-            if (existingBase) {
-                existingBase.setAttribute('href', new URL(existingBase.getAttribute('href'), response.url || url).href);
-            } else {
-                const base = doc.createElement('base');
-                base.href = new URL('.', response.url || url).href;
-                doc.head.prepend(base);
-            }
-            const frame = $('cxz-game-frame');
-            frame.onload = () => {
-                if (token !== launchToken) return;
-                applyFrameAudioSettings();
-                finishLoader(token);
-            };
-            frame.onerror = () => {
-                if (token !== launchToken) return;
-                log('[GN-Math] Game document failed to load.');
-                finishLoader(token);
-            };
-            frame.removeAttribute('src');
-            frame.srcdoc = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
-            log('[GN-Math] Fetched HTML installed as the player document.');
-        } catch (error) {
-            if (token !== launchToken) return;
-            const frame = $('cxz-game-frame');
-            frame.onload = null;
-            frame.onerror = null;
-            frame.removeAttribute('src');
-            frame.srcdoc = '<!DOCTYPE html><html><body style="background:#111;color:#eee;font:16px system-ui;padding:24px"><h2>Game could not be loaded</h2><p>The HTML request failed. Check the player console for details.</p></body></html>';
-            log('[GN-Math fetch error] ' + error.message);
+    // GN-Math games are hosted on a separate CDN. Load them as a normal iframe
+    // navigation: fetching their HTML with JavaScript is blocked by the CDN CORS policy.
+    // The browser can navigate an iframe cross-origin without exposing its HTML to this page.
+    function loadGNMathHTML(url, token) {
+        const frame = $('cxz-game-frame');
+        if (!frame) {
+            log('[GN-Math] Player iframe was not found.');
             finishLoader(token);
-            showToast('Could not fetch GN-Math game HTML');
-        } finally { clearTimeout(timeout); }
+            return;
+        }
+
+        log('[GN-Math] Opening game directly (cross-origin fetch is not required)…');
+        frame.onload = () => {
+            if (token !== launchToken) return;
+            log('[GN-Math] Game frame navigation completed.');
+            finishLoader(token);
+        };
+        frame.onerror = () => {
+            if (token !== launchToken) return;
+            log('[GN-Math] The browser could not navigate to this game.');
+            finishLoader(token);
+            showToast('This GN-Math game could not be opened');
+        };
+        frame.removeAttribute('srcdoc');
+        frame.src = url;
     }
 
     async function open(url, title) {
