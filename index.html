@@ -4209,7 +4209,14 @@ setTimeout(function() {
 //    No hardcoded username or repo name required.
 // =========================================================
 
-const GN_MATH_PROXY_URL = 'https://gn-math-proxy.zprice720.workers.dev/';
+const GN_MATH_PROXY_URL = 'https://gn-math-proxy.zprice720.workers.dev';
+
+// Route GN-Math through a transparent path-preserving proxy. The game HTML
+// itself is never fetched, parsed, edited, or injected into srcdoc.
+function getGNMathProxyURL(gameURL) {
+    const original = new URL(gameURL);
+    return GN_MATH_PROXY_URL + original.pathname + original.search + original.hash;
+}
 
 const CXZ_GAME_BASE = (() => {
     // Build the game base URL relative to this page's location.
@@ -4677,8 +4684,12 @@ const response = await fetch(proxyUrl, {
         log('[Open] ' + currentGame);
 
         try {
-            if (shouldCleanGame(currentGame)) {
-    setFrameURL(currentGame, token);
+            if (isGNMathGame(currentGame)) {
+                const proxiedGameURL = getGNMathProxyURL(currentGame);
+                log('[GN-Math] Loading untouched game document through transparent proxy: ' + proxiedGameURL);
+                setFrameURL(proxiedGameURL, token);
+            } else if (shouldCleanGame(currentGame)) {
+                setFrameURL(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
             } else {
@@ -4813,9 +4824,13 @@ pre{
         // Re-open using the current blob preference, falling back to the original URL if needed.
         setTimeout(() => {
             if (token !== launchToken || !currentGame) return;
-            if (shouldCleanGame(currentGame)) {
-    setFrameURL(currentGame, token);
-} else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
+            if (isGNMathGame(currentGame)) {
+                const proxiedGameURL = getGNMathProxyURL(currentGame);
+                log('[GN-Math] Reloading untouched game through transparent proxy: ' + proxiedGameURL);
+                setFrameURL(proxiedGameURL, token);
+            } else if (shouldCleanGame(currentGame)) {
+                setFrameURL(currentGame, token);
+            } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
                 loadBlobFrame(currentGame, token);
             } else {
                 setFrameURL(currentGame, token);
