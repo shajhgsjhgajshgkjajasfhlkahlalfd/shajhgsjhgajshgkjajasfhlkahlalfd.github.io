@@ -4711,9 +4711,10 @@ const response = await fetch(proxyUrl, {
 
         try {
             if (isGNMathGame(currentGame)) {
-                const proxiedGameURL = getGNMathProxyURL(currentGame);
-                log('[GN-Math] Loading untouched game document through transparent proxy: ' + proxiedGameURL);
-                setFrameURL(proxiedGameURL, token);
+                // Load the resolved CDN URL directly. The path-only proxy
+                // dropped the host and produced a bad request.
+                log('[GN-Math] Loading game from its CDN URL: ' + currentGame);
+                setFrameURL(currentGame, token);
             } else if (shouldCleanGame(currentGame)) {
                 setFrameURL(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
@@ -4851,9 +4852,8 @@ pre{
         setTimeout(() => {
             if (token !== launchToken || !currentGame) return;
             if (isGNMathGame(currentGame)) {
-                const proxiedGameURL = getGNMathProxyURL(currentGame);
-                log('[GN-Math] Reloading untouched game through transparent proxy: ' + proxiedGameURL);
-                setFrameURL(proxiedGameURL, token);
+                log('[GN-Math] Reloading game from its CDN URL: ' + currentGame);
+                setFrameURL(currentGame, token);
             } else if (shouldCleanGame(currentGame)) {
                 setFrameURL(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
@@ -5595,7 +5595,9 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 
     // Replace template tokens in a zone URL with the CDN bases.
     function zoneURL(u) {
-        return (u + '').replace('{COVER_URL}', coverBase).replace('{HTML_URL}', htmlBase);
+        let out = (u + '').replace('{COVER_URL}', coverBase).replace('{HTML_URL}', htmlBase);
+        // Collapse accidental double slashes after the protocol
+        return out.replace(/([^:])\/\//g, '$1/');
     }
 
     // Build the effective <base href> for a fetched HTML document.
@@ -5709,40 +5711,38 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     // Uses the site's buildGameCard if available; plain anchor fallback otherwise.
     function buildZoneCard(zone) {
         const coverUrl = zoneURL(zone.cover || '');
-        const title    = zone.name        || 'Untitled';
+        const title    = zone.name || 'Untitled';
         const tagline  = zone.description || '';
+        const gameUrl  = zoneURL(zone.url || '');
 
-        if (typeof window.buildGameCard === 'function') {
-            const card = window.buildGameCard({ title, file: '#', img: coverUrl, tagline });
-            // Override the shared launcher's click with openZone (needs ytgame peek).
-            card.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                openZone(zone);
-            }, true);
-            return card;
-        }
-
-        // Manual fallback.
+        // Do not set data-game-url. The document-level CXZ click handler
+        // resolves data-game-url against CXZ_GAME_BASE, which is why
+        // GN-Math games were loading /g/games/html/?cxz_version=...
+        // openZone owns the launch and uses the real CDN URL.
         const a = document.createElement('a');
         a.className = 'card item-card';
-        a.href      = '#';
+        a.href = '#';
         a.dataset.title = title;
+        a.dataset.zoneUrl = gameUrl;
         a.setAttribute('role', 'button');
         a.setAttribute('aria-label', 'Play ' + title);
-        a.addEventListener('click', e => { e.preventDefault(); openZone(zone); });
+        a.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openZone(zone);
+        }, true);
 
-        const img      = document.createElement('img');
-        img.src         = coverUrl;
-        img.alt         = title;
-        img.loading     = 'lazy';
-        img.decoding    = 'async';
-        img.onerror     = () => { img.onerror = null; img.src = ''; };
+        const img = document.createElement('img');
+        img.src = coverUrl;
+        img.alt = title;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.onerror = () => { img.onerror = null; img.src = ''; };
 
-        const h3       = document.createElement('h3');
-        h3.textContent  = title;
-        const p        = document.createElement('p');
-        p.textContent   = tagline;
+        const h3 = document.createElement('h3');
+        h3.textContent = title;
+        const p = document.createElement('p');
+        p.textContent = tagline;
         a.append(img, h3, p);
         return a;
     }
