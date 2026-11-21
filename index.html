@@ -4627,33 +4627,45 @@ const response = await fetch(proxyUrl, {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 30000);
         try {
-            log('[GN-Math] Fetching game HTML through proxy…');
-            const targetURL = cacheBust(url);
-            const proxyURL = GN_MATH_PROXY_URL + '?url=' + encodeURIComponent(targetURL);
-            const response = await fetch(proxyURL, {
-                signal:controller.signal,
-                method:'GET',
-                mode:'cors',
-                credentials:'omit',
-                cache:'no-store'
+            log('[GN-Math] Fetching game HTML from CDN: ' + url);
+            const response = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), {
+                signal: controller.signal,
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'omit',
+                cache: 'no-store'
             });
-            if (!response.ok) throw new Error('Proxy HTTP ' + response.status);
-            const html = await response.text();
+            if (!response.ok) throw new Error('CDN HTTP ' + response.status);
+            let html = await response.text();
             if (!html.trim()) throw new Error('Empty game document.');
             if (token !== launchToken) return;
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const removedAdNodes = stripGNMathAds(doc);
-            stripDownloadedBanners(doc);
-            currentHTML = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
-            log('[GN-Math] Removed ' + removedAdNodes + ' recognizable ad element(s)/script(s); dynamic ad filtering is enabled.');
-            const existingBase = doc.querySelector('base[href]');
-            if (existingBase) {
-                existingBase.setAttribute('href', new URL(existingBase.getAttribute('href'), url).href);
+
+            // Inject / rewrite <base> so relative assets resolve against the CDN folder.
+            const baseHref = new URL('.', url).href;
+            const baseTag = '<base href="' + baseHref.replace(/&/g, '&').replace(/"/g, '"') + '">';
+            if (/<base\b[^>]*>/i.test(html)) {
+                html = html.replace(/<base\b[^>]*>/i, baseTag);
+            } else if (/<head\b[^>]*>/i.test(html)) {
+                html = html.replace(/<head\b[^>]*>/i, m => m + baseTag);
+            } else if (/<html\b[^>]*>/i.test(html)) {
+                html = html.replace(/<html\b[^>]*>/i, m => m + baseTag);
             } else {
-                const base = doc.createElement('base');
-                base.href = new URL('.', url).href;
-                doc.head.prepend(base);
+                html = baseTag + html;
             }
+
+            // Light ad cleanup on the parsed document, then serialize back.
+            try {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const removedAdNodes = stripGNMathAds(doc);
+                stripDownloadedBanners(doc);
+                html = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+                log('[GN-Math] Removed ' + removedAdNodes + ' recognizable ad element(s)/script(s).');
+            } catch (_) {
+                // Keep the raw HTML if parsing fails.
+            }
+
+            currentHTML = html;
+
             const frame = $('cxz-game-frame');
             frame.onload = () => {
                 if (token !== launchToken) return;
@@ -4662,19 +4674,21 @@ const response = await fetch(proxyUrl, {
             };
             frame.onerror = () => {
                 if (token !== launchToken) return;
-                log('[GN-Math] Game document failed to load.');
+                log('[GN-Math] Injected document failed to load.');
                 finishLoader(token);
             };
+            // Replace the iframe document with the fetched HTML.
             frame.removeAttribute('src');
-            frame.srcdoc = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
-            log('[GN-Math] Fetched HTML through proxy and installed as the player document.');
+            frame.src = 'about:blank';
+            frame.srcdoc = html;
+            log('[GN-Math] Fetched CDN HTML and installed it in the player iframe.');
         } catch (error) {
             if (token !== launchToken) return;
             const frame = $('cxz-game-frame');
             frame.onload = null;
             frame.onerror = null;
             frame.removeAttribute('src');
-            frame.srcdoc = '<!DOCTYPE html><html><body style="background:#111;color:#eee;font:16px system-ui;padding:24px"><h2>Game could not be loaded</h2><p>The HTML request failed. Check the player console for details.</p></body></html>';
+            frame.srcdoc = '<!DOCTYPE html><html><body style="background:#111;color:#eee;font:16px system-ui;padding:24px"><h2>Game could not be loaded</h2><p>Could not fetch the HTML from the CDN. Check the player console for details.</p></body></html>';
             log('[GN-Math fetch error] ' + error.message);
             finishLoader(token);
             showToast('Could not fetch GN-Math game HTML');
@@ -4711,10 +4725,8 @@ const response = await fetch(proxyUrl, {
 
         try {
             if (isGNMathGame(currentGame)) {
-                // Load the resolved CDN URL directly. The path-only proxy
-                // dropped the host and produced a bad request.
-                log('[GN-Math] Loading game from its CDN URL: ' + currentGame);
-                setFrameURL(currentGame, token);
+                log('[GN-Math] Fetching and injecting CDN HTML: ' + currentGame);
+                loadGNMathHTML(currentGame, token);
             } else if (shouldCleanGame(currentGame)) {
                 setFrameURL(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
@@ -4852,8 +4864,8 @@ pre{
         setTimeout(() => {
             if (token !== launchToken || !currentGame) return;
             if (isGNMathGame(currentGame)) {
-                log('[GN-Math] Reloading game from its CDN URL: ' + currentGame);
-                setFrameURL(currentGame, token);
+                log('[GN-Math] Reloading by re-fetching CDN HTML: ' + currentGame);
+                loadGNMathHTML(currentGame, token);
             } else if (shouldCleanGame(currentGame)) {
                 setFrameURL(currentGame, token);
             } else if (localStorage.getItem('cxz_games_in_blob') === 'true') {
