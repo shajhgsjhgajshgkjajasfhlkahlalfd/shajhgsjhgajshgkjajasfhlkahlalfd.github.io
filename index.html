@@ -1897,32 +1897,18 @@
   <h2 class="section-title">GN-Math Games</h2>
   <p id="gn-status" class="page-description" role="status"></p>
 
-  <!-- Zone controls: search, sort, filter -->
+  <!-- Zone controls: tag filter only -->
   <div id="zone-controls" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;align-items:center;">
-    <input id="zoneSearchBar" type="text" placeholder="Search zones…" autocomplete="off" spellcheck="false"
-      style="flex:1;min-width:160px;max-width:320px;padding:8px 14px;border-radius:10px;border:1px solid var(--line-solid);background:var(--bg-2);color:var(--ink);font-size:13px;font-weight:500;outline:none;"
-      oninput="filterZones()">
-    <select id="zoneSortOptions" onchange="sortZones()"
-      style="padding:8px 12px;border-radius:10px;border:1px solid var(--line-solid);background:var(--bg-2);color:var(--ink);font-size:13px;cursor:pointer;outline:none;">
-      <option value="name">Sort: A–Z</option>
-      <option value="id">Sort: By ID</option>
-    </select>
     <select id="zoneFilterOptions" onchange="filterZones2()"
       style="padding:8px 12px;border-radius:10px;border:1px solid var(--line-solid);background:var(--bg-2);color:var(--ink);font-size:13px;cursor:pointer;outline:none;">
       <option value="none">All Tags</option>
     </select>
   </div>
 
-  <!-- Featured zones accordion -->
-  <details id="featuredZonesWrapper" open style="margin-bottom:18px;">
-    <summary id="allZonesSummary" style="cursor:pointer;font-weight:700;font-size:14px;color:var(--accent-color);margin-bottom:10px;list-style:none;user-select:none;">Featured Zones</summary>
-    <div id="featuredZones" class="grid square-grid" style="margin-top:10px;"></div>
-  </details>
-
   <!-- Summary label for all zones -->
   <p id="allSummary" style="font-size:12px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;"></p>
 
-  <!-- All zones grid (the existing gn-grid is reused as zone container) -->
+  <!-- All zones grid -->
   <div id="gn-grid" class="grid square-grid"></div>
 
   <!-- YouTube Playables popup -->
@@ -5600,9 +5586,8 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 
 <!-- =========================================================
      GN-MATH ZONE FUNCTIONS
-     Implements listZones, openZone, sortZones, filterZones,
-     filterZones2, displayZones, displayFeaturedZones, zoneURL,
-     zoneBaseFor, injectZoneBase, aboutBlank for the GN-Math panel.
+     Implements listZones, openZone, filterZones2, displayZones,
+     zoneURL, zoneBaseFor, injectZoneBase, aboutBlank for the GN-Math panel.
      Launches games through CXZPlayer; falls back to new tab for
      external URLs and handles YouTube Playables inline popup.
      ========================================================= -->
@@ -5780,21 +5765,6 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
         return a;
     }
 
-    // ── displayFeaturedZones ─────────────────────────────────────────
-    function displayFeaturedZones(featuredZones) {
-        const container = $id('featuredZones');
-        if (!container) return;
-        container.innerHTML = '';
-        featuredZones.forEach(zone => container.appendChild(buildZoneCard(zone)));
-
-        const summaryEl = $id('allZonesSummary');
-        if (!container.children.length) {
-            container.textContent = 'No featured zones found.';
-        } else if (summaryEl) {
-            summaryEl.textContent = 'Featured Zones (' + featuredZones.length + ')';
-        }
-    }
-
     // ── displayZones ─────────────────────────────────────────────────
     function displayZones(list) {
         const container = $id('gn-grid');
@@ -5810,37 +5780,9 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
         }
     }
 
-    // ── sortZones ────────────────────────────────────────────────────
-    function sortZones() {
-        const sortBy = ($id('zoneSortOptions') || {}).value || 'name';
-        if (sortBy === 'name') {
-            zones.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-        } else if (sortBy === 'id') {
-            zones.sort((a, b) => Number(a.id) - Number(b.id));
-        }
-        // Pin id === -1 entries to the front (matches upstream behaviour).
-        zones.sort((a, b) => (a.id === -1 ? -1 : b.id === -1 ? 1 : 0));
-
-        const featuredContainer = $id('featuredZones');
-        if (featuredContainer && !featuredContainer.children.length) {
-            displayFeaturedZones(zones.filter(z => z.featured));
-        }
-        displayZones(zones);
-    }
-
-    // ── filterZones (search bar) ─────────────────────────────────────
-    function filterZones() {
-        const query = (($id('zoneSearchBar') || {}).value || '').toLowerCase();
-        const wrapperEl = $id('featuredZonesWrapper');
-        if (query.length && wrapperEl) wrapperEl.removeAttribute('open');
-        displayZones(zones.filter(z => z.name.toLowerCase().includes(query)));
-    }
-
     // ── filterZones2 (tag select) ────────────────────────────────────
     function filterZones2() {
-        const query     = ($id('zoneFilterOptions') || {}).value || 'none';
-        const wrapperEl = $id('featuredZonesWrapper');
-        if (query !== 'none' && wrapperEl) wrapperEl.removeAttribute('open');
+        const query = ($id('zoneFilterOptions') || {}).value || 'none';
         if (query === 'none') {
             displayZones(zones);
         } else {
@@ -5860,7 +5802,6 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
             if (!Array.isArray(json)) throw new Error('Expected an array from zones.json');
 
             zones = json;
-            if (zones.length) zones[0].featured = true;
 
             // Register resolved URLs with the GN-Math URL set so isGNMathGame() works.
             if (window.gnMathGameURLs instanceof Set) {
@@ -5894,7 +5835,7 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
                 }
             } catch (_) {}
 
-            sortZones();
+            displayZones(zones);
             if (statusEl) statusEl.textContent = zones.length + ' GN-Math zones';
 
         } catch (error) {
@@ -5904,17 +5845,14 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     }
 
     // ── Expose globals ────────────────────────────────────────────────
-    window.listZones          = listZones;
-    window.openZone           = openZone;
-    window.sortZones          = sortZones;
-    window.filterZones        = filterZones;
-    window.filterZones2       = filterZones2;
-    window.displayZones       = displayZones;
-    window.displayFeaturedZones = displayFeaturedZones;
-    window.aboutBlank         = aboutBlank;
-    window.zoneURL            = zoneURL;
-    window.zoneBaseFor        = zoneBaseFor;
-    window.injectZoneBase     = injectZoneBase;
+    window.listZones      = listZones;
+    window.openZone       = openZone;
+    window.filterZones2   = filterZones2;
+    window.displayZones   = displayZones;
+    window.aboutBlank     = aboutBlank;
+    window.zoneURL        = zoneURL;
+    window.zoneBaseFor    = zoneBaseFor;
+    window.injectZoneBase = injectZoneBase;
 
     // ── Hook into GN tab so listZones fires on first open ─────────────
     function hookGNTab() {
