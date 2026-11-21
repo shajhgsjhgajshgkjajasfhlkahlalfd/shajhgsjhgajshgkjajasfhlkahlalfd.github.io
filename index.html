@@ -1893,7 +1893,47 @@
 <button id="cxz-provider" class="provider-card" role="tab" aria-selected="true" aria-controls="cxz-panel" type="button"><img src="./g/assets/favicon-96x96.png" alt=""><span>Classroom-X-Zone</span></button>
 <button id="gn-provider" class="provider-card" role="tab" aria-selected="false" aria-controls="gn-panel" tabindex="-1" type="button"><img src="./g/assets/gnmath.png" alt=""><span>GN-Math</span></button></div>
 <section id="cxz-panel" role="tabpanel" aria-labelledby="cxz-provider"><h2 class="section-title">Classroom-X-Zone Games</h2><p class="page-description">Browse the Classroom-X-Zone arcade.</p><div class="grid square-grid" id="all-games-grid"></div></section>
-<section id="gn-panel" role="tabpanel" aria-labelledby="gn-provider" hidden><h2 class="section-title">GN-Math Games</h2><p id="gn-status" class="page-description" role="status"></p><div id="gn-grid" class="grid square-grid"></div></section>
+<section id="gn-panel" role="tabpanel" aria-labelledby="gn-provider" hidden>
+  <h2 class="section-title">GN-Math Games</h2>
+  <p id="gn-status" class="page-description" role="status"></p>
+
+  <!-- Zone controls: search, sort, filter -->
+  <div id="zone-controls" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;align-items:center;">
+    <input id="zoneSearchBar" type="text" placeholder="Search zones…" autocomplete="off" spellcheck="false"
+      style="flex:1;min-width:160px;max-width:320px;padding:8px 14px;border-radius:10px;border:1px solid var(--line-solid);background:var(--bg-2);color:var(--ink);font-size:13px;font-weight:500;outline:none;"
+      oninput="filterZones()">
+    <select id="zoneSortOptions" onchange="sortZones()"
+      style="padding:8px 12px;border-radius:10px;border:1px solid var(--line-solid);background:var(--bg-2);color:var(--ink);font-size:13px;cursor:pointer;outline:none;">
+      <option value="name">Sort: A–Z</option>
+      <option value="id">Sort: By ID</option>
+    </select>
+    <select id="zoneFilterOptions" onchange="filterZones2()"
+      style="padding:8px 12px;border-radius:10px;border:1px solid var(--line-solid);background:var(--bg-2);color:var(--ink);font-size:13px;cursor:pointer;outline:none;">
+      <option value="none">All Tags</option>
+    </select>
+  </div>
+
+  <!-- Featured zones accordion -->
+  <details id="featuredZonesWrapper" open style="margin-bottom:18px;">
+    <summary id="allZonesSummary" style="cursor:pointer;font-weight:700;font-size:14px;color:var(--accent-color);margin-bottom:10px;list-style:none;user-select:none;">Featured Zones</summary>
+    <div id="featuredZones" class="grid square-grid" style="margin-top:10px;"></div>
+  </details>
+
+  <!-- Summary label for all zones -->
+  <p id="allSummary" style="font-size:12px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;"></p>
+
+  <!-- All zones grid (the existing gn-grid is reused as zone container) -->
+  <div id="gn-grid" class="grid square-grid"></div>
+
+  <!-- YouTube Playables popup -->
+  <div id="zonePopupOverlay" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;">
+    <div style="background:var(--bg-2);border:1px solid var(--line-solid);border-radius:18px;padding:28px;max-width:420px;width:90%;position:relative;">
+      <button onclick="document.getElementById('zonePopupOverlay').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--ink-soft);font-size:18px;cursor:pointer;line-height:1;">×</button>
+      <h3 id="zonePopupTitle" style="margin:0 0 12px;font-size:16px;font-weight:700;color:var(--ink);"></h3>
+      <div id="zonePopupBody"></div>
+    </div>
+  </div>
+</section>
 </div>
 
         <!-- TAB: TOOLS -->
@@ -5557,5 +5597,347 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
+
+<!-- =========================================================
+     GN-MATH ZONE FUNCTIONS
+     Implements listZones, openZone, sortZones, filterZones,
+     filterZones2, displayZones, displayFeaturedZones, zoneURL,
+     zoneBaseFor, injectZoneBase, aboutBlank for the GN-Math panel.
+     Launches games through CXZPlayer; falls back to new tab for
+     external URLs and handles YouTube Playables inline popup.
+     ========================================================= -->
+<script>
+(function () {
+    'use strict';
+
+    // ── CDN roots ────────────────────────────────────────────────────
+    const zonesURL  = 'https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json';
+    const coverBase = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@main/';
+    const htmlBase  = 'https://cdn.jsdelivr.net/gh/freebuisness/html@main/';
+
+    // ── State ────────────────────────────────────────────────────────
+    let zones = [];
+
+    // ── DOM refs ─────────────────────────────────────────────────────
+    function $id(id) { return document.getElementById(id); }
+
+    // ── Helpers ──────────────────────────────────────────────────────
+    function toTitleCase(str) {
+        return str.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.substring(1).toLowerCase());
+    }
+
+    // Replace template tokens in a zone URL with the CDN bases.
+    function zoneURL(u) {
+        return (u + '').replace('{COVER_URL}', coverBase).replace('{HTML_URL}', htmlBase);
+    }
+
+    // Build the effective <base href> for a fetched HTML document.
+    const BASE_TAG_RE  = /<base\b[^>]*>/i;
+    const BASE_HREF_RE = /<base\b[^>]*\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s">]+))[^>]*>/i;
+
+    function zoneBaseFor(url, html) {
+        const folder = url.substring(0, url.lastIndexOf('/') + 1);
+        let root;
+        try { root = new URL(folder, document.baseURI).href; } catch (e) { root = folder; }
+        const m = html.match(BASE_HREF_RE);
+        const declared = m ? (m[1] !== undefined ? m[1] : m[2] !== undefined ? m[2] : m[3]) : '';
+        if (!declared) return root;
+        try { return new URL(declared, root).href; } catch (e) { return root; }
+    }
+
+    function injectZoneBase(html, url) {
+        const tag = '<base href="' + zoneBaseFor(url, html) + '">';
+        if (BASE_TAG_RE.test(html))    return html.replace(BASE_TAG_RE, tag);
+        if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, m => m + tag);
+        if (/<html[^>]*>/i.test(html)) return html.replace(/<html[^>]*>/i, m => m + tag);
+        return tag + html;
+    }
+
+    // ── Popup helpers ────────────────────────────────────────────────
+    function showZonePopup(titleText, bodyHTML) {
+        $id('zonePopupTitle').textContent = titleText;
+        $id('zonePopupBody').innerHTML    = bodyHTML;
+        $id('zonePopupOverlay').style.display = 'flex';
+    }
+
+    function closeZonePopup() {
+        $id('zonePopupOverlay').style.display = 'none';
+    }
+
+    // ── Open a zone ──────────────────────────────────────────────────
+    // External URLs → new tab.
+    // HTML URL → CXZPlayer.open() (the integrated player handles fetch + display).
+    // YouTube Playables (ytgame) → popup offering a new-tab launch.
+    function openZone(file) {
+        const rawUrl = zoneURL(file.url);
+
+        if (/^https?:\/\//i.test(file.url)) {
+            window.open(file.url, '_blank');
+            return;
+        }
+
+        const cacheBusted = rawUrl + '?t=' + Date.now();
+
+        // Peek at the HTML to detect YouTube Playables before handing off.
+        fetch(cacheBusted)
+            .then(r => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.text();
+            })
+            .then(html => {
+                if (/ytgame/i.test(html)) {
+                    showZonePopup(file.name,
+                        '<p style="margin-top:0;">This is a YouTube Playables game, so it only works in its own tab. It will open in a <strong>new tab</strong>.</p>'
+                        + '<button class="btn-action" id="zoneYtOpenBtn" style="margin-top:10px;">Open in New Tab</button>'
+                    );
+                    $id('zoneYtOpenBtn').onclick = function () {
+                        const win = window.open('about:blank', '_blank');
+                        if (!win) { alert('Pop-ups are blocked. Allow pop-ups for this site and try again.'); return; }
+                        win.document.open();
+                        win.document.write(injectZoneBase(html, rawUrl));
+                        win.document.close();
+                        closeZonePopup();
+                    };
+                    return;
+                }
+
+                // Register the resolved URL so isGNMathGame() and the proxy path work.
+                if (window.gnMathGameURLs instanceof Set) {
+                    window.gnMathGameURLs.add(rawUrl);
+                }
+                if (window.CXZPlayer && typeof window.CXZPlayer.open === 'function') {
+                    window.CXZPlayer.open(rawUrl, file.name);
+                } else {
+                    // Fallback: open in new tab if the player is unavailable.
+                    const win = window.open('about:blank', '_blank');
+                    if (win) {
+                        win.document.open();
+                        win.document.write(injectZoneBase(html, rawUrl));
+                        win.document.close();
+                    }
+                }
+            })
+            .catch(err => alert('Failed to load zone: ' + err));
+    }
+
+    // ── aboutBlank: re-open the current zone in a blank tab ─────────
+    function aboutBlank() {
+        const zoneIdEl = $id('zoneId');
+        if (!zoneIdEl || !zoneIdEl.textContent) return;
+        const zone = zones.find(z => String(z.id) === zoneIdEl.textContent);
+        if (!zone) return;
+        const url = zoneURL(zone.url);
+        const win = window.open('about:blank', '_blank');
+        if (!win) return;
+        fetch(url + '?t=' + Date.now())
+            .then(r => r.text())
+            .then(html => {
+                win.document.open();
+                win.document.write(injectZoneBase(html, url));
+                win.document.close();
+            });
+    }
+
+    // ── Build a zone card ─────────────────────────────────────────────
+    // Uses the site's buildGameCard if available; plain anchor fallback otherwise.
+    function buildZoneCard(zone) {
+        const coverUrl = zoneURL(zone.cover || '');
+        const title    = zone.name        || 'Untitled';
+        const tagline  = zone.description || '';
+
+        if (typeof window.buildGameCard === 'function') {
+            const card = window.buildGameCard({ title, file: '#', img: coverUrl, tagline });
+            // Override the shared launcher's click with openZone (needs ytgame peek).
+            card.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openZone(zone);
+            }, true);
+            return card;
+        }
+
+        // Manual fallback.
+        const a = document.createElement('a');
+        a.className = 'card item-card';
+        a.href      = '#';
+        a.dataset.title = title;
+        a.setAttribute('role', 'button');
+        a.setAttribute('aria-label', 'Play ' + title);
+        a.addEventListener('click', e => { e.preventDefault(); openZone(zone); });
+
+        const img      = document.createElement('img');
+        img.src         = coverUrl;
+        img.alt         = title;
+        img.loading     = 'lazy';
+        img.decoding    = 'async';
+        img.onerror     = () => { img.onerror = null; img.src = ''; };
+
+        const h3       = document.createElement('h3');
+        h3.textContent  = title;
+        const p        = document.createElement('p');
+        p.textContent   = tagline;
+        a.append(img, h3, p);
+        return a;
+    }
+
+    // ── displayFeaturedZones ─────────────────────────────────────────
+    function displayFeaturedZones(featuredZones) {
+        const container = $id('featuredZones');
+        if (!container) return;
+        container.innerHTML = '';
+        featuredZones.forEach(zone => container.appendChild(buildZoneCard(zone)));
+
+        const summaryEl = $id('allZonesSummary');
+        if (!container.children.length) {
+            container.textContent = 'No featured zones found.';
+        } else if (summaryEl) {
+            summaryEl.textContent = 'Featured Zones (' + featuredZones.length + ')';
+        }
+    }
+
+    // ── displayZones ─────────────────────────────────────────────────
+    function displayZones(list) {
+        const container = $id('gn-grid');
+        if (!container) return;
+        container.innerHTML = '';
+        list.forEach(zone => container.appendChild(buildZoneCard(zone)));
+
+        const summaryEl = $id('allSummary');
+        if (!container.children.length) {
+            container.textContent = 'No zones found.';
+        } else if (summaryEl) {
+            summaryEl.textContent = 'All Zones (' + list.length + ')';
+        }
+    }
+
+    // ── sortZones ────────────────────────────────────────────────────
+    function sortZones() {
+        const sortBy = ($id('zoneSortOptions') || {}).value || 'name';
+        if (sortBy === 'name') {
+            zones.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+        } else if (sortBy === 'id') {
+            zones.sort((a, b) => Number(a.id) - Number(b.id));
+        }
+        // Pin id === -1 entries to the front (matches upstream behaviour).
+        zones.sort((a, b) => (a.id === -1 ? -1 : b.id === -1 ? 1 : 0));
+
+        const featuredContainer = $id('featuredZones');
+        if (featuredContainer && !featuredContainer.children.length) {
+            displayFeaturedZones(zones.filter(z => z.featured));
+        }
+        displayZones(zones);
+    }
+
+    // ── filterZones (search bar) ─────────────────────────────────────
+    function filterZones() {
+        const query = (($id('zoneSearchBar') || {}).value || '').toLowerCase();
+        const wrapperEl = $id('featuredZonesWrapper');
+        if (query.length && wrapperEl) wrapperEl.removeAttribute('open');
+        displayZones(zones.filter(z => z.name.toLowerCase().includes(query)));
+    }
+
+    // ── filterZones2 (tag select) ────────────────────────────────────
+    function filterZones2() {
+        const query     = ($id('zoneFilterOptions') || {}).value || 'none';
+        const wrapperEl = $id('featuredZonesWrapper');
+        if (query !== 'none' && wrapperEl) wrapperEl.removeAttribute('open');
+        if (query === 'none') {
+            displayZones(zones);
+        } else {
+            displayZones(zones.filter(z => Array.isArray(z.special) && z.special.includes(query)));
+        }
+    }
+
+    // ── listZones: fetch the zones catalog and populate the UI ───────
+    async function listZones() {
+        const statusEl = $id('gn-status');
+        if (statusEl) statusEl.textContent = 'Loading GN-Math zones\u2026';
+
+        try {
+            const response = await fetch(zonesURL + '?t=' + Date.now());
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            const json = await response.json();
+            if (!Array.isArray(json)) throw new Error('Expected an array from zones.json');
+
+            zones = json;
+            if (zones.length) zones[0].featured = true;
+
+            // Register resolved URLs with the GN-Math URL set so isGNMathGame() works.
+            if (window.gnMathGameURLs instanceof Set) {
+                zones
+                    .filter(z => z.url && !/^https?:\/\//i.test(z.url))
+                    .forEach(z => window.gnMathGameURLs.add(zoneURL(z.url)));
+            }
+
+            // Build tag filter options.
+            let allTags = [];
+            json.forEach(obj => { if (Array.isArray(obj.special)) allTags.push(...obj.special); });
+            allTags = [...new Set(allTags)];
+            const filterEl = $id('zoneFilterOptions');
+            if (filterEl) {
+                while (filterEl.children.length > 1) filterEl.removeChild(filterEl.lastElementChild);
+                allTags.forEach(tag => {
+                    const opt = document.createElement('option');
+                    opt.value       = tag;
+                    opt.textContent = toTitleCase(tag);
+                    filterEl.appendChild(opt);
+                });
+            }
+
+            // Handle ?id= deep-link into a specific zone.
+            try {
+                const params  = new URLSearchParams(window.location.search);
+                const idParam = params.get('id');
+                if (idParam) {
+                    const target = zones.find(z => String(z.id) === String(idParam));
+                    if (target) openZone(target);
+                }
+            } catch (_) {}
+
+            sortZones();
+            if (statusEl) statusEl.textContent = zones.length + ' GN-Math zones';
+
+        } catch (error) {
+            console.error('[GN-Math zones]', error);
+            if (statusEl) statusEl.textContent = 'GN-Math zones could not be loaded. CXZ games are unaffected.';
+        }
+    }
+
+    // ── Expose globals ────────────────────────────────────────────────
+    window.listZones          = listZones;
+    window.openZone           = openZone;
+    window.sortZones          = sortZones;
+    window.filterZones        = filterZones;
+    window.filterZones2       = filterZones2;
+    window.displayZones       = displayZones;
+    window.displayFeaturedZones = displayFeaturedZones;
+    window.aboutBlank         = aboutBlank;
+    window.zoneURL            = zoneURL;
+    window.zoneBaseFor        = zoneBaseFor;
+    window.injectZoneBase     = injectZoneBase;
+
+    // ── Hook into GN tab so listZones fires on first open ─────────────
+    function hookGNTab() {
+        const gnBtn = $id('gn-provider');
+        if (!gnBtn) return;
+        let fetched = false;
+        gnBtn.addEventListener('click', function () {
+            if (!fetched) { fetched = true; listZones(); }
+        });
+        // If the GN panel is already active on page load, fire immediately.
+        if (gnBtn.getAttribute('aria-selected') === 'true') {
+            fetched = true;
+            listZones();
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hookGNTab, { once: true });
+    } else {
+        hookGNTab();
+    }
+})();
+</script>
+
 </body>
 </html>
