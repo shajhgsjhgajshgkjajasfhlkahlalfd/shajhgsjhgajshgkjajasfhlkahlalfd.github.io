@@ -1,0 +1,232 @@
+<!-- Downloaded from unblockedzone. join discord.gg/v66D3fn4kD for 100+ links -->
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/fnae@afd4e5071add297d6169665a4f999d62f312532e/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity Web Player | Five Night's at BIG E</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+      <style>
+      html, body { margin: 0 !important; padding: 0 !important; width: 100%; height: 100%; min-height: 100%; overflow: hidden; background: #000; }
+      #unity-container { position: relative; width: 100vw; height: 100vh; max-width: none; margin: 0; padding: 0; background: #000; }
+      #unity-canvas { display: block; width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; margin: 0; padding: 0; object-fit: fill; background: #000; }
+      #unity-loading-bar { max-width: 80%; margin: 0 auto; }
+      body.game-loaded #loading-text,
+      body.game-loaded #unity-loading-bar,
+      body.game-loaded #unity-diagnostics,
+      body.game-loaded #load-error,
+      body.game-loaded button { display: none !important; }
+      body.game-loaded #unity-container { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; max-width: none !important; margin: 0 !important; z-index: 1; }
+      body.game-loaded #unity-canvas { position: absolute !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; }
+      </style>
+  </head>
+  <body>
+  <div id="loading-text"
+    style="color: white; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;"> LOADING...
+  </div>
+    <div id="unity-container">
+      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const loadingText = document.getElementById("loading-text");
+      const loadingBar = document.getElementById("unity-loading-bar");
+      const progressBar = document.getElementById("unity-progress-bar-full");
+      const canvas = document.getElementById("unity-canvas");
+
+      const ROOT = "https://cdn.jsdelivr.net/gh/web-ports/fnae@afd4e5071add297d6169665a4f999d62f312532e/";
+      const PARTS = [
+        { key: "data", path: "Build/fnae.data", count: 3 },
+        { key: "wasm", path: "Build/fnae.wasm", count: 2 },
+        { key: "video", path: "StreamingAssets/202512191935.webm", count: 3 }
+      ];
+
+      function showError(message) {
+        loadingText.textContent = "GAME COULD NOT LOAD";
+        loadingText.style.color = "#ff7777";
+        let details = document.getElementById("load-error");
+        if (!details) {
+          details = document.createElement("pre");
+          details.id = "load-error";
+          details.style.cssText = "color:#fff;white-space:pre-wrap;overflow-wrap:anywhere;max-width:900px;margin:18px auto;padding:16px;font:14px monospace;text-align:left;background:#211;";
+          loadingText.insertAdjacentElement("afterend", details);
+        }
+        details.textContent = message;
+        console.error(message);
+      }
+
+      async function fetchPart(url) {
+        // Try jsDelivr first, then GitHub's raw host in case the CDN is blocked.
+        const candidates = [url];
+        const prefix = "https://cdn.jsdelivr.net/gh/web-ports/fnae@afd4e5071add297d6169665a4f999d62f312532e/";
+        if (url.startsWith(prefix)) {
+          const relativePath = url.slice(prefix.length);
+          candidates.push(
+            "https://raw.githubusercontent.com/web-ports/fnae/afd4e5071add297d6169665a4f999d62f312532e/" + relativePath
+          );
+        }
+
+        let lastError;
+        for (const candidate of candidates) {
+          try {
+            const response = await fetch(candidate, { cache: "no-store" });
+            if (!response.ok) {
+              lastError = new Error(`HTTP ${response.status} while downloading ${candidate}`);
+              continue;
+            }
+            return await response.arrayBuffer();
+          } catch (error) {
+            lastError = new Error(
+              `Browser could not fetch: ${candidate}\nReason: ${error && error.message ? error.message : String(error)}`
+            );
+          }
+        }
+        throw lastError || new Error("Download failed for an unknown reason.");
+      }
+
+      async function mergeParts(path, count) {
+        const buffers = [];
+        let total = 0;
+        for (let i = 1; i <= count; i++) {
+          loadingText.textContent = `LOADING... downloading ${path.split("/").pop()} (${i}/${count})`;
+          const buffer = await fetchPart(`${ROOT}${path}.part${i}`);
+          buffers.push(buffer);
+          total += buffer.byteLength;
+        }
+        const merged = new Uint8Array(total);
+        let offset = 0;
+        for (const buffer of buffers) {
+          merged.set(new Uint8Array(buffer), offset);
+          offset += buffer.byteLength;
+        }
+        return URL.createObjectURL(new Blob([merged]));
+      }
+
+      (async function startGame() {
+        try {
+          // Download sequentially to avoid multiple large allocations at once.
+          const dataUrl = await mergeParts("Build/fnae.data", 3);
+          const wasmUrl = await mergeParts("Build/fnae.wasm", 2);
+          const videoUrl = await mergeParts("StreamingAssets/202512191935.webm", 3);
+          window.randomwebm = videoUrl;
+
+          // The game requests an MP4, but the hosted asset is a WebM file.
+          const originalSrc = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, "src");
+          if (originalSrc && originalSrc.set && originalSrc.get) {
+            Object.defineProperty(HTMLMediaElement.prototype, "src", {
+              configurable: true,
+              get() { return originalSrc.get.call(this); },
+              set(value) {
+                if (typeof value === "string" && value.includes("202512191935.mp4")) {
+                  value = window.randomwebm;
+                }
+                originalSrc.set.call(this, value);
+              }
+            });
+          }
+
+          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+          if (isMobile) {
+            const meta = document.createElement("meta");
+            meta.name = "viewport";
+            meta.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+            document.head.appendChild(meta);
+          }
+
+          let activeAssetRoot = ROOT;
+          const config = {
+            arguments: [],
+            dataUrl,
+            get frameworkUrl() { return activeAssetRoot + "Build/fnae.framework.js"; },
+            codeUrl: wasmUrl,
+            get streamingAssetsUrl() { return activeAssetRoot + "StreamingAssets"; },
+            companyName: "DefaultCompany",
+            productName: "fnae",
+            productVersion: "1.0",
+            // Prefer stability on lower-memory Chromebooks.
+            matchWebGLToCanvasSize: true,
+            devicePixelRatio: 1,
+            showBanner(message) {
+              console.warn("Unity:", message);
+            }
+          };
+
+          loadingBar.style.display = "block";
+          const assetRoots = [
+            ROOT,
+            "https://fastly.jsdelivr.net/gh/web-ports/fnae@afd4e5071add297d6169665a4f999d62f312532e/",
+            "https://gcore.jsdelivr.net/gh/web-ports/fnae@afd4e5071add297d6169665a4f999d62f312532e/",
+            "https://raw.githubusercontent.com/web-ports/fnae/afd4e5071add297d6169665a4f999d62f312532e/"
+          ];
+          const loaderPaths = assetRoots.map(root => root + "Build/fnae.loader.js");
+
+          function loadUnityLoader(index = 0) {
+            if (index >= loaderPaths.length) {
+              showError(
+                "The Unity loader failed from all tested mirrors. This does not necessarily mean the CDN is down. Tried: " +
+                loaderPaths.join(" | ") +
+                ". If one opens in a tab, the next diagnostic should identify whether the script is blocked or the mirror response is invalid."
+              );
+              return;
+            }
+
+            activeAssetRoot = assetRoots[index];
+            const loader = document.createElement("script");
+            loader.src = loaderPaths[index];
+            loader.onload = async () => {
+              try {
+                if (typeof createUnityInstance !== "function") {
+                  throw new Error("The Unity loader downloaded, but createUnityInstance was not defined.");
+                }
+
+                loadingText.textContent = "STARTING GAME... 90%";
+                let lastProgress = 0;
+                const instance = await createUnityInstance(canvas, config, progress => {
+                  lastProgress = progress;
+                  const percent = Math.round(progress * 100);
+                  progressBar.style.width = `${percent}%`;
+                  loadingText.textContent = `STARTING GAME... ${percent}%`;
+                });
+
+                // Some Unity builds reach the final progress stage but take a while
+                // to finish post-load initialization. Only hide the UI after the
+                // instance promise actually resolves.
+                if (!instance) {
+                  throw new Error("Unity finished loading assets but did not return a game instance.");
+                }
+                document.body.classList.add("game-loaded");
+                loadingBar.style.display = "none";
+                loadingText.remove();
+              } catch (error) {
+                showError(
+                  "Unity initialization failed after the download stage. " +
+                  "This can be caused by a WebAssembly compile error, insufficient memory, " +
+                  "or a failed Unity runtime/asset initialization.\n\n" +
+                  (error && error.message ? error.message : String(error))
+                );
+              }
+            };
+            loader.onerror = () => {
+              loader.remove();
+              loadUnityLoader(index + 1);
+            };
+            document.head.appendChild(loader);
+          }
+
+          loadUnityLoader();
+
+
+        } catch (error) {
+          showError(error && error.message ? error.message : String(error));
+        }
+      })();
+    </script>
+</body>
+</html>

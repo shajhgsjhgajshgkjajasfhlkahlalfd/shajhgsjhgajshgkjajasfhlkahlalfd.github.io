@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/vice-city@796678be4ed26a13c1256be98781ca9b90beb981/">
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Grand Theft Auto: Vice City</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body
+    data-is-touch="0"
+    data-state-car="0"
+    data-state-car-gun="0"
+    data-state-gun="0"
+    data-state-bike="0"
+    data-state-menu="1"
+    data-state-cutscene="0"
+    data-state-mobring="0"
+    data-state-job="0"
+    data-state-disable-controls="0"
+    data-state-panzer="0"
+    data-state-car-with-weapon="0"
+    data-state-hunter="0"
+    data-state-scope-mode="0"
+    data-state-scope-gun="0"
+>
+    <div id="loading-text" style="color: white; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;"> LOADING... </div>
+    <div class="wasted-container" hidden>
+
+    </div>
+    <div class="intro-container" hidden>
+
+
+        <div class="loader-container">
+            <div class="progress-bar-container" id='spinner'>
+                <div class="progress-bar-fill"></div>
+            </div>
+            <div id="status">Downloading...</div>
+            <div>
+                <progress id="progress"></progress>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="original-game-file" hidden>
+
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+    <div class="touch-controls-wrapper">
+        <div id="move"></div>
+        <div id="look"></div>
+
+        <div class="touch-control radio"></div>
+        <div class="touch-control weapon"></div>
+        <div class="touch-control menu"></div>
+        <div class="touch-control fist"></div>
+        <div class="touch-control drift"></div>
+        <div class="touch-control run"></div>
+        <div class="touch-control car getIn"></div>
+        <div class="touch-control left"></div>
+        <div class="touch-control right"></div>
+        <div class="touch-control jump"></div>
+        <div class="touch-control car getOut"></div>
+        <div class="touch-control camera"></div>
+        <div class="touch-control mobile"></div>
+        <div class="touch-control job"></div>
+        <div class="touch-control horn"></div>
+        <div class="touch-control fireRight"></div>
+        <div class="touch-control fireLeft"></div>
+    </div>
+
+    <script>
+    </script>
+<script>
+'use strict';
+const loadingText = document.getElementById('loading-text');
+loadingText.style.cssText = 'position:fixed;top:12px;left:12px;right:12px;z-index:99999;color:white;background:#171717;padding:16px;font:16px/1.5 sans-serif;white-space:pre-wrap';
+const BASE = document.baseURI;
+const nativeFetch = window.fetch.bind(window);
+let loadedBytes = 0;
+function status(message) { loadingText.textContent = message; }
+function fail(error) {
+  console.error(error);
+  loadingText.hidden = false;
+  status('Game could not load.\n' + (error.message || String(error)) + '\nReload to retry. Internet access to the asset CDN is required.');
+}
+window.addEventListener('error', e => { if (e.message) fail(new Error(e.message)); });
+window.addEventListener('unhandledrejection', e => fail(e.reason || new Error('Unknown loading error')));
+let dbPromise;
+function openDB() {
+  if (!dbPromise) dbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open('viceCityLoaderCacheV2', 1);
+    const timer = setTimeout(() => reject(new Error('Cache unavailable')), 2500);
+    request.onupgradeneeded = () => request.result.createObjectStore('files');
+    request.onsuccess = () => { clearTimeout(timer); resolve(request.result); };
+    request.onerror = () => { clearTimeout(timer); reject(request.error); };
+    request.onblocked = () => { clearTimeout(timer); reject(new Error('Cache blocked')); };
+  });
+  return dbPromise;
+}
+async function cacheOperation(key, value) {
+  try {
+    const db = await openDB();
+    return await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('Cache timed out')), 3000);
+      const tx = db.transaction('files', value === undefined ? 'readonly' : 'readwrite');
+      const req = value === undefined ? tx.objectStore('files').get(key) : tx.objectStore('files').put(value, key);
+      tx.oncomplete = () => { clearTimeout(timer); resolve(req.result); };
+      tx.onerror = tx.onabort = () => { clearTimeout(timer); reject(tx.error || new Error('Cache failed')); };
+    });
+  } catch (error) { console.warn('Continuing without browser cache:', error); }
+}
+async function fetchPart(path) {
+  const url = new URL(path, BASE).href;
+  const cached = await cacheOperation(url);
+  if (cached instanceof ArrayBuffer && cached.byteLength) {
+    loadedBytes += cached.byteLength;
+    status(`Loading game: ${(loadedBytes / 1048576).toFixed(1)} MiB (including cached files)`);
+    return cached;
+  }
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const controller = new AbortController();
+    let timer;
+    const resetTimeout = () => { clearTimeout(timer); timer = setTimeout(() => controller.abort(), 60000); };
+    try {
+      resetTimeout();
+      const response = await nativeFetch(url, {signal: controller.signal});
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${path}`);
+      if ((response.headers.get('content-type') || '').includes('text/html')) throw new Error(`Received an HTML error page instead of ${path}`);
+      const chunks = [];
+      let size = 0;
+      if (response.body) {
+        const reader = response.body.getReader();
+        while (true) {
+          const {done, value} = await reader.read();
+          if (done) break;
+          resetTimeout();
+          chunks.push(value); size += value.byteLength;
+          status(`Downloading ${path}\n${((loadedBytes + size) / 1048576).toFixed(1)} MiB loaded`);
+        }
+      } else {
+        const buffer = await response.arrayBuffer();
+        chunks.push(new Uint8Array(buffer)); size = buffer.byteLength;
+      }
+      if (!size) throw new Error(`Empty download: ${path}`);
+      const merged = new Uint8Array(size);
+      let offset = 0;
+      for (const chunk of chunks) { merged.set(chunk, offset); offset += chunk.byteLength; }
+      clearTimeout(timer);
+      loadedBytes += size;
+      await cacheOperation(url, merged.buffer);
+      return merged.buffer;
+    } catch (error) {
+      lastError = new Error(`Failed to download ${path}: ${error.message}`);
+      if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+    } finally { clearTimeout(timer); }
+  }
+  throw lastError;
+}
+const mappedFiles = new Map();
+function remap(input) {
+  const value = String(input);
+  const parsed = new URL(value, BASE);
+  const filename = parsed.pathname.split('/').pop().toLowerCase();
+  if (mappedFiles.has(filename)) return mappedFiles.get(filename);
+  const legacy = 'https://cdn.dos.zone/vcsky/fetched/';
+  if (value.startsWith(legacy)) return new URL(value.slice(legacy.length), BASE).href;
+  return value;
+}
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.async = false;
+    script.src = new URL(src, BASE).href;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(`Could not load ${src} from the asset CDN`));
+    document.body.appendChild(script);
+  });
+}
+async function boot() {
+  if (!window.WebAssembly) throw new Error('This browser does not support WebAssembly.');
+  const groups = [['index.data',7], ['audio/emotion.adf',3], ['audio/espant.adf',3], ['audio/fever.adf',3], ['audio/flash.adf',3], ['audio/kchat.adf',3], ['audio/vcpr.adf',2], ['audio/vrock.adf',4], ['audio/wave.adf',4], ['audio/wild.adf',4]];
+  // Two download workers limit peak memory and simultaneous requests.
+  let next = 0;
+  async function worker() {
+    while (next < groups.length) {
+      const [path, count] = groups[next++];
+      const parts = [];
+      for (let i = 1; i <= count; i++) parts.push(await fetchPart(`${path}.part${i}`));
+      mappedFiles.set(path.split('/').pop().toLowerCase(), URL.createObjectURL(new Blob(parts, {type:'application/octet-stream'})));
+    }
+  }
+  await Promise.all([worker(), worker()]);
+  window.fetch = function(input, init) {
+    const target = remap(input instanceof Request ? input.url : input);
+    if (input instanceof Request) {
+      if (target === input.url) return nativeFetch(input, init);
+      return nativeFetch(new Request(target, input), init);
+    }
+    return nativeFetch(target, init);
+  };
+  const originalOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+    return originalOpen.call(this, method, remap(url), ...rest);
+  };
+  status('Downloads complete. Starting game…');
+  for (const script of ['gamepademulator.js', 'idbfs.js', 'game.js']) await loadScript(script);
+  loadingText.hidden = true;
+}
+boot().catch(fail);
+</script>
+
+
+</body>
+</html>
