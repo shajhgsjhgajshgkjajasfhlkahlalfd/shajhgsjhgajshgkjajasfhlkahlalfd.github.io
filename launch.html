@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Classroom-X-Zone Launcher</title>
+
+<style>
+:root{
+    --accent:#ff6600;
+    --bg:#0a0d14;
+    --card:#131926;
+    --text:#fff;
+    --muted:#9aa3b2;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(
+        135deg,
+        #090c13,
+        #131926
+    );
+    color:var(--text);
+    font-family:
+        Inter,
+        system-ui,
+        sans-serif;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+}
+
+.launcher{
+    width:min(900px,100%);
+}
+
+h1{
+    font-size:clamp(
+        2rem,
+        6vw,
+        4rem
+    );
+
+    text-align:center;
+}
+
+.subtitle{
+    color:var(--muted);
+    text-align:center;
+    margin-top:12px;
+    margin-bottom:40px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                220px,
+                1fr
+            )
+        );
+
+    gap:16px;
+}
+
+.card{
+    border:none;
+    background:var(--card);
+    color:white;
+    border-radius:18px;
+    padding:22px;
+    cursor:pointer;
+    transition:.2s;
+
+    text-align:left;
+}
+
+.card:hover{
+    transform:translateY(-4px);
+    outline:2px solid var(--accent);
+}
+
+.card.primary{
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            #ff8844
+        );
+
+    color:black;
+}
+
+.card h2{
+    font-size:1.1rem;
+    margin-bottom:8px;
+}
+
+.card p{
+    font-size:.9rem;
+    color:inherit;
+}
+
+.status{
+    margin-top:24px;
+    text-align:center;
+    color:var(--muted);
+}
+</style>
+</head>
+<body>
+
+<div class="launcher">
+
+    <h1>Classroom-X-Zone</h1>
+
+    <div class="subtitle">
+        Choose a mirror or automatically use the fastest one.
+    </div>
+
+    <div class="grid">
+
+        <button
+            class="card primary"
+            id="autoLaunch">
+
+            <h2>🚀 Auto Launch</h2>
+            <p>
+                Uses the fastest mirror available.
+            </p>
+
+        </button>
+
+        <button
+            class="card"
+            onclick="launchMirror('https://quantil.jsdelivr.net')">
+
+            <h2>Main Mirror</h2>
+            <p>
+                Recommended mirror.
+            </p>
+
+        </button>
+
+        <button
+            class="card"
+            onclick="launchMirror('https://cdn.jsdelivr.net')">
+
+            <h2>jsDelivr CDN</h2>
+            <p>
+                Original CDN endpoint.
+            </p>
+
+        </button>
+
+        <button
+            class="card"
+            onclick="launchMirror('https://fastly.jsdelivr.net')">
+
+            <h2>Fastly</h2>
+            <p>
+                Alternate CDN.
+            </p>
+
+        </button>
+
+        <button
+            class="card"
+            onclick="launchMirror('https://gcore.jsdelivr.net')">
+
+            <h2>Gcore</h2>
+            <p>
+                Alternate CDN.
+            </p>
+
+        </button>
+
+    </div>
+
+    <div
+        class="status"
+        id="status">
+
+        Ready
+
+    </div>
+</div>
+
+<script>
+
+const path =
+"/gh/scienceclassisthemostinterestingclass/scienceclassisthemostinterestingclass.github.io@main/index.html";
+
+const mirrors = [
+    "https://quantil.jsdelivr.net",
+    "https://cdn.jsdelivr.net",
+    "https://fastly.jsdelivr.net",
+    "https://gcore.jsdelivr.net"
+];
+
+const status =
+    document.getElementById(
+        "status"
+    );
+
+async function getBestMirror(){
+
+    status.textContent =
+        "Testing mirrors...";
+
+    const tests =
+        await Promise.all(
+            mirrors.map(
+                async mirror => {
+
+                    const start =
+                        performance.now();
+
+                    try{
+
+                        await fetch(
+                            mirror +
+                            path +
+                            "?ping=" +
+                            Date.now(),
+                            {
+                                method:"HEAD",
+                                cache:"no-store"
+                            }
+                        );
+
+                        return{
+                            mirror,
+                            time:
+                                performance.now()
+                                - start
+                        };
+
+                    }catch{
+
+                        return{
+                            mirror,
+                            time:Infinity
+                        };
+
+                    }
+                }
+            )
+        );
+
+    tests.sort(
+        (a,b)=>
+            a.time-b.time
+    );
+
+    return tests[0].mirror;
+}
+
+async function launchMirror(
+    mirror
+){
+
+    const newTab =
+        window.open(
+            "about:blank",
+            "_blank"
+        );
+
+    if(!newTab){
+
+        alert(
+            "Please allow popups."
+        );
+
+        return;
+    }
+
+    try{
+
+        status.textContent =
+            "Loading...";
+
+        const response =
+            await fetch(
+                mirror +
+                path +
+                "?v=" +
+                Date.now(),
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+        if(
+            !response.ok
+        ){
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+        }
+
+        let html =
+            await response.text();
+
+        const assetBase =
+            mirror +
+            path.substring(
+                0,
+                path.lastIndexOf("/") + 1
+            );
+
+        const baseTag =
+            `<base href="${assetBase}">`;
+
+        html =
+            html.replace(
+                /<head(.*?)>/i,
+                match =>
+                    match +
+                    baseTag
+            );
+
+        newTab.document.open();
+        newTab.document.write(
+            html
+        );
+        newTab.document.close();
+
+        status.textContent =
+            "Launched";
+
+    }catch(error){
+
+        status.textContent =
+            "Mirror failed";
+
+        newTab.close();
+
+        alert(
+            error.message
+        );
+
+    }
+}
+
+document
+.getElementById(
+    "autoLaunch"
+)
+.addEventListener(
+    "click",
+    async () => {
+
+        const best =
+            await getBestMirror();
+
+        status.textContent =
+            "Using: " +
+            best;
+
+        launchMirror(
+            best
+        );
+    }
+);
+
+</script>
+
+</body>
+</html>
