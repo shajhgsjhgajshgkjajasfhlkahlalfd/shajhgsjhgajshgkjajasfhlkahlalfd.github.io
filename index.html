@@ -2589,12 +2589,12 @@ aria-label="Fullscreen">
 
         // Standalone tools live at ./g/games/other/{Tool_Name}.html
         const TOOLS_BASE = './g/games/other/';
-        const IMG = 'https://quantil.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3@latest/assets/img/';
+        const IMG = './g/assets/';
         const TOOLS = [
-            { name: 'Website_Embedder', img: IMG + 'aboutblank.png', title: 'Website Embedder', desc: 'Opens any URL inside a cloaked about:blank tab with a custom title and favicon.', label: 'Open Embedder' },
-            { name: 'HTML_Embedder',    img: IMG + 'embed.png',      title: 'HTML Embedder',    desc: 'Paste HTML and embed it as a standalone page.',                                      label: 'Open Embedder' },
+            { name: 'Website_Embedder', img: IMG + 'about-blank.png', title: 'Website Embedder', desc: 'Opens any URL inside a cloaked about:blank tab with a custom title and favicon.', label: 'Open Embedder' },
+            { name: 'HTML_Embedder',    img: IMG + 'html-embedder.png',      title: 'HTML Embedder',    desc: 'Paste HTML and embed it as a standalone page.',                                      label: 'Open Embedder' },
             { name: 'Code_Editor',      img: IMG + 'vscode.png',     title: 'Code Editor',      desc: 'Write HTML, CSS and JS with a live preview and console.',                           label: 'Open Editor' },
-            { name: 'History_Flooder',  img: IMG + 'history.png',    title: 'History Flooder',  desc: 'Fills the tab history with decoy entries. Advanced controls.',                      label: 'Open Flooder' }
+            { name: 'History_Flooder',  img: IMG + 'historyflooder.png',    title: 'History Flooder',  desc: 'Fills the tab history with decoy entries. Advanced controls.',                      label: 'Open Flooder' }
         ];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -3376,8 +3376,8 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
 
         function setPresetCursor(name, silent = false) {
             const cursors = {
-                wii: './g/assets/cursor-wii.png',
-                teto: 'https://quantil.jsdelivr.net/gh/s0n-1m-cr1n3/sc13nc3@latest/assets/img/teto/normal2.png'
+                wii: './g/assets/wiicursor.png',
+                teto: './g/assets/teto.png'
             };
             if (!cursors[name]) {
                 showToast('Cursor preset not found');
