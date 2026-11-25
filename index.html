@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nebula Arcade</title>
+    <title>Classroom-X-Zone</title>
     <meta name="color-scheme" content="dark">
     <meta name="description" content="Play, explore, and discover games and useful tools in one place.">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Nebula Arcade">
-    <meta property="og:title" content="Nebula Arcade | Play. Explore. Discover.">
+    <meta property="og:site_name" content="Classroom-X-Zone">
+    <meta property="og:title" content="Classroom-X-Zone | Play. Explore. Discover.">
     <meta property="og:description" content="Play, explore, and discover games and useful tools in one place.">
 <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Nebula Arcade | Play. Explore. Discover.">
+    <meta name="twitter:title" content="Classroom-X-Zone | Play. Explore. Discover.">
     <meta name="twitter:description" content="Play, explore, and discover games and useful tools in one place.">
 <!-- Integrated player; game HTML is cache-busted on fetch. -->
     <link rel="icon" id="favicon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==">
@@ -1829,7 +1829,7 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                 // Never let a blocked fetch keep the whole site behind this overlay.
                 fetchTimer = setTimeout(function () {
                     if (token !== loadToken) return;
-                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Nebula Arcade…</p></main></body></html>', token);
+                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main></body></html>', token);
                 }, 5000);
             } catch (e) {
                 window.__cxzBlockDone = true;
@@ -1870,8 +1870,8 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
 
     <!-- Startup Loading Screen -->
     <div id="loading-screen">
-        <h1 class="loader-title">Nebula Arcade</h1>
-        <p class="loader-subtitle">PLAY • WATCH • EXPLORE</p>
+        <h1 class="loader-title">Classroom-X-Zone</h1>
+        <p class="loader-subtitle">made by zach ❤</p>
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
@@ -1882,17 +1882,17 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
     <div class="container">
 
         <!-- Site branding is kept in the navigation; no top banner. -->
-        <div class="brand-banner" aria-label="Nebula Arcade">
+        <div class="brand-banner" aria-label="Classroom-X-Zone">
             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==" alt="" width="54" height="54">
             <div class="brand-banner-copy">
-                <div class="brand-banner-name">Nebula<span>Arcade</span></div>
-                <div class="brand-banner-tagline">PLAY • WATCH • EXPLORE</div>
+                <div class="brand-banner-name">Classroom-X<span>Zone</span></div>
+                <div class="brand-banner-tagline">made by zach ❤</div>
             </div>
         </div>
 
         <!-- Header: live date & time -->
         <div class="header">
-            <h1 id="site-title" class="visually-hidden">Nebula Arcade</h1>
+            <h1 id="site-title" class="visually-hidden">Classroom-X-Zone</h1>
             <div class="live-datetime" aria-label="Current date and time" role="timer">
                 <span id="current-weekday">Loading…</span>
                 <div class="datetime-detail-row">
@@ -1920,10 +1920,10 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
         <!-- TAB: GAMES -->
         <div id="games" class="tab-content">
             <div class="provider-tabs" role="tablist" aria-label="Game collection">
-                <button id="cxz-provider" class="provider-card" role="tab" aria-selected="true" aria-controls="cxz-panel" type="button"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==" alt=""><span>Nebula Arcade</span></button>
+                <button id="cxz-provider" class="provider-card" role="tab" aria-selected="true" aria-controls="cxz-panel" type="button"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==" alt=""><span>Classroom-X-Zone</span></button>
                 <button id="gn-provider" class="provider-card" role="tab" aria-selected="false" aria-controls="gn-panel" type="button"><img src="https://cdn.jsdelivr.net/gh/freebuisness/covers@latest/favicon.png" alt=""><span>GN-Math</span></button>
             </div>
-            <section id="cxz-panel" role="tabpanel" aria-labelledby="cxz-provider"><h2 class="section-title">Nebula Arcade Games</h2><p class="page-description">Browse the Nebula Arcade arcade. Search by title, pick a card, and the game opens right here.</p><div class="grid square-grid" id="all-games-grid"></div></section>
+            <section id="cxz-panel" role="tabpanel" aria-labelledby="cxz-provider"><h2 class="section-title">Classroom-X-Zone Games</h2><p class="page-description">Browse the Classroom-X-Zone arcade. Search by title, pick a card, and the game opens right here.</p><div class="grid square-grid" id="all-games-grid"></div></section>
             <section id="gn-panel" role="tabpanel" aria-labelledby="gn-provider" hidden><h2 class="section-title">GN-Math Games</h2><p id="gn-status" class="page-description" role="status">Select GN-Math to load its game catalog.</p>
                 <div id="zone-controls" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;align-items:center;"><select id="zoneFilterOptions" onchange="filterZones2()" aria-label="Filter GN-Math games by tag" style="padding:8px 12px;border-radius:10px;border:1px solid var(--line-solid);background:var(--bg-2);color:var(--ink);font-size:13px;cursor:pointer;outline:none;"><option value="none">All Tags</option></select></div>
                 <p id="allSummary" style="font-size:12px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;"></p><div id="gn-grid" class="grid square-grid"></div>
@@ -1945,7 +1945,7 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
     <div class="cinema-hero" id="cinema-featured">
         <img class="cinema-hero-art" id="cinema-featured-art" src="" alt="">
         <div class="cinema-hero-copy">
-            <div class="cinema-eyebrow">Nebula Arcade CINEMA</div>
+            <div class="cinema-eyebrow">Classroom-X-Zone CINEMA</div>
             <h2 id="cinema-featured-title">Your next movie night.</h2>
             <p id="cinema-featured-description">A growing collection of movies, all in one place.</p>
             <button class="cinema-play" id="cinema-featured-play" type="button" disabled>▶&nbsp; Play</button>
@@ -2292,7 +2292,7 @@ aria-label="Fullscreen">
             <button class="cxz-close right" onclick="CXZPlayer.close()" title="Close">✕</button>
 
             <div class="cxz-loader" id="cxz-loader">
-                <img class="cxz-unity-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==" alt="Nebula Arcade">
+                <img class="cxz-unity-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==" alt="Classroom-X-Zone">
                 <div class="cxz-progress-track">
                     <div class="cxz-progress-fill" id="cxz-progress"></div>
                 </div>
@@ -2553,7 +2553,7 @@ aria-label="Fullscreen">
             // Prefer the actual rendered provider cards, falling back to the source catalog.
             const total = grid ? grid.querySelectorAll('.item-card').length : (Array.isArray(GAMES) ? GAMES.length : 0);
             count.textContent = String(total);
-            count.setAttribute('aria-label', total + ' Nebula Arcade games');
+            count.setAttribute('aria-label', total + ' Classroom-X-Zone games');
         }
 
         async function loadGames() {
@@ -2808,7 +2808,7 @@ aria-label="Fullscreen">
             }
 
 
-        // Keep the Nebula Arcade provider badge in sync with its catalog.
+        // Keep the Classroom-X-Zone provider badge in sync with its catalog.
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', updateClassroomXZoneCount, { once: true });
         } else {
@@ -2997,10 +2997,10 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
                 document.title = title;
                 localStorage.setItem(PRE + 'cloak_title', title);
             } else {
-                document.title = 'Nebula Arcade';
+                document.title = 'Classroom-X-Zone';
                 localStorage.removeItem(PRE + 'cloak_title');
             }
-            byId('preview-tab-text').innerText = title || 'Nebula Arcade';
+            byId('preview-tab-text').innerText = title || 'Classroom-X-Zone';
 
             let link = byId('favicon');
             if (!link) {
@@ -3026,11 +3026,11 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
         function resetCloak() {
             localStorage.removeItem(PRE + 'cloak_title');
             localStorage.removeItem(PRE + 'cloak_icon');
-            document.title = "Nebula Arcade";
+            document.title = "Classroom-X-Zone";
             document.getElementById('favicon').href = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==";
             document.getElementById('cloak-name-input').value = "";
             document.getElementById('cloak-icon-input').value = "";
-            document.getElementById('preview-tab-text').innerText = "Nebula Arcade";
+            document.getElementById('preview-tab-text').innerText = "Classroom-X-Zone";
             document.getElementById('preview-favicon').src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==";
             showToast("Cloak Reset to Default");
         }
@@ -3135,10 +3135,10 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'Nebula Arcade.html';
+            a.download = 'Classroom-X-Zone.html';
             a.click();
             window.setTimeout(() => URL.revokeObjectURL(url), 30000);
-            showToast("Downloaded from Nebula Arcade");
+            showToast("Downloaded from Classroom-X-Zone");
         }
 
         function downloadSVG() {
@@ -3147,10 +3147,10 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
                 const u = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = u;
-                a.download = 'Nebula Arcade.svg';
+                a.download = 'Classroom-X-Zone.svg';
                 a.click();
                 window.setTimeout(() => URL.revokeObjectURL(u), 30000);
-                showToast("Downloaded from Nebula Arcade");
+                showToast("Downloaded from Classroom-X-Zone");
             }
 
             fetch('./index.svg')
@@ -3241,7 +3241,7 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
 
         // 9. BACKUP & RESTORE
         function clearData() {
-            if (confirm("Are you sure you want to clear all Nebula Arcade settings?")) {
+            if (confirm("Are you sure you want to clear all Classroom-X-Zone settings?")) {
                 Object.keys(localStorage).forEach(k => {
                     if (k.startsWith(PRE)) localStorage.removeItem(k);
                 });
@@ -4965,7 +4965,7 @@ setTimeout(() => {
             }
             const featured = cxzMovies[0];
             document.getElementById('cinema-featured-title').textContent = featured.title;
-            document.getElementById('cinema-featured-description').textContent = featured.description || 'Now showing on Nebula Arcade Cinema.';
+            document.getElementById('cinema-featured-description').textContent = featured.description || 'Now showing on Classroom-X-Zone Cinema.';
             const art = document.getElementById('cinema-featured-art');
             if (featured.poster) { art.src = featured.poster; art.alt = featured.title; }
             else art.remove();
@@ -5045,7 +5045,7 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
                 panels[i].hidden = i !== index;
             });
             const search = document.getElementById('searchInput');
-            if (search) search.placeholder = index ? 'Search GN-Math games...' : 'Search Nebula Arcade games...';
+            if (search) search.placeholder = index ? 'Search GN-Math games...' : 'Search Classroom-X-Zone games...';
             filterItems();
             if (index && !loaded) { loaded = true; listZones(); }
         }
@@ -5520,7 +5520,7 @@ body[data-tab="home"] #featured-grid .card{width:124px}
 <div id="onboard-overlay" class="gate" role="dialog" aria-modal="true" aria-labelledby="ob-title" hidden>
   <div class="gate-card">
     <section data-step="0">
-      <h1 id="ob-title">Welcome to Nebula Arcade</h1>
+      <h1 id="ob-title">Welcome to Classroom-X-Zone</h1>
       <p class="gate-sub">Let's set up your space, then take a quick tour of the site. What should we call you?</p>
       <label>Display name<input id="ob-name" maxlength="24" autocomplete="nickname" spellcheck="false"></label>
       <p class="ob-label" id="ob-accent-label">Accent color</p>
@@ -5934,7 +5934,7 @@ body:not([data-tab="home"]) .live-datetime{justify-content:flex-end;align-items:
     {tab:'home',sel:'.search-box',title:'Search everything',body:'Type a game name to find it from anywhere on the site.'},
     {tab:'home',sel:'#featured-grid',title:'Your desktop',body:'These are suggested games. Click an icon and the game opens in the built-in player.'},
     {tab:'home',sel:'.bottom-dock',title:'The dock',body:'This is how you move around. Each icon opens a different part of the site, and hovering shows its name.'},
-    {tab:'games',sel:'#games .provider-tabs',title:'Games',body:'Two libraries live here. Nebula Arcade is the main collection, and GN-Math loads a second catalog you can filter by tag.'},
+    {tab:'games',sel:'#games .provider-tabs',title:'Games',body:'Two libraries live here. Classroom-X-Zone is the main collection, and GN-Math loads a second catalog you can filter by tag.'},
     {tab:'movies',sel:'#cinema-featured',title:'Cinema',body:'Browse and watch movies in the built-in player.'},
     {tab:'tools',sel:'#tools .section-title',title:'Tools',body:'Handy extras for your browser and your next session.'},
     {tab:'settings',sel:'#settings .settings-heading',title:'Settings',body:'Change the accent color, background, performance options, tab title and more. Everything is saved in this browser.'},
