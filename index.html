@@ -5347,3 +5347,27 @@ select,textarea,input:not([type=checkbox]):not([type=radio]):not([type=range]){b
   .dock-item{width:38px;min-width:38px;padding:0}
 }
 </style>
+
+<style id="nebula-home-center">
+/* Home only: larger, centered clock and search; centered game tiles (same tile size) */
+body[data-tab="home"] .container{row-gap:22px}
+body[data-tab="home"] .brand-banner{flex:0 0 100%}
+body[data-tab="home"] .header{flex:0 0 100%;display:flex;justify-content:center;margin:18px 0 0}
+body[data-tab="home"] .live-datetime{flex-direction:column;align-items:center;justify-content:center;gap:10px;width:min(100%,560px);padding:30px 40px;text-align:center;background:var(--bg-2);border:1px solid var(--line-solid);border-radius:var(--r-xl)}
+body[data-tab="home"] #current-weekday{font:700 clamp(34px,6vw,52px)/1.1 var(--font-ui);letter-spacing:-.03em}
+body[data-tab="home"] .datetime-detail-row{justify-content:center;gap:6px 20px;font:500 clamp(16px,2.4vw,20px) var(--font-ui);color:var(--ink-soft)}
+body[data-tab="home"] .datetime-detail-row time{color:var(--ink)}
+body[data-tab="home"] .search-box{flex:0 1 640px;width:100%;margin:0 auto}
+body[data-tab="home"] .search-box input:not([type=checkbox]):not([type=radio]){min-height:60px!important;padding:0 20px 0 54px!important;font-size:17px!important;border-radius:var(--r-xl)!important}
+body[data-tab="home"] .search-box .search-icon{left:20px}
+body[data-tab="home"] .search-icon svg{width:20px;height:20px}
+body[data-tab="home"] #home{margin-top:6px}
+body[data-tab="home"] #featured-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+body[data-tab="home"] #featured-grid .card{flex:0 0 auto;width:clamp(150px,15vw,200px)}
+@media(max-width:760px){
+  body[data-tab="home"] .live-datetime{padding:22px 20px}
+  body[data-tab="home"] .search-box input:not([type=checkbox]):not([type=radio]){min-height:54px!important}
+  body[data-tab="home"] #featured-grid{gap:10px}
+  body[data-tab="home"] #featured-grid .card{width:calc(50% - 5px)}
+}
+</style>
