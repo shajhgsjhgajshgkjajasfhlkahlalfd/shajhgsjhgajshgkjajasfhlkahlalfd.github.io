@@ -6079,10 +6079,7 @@ document.addEventListener("keydown", e => {
         .join("");
 
     const ADMIN_HASH =
-        await crypto.subtle.digest(
-            "SHA-256",
-            new TextEncoder().encode(password)
-        );
+        'fd8fc1d40d4282696b96681d6b3d3ccfccb7206e620adf4bcc743f424ebadbf8';
 
     if (hex === ADMIN_HASH) {
         openAdminPanel();
