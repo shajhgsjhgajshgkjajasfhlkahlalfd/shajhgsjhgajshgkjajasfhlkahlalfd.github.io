@@ -5494,3 +5494,263 @@ body[data-tab="home"] #featured-grid .card{width:124px}
   });
 })();
 </script>
+
+<div id="auth-overlay" class="gate" role="dialog" aria-modal="true" aria-labelledby="auth-title" hidden>
+  <div class="gate-card">
+    <h1 id="auth-title">Create your account</h1>
+    <p class="gate-sub" id="auth-sub">Pick a username and password to get started.</p>
+    <div class="gate-tabs" role="tablist" aria-label="Account">
+      <button type="button" role="tab" data-mode="login">Sign in</button>
+      <button type="button" role="tab" data-mode="signup">Create account</button>
+    </div>
+    <form id="auth-form" novalidate>
+      <label>Username<input id="auth-user" autocomplete="username" maxlength="20" spellcheck="false" autocapitalize="off"></label>
+      <label>Password<input id="auth-pass" type="password" autocomplete="current-password" maxlength="100"></label>
+      <label id="auth-confirm-wrap" hidden>Confirm password<input id="auth-pass2" type="password" autocomplete="new-password" maxlength="100"></label>
+      <label class="gate-check"><input type="checkbox" id="auth-keep" checked> Keep me signed in on this device</label>
+      <p id="auth-error" class="gate-error" role="alert"></p>
+      <button type="submit" class="gate-primary" id="auth-submit">Create account</button>
+    </form>
+    <p class="gate-note">Accounts are saved only in this browser. They don't sync to other devices, and there's no password reset, so choose one you'll remember.</p>
+  </div>
+</div>
+
+<div id="onboard-overlay" class="gate" role="dialog" aria-modal="true" aria-labelledby="ob-title" hidden>
+  <div class="gate-card">
+    <div class="ob-dots" id="ob-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    <section data-step="0">
+      <h1 id="ob-title">Welcome to Nebula Arcade</h1>
+      <p class="gate-sub">Let's set up your space. What should we call you?</p>
+      <label>Display name<input id="ob-name" maxlength="24" autocomplete="nickname" spellcheck="false"></label>
+      <p class="ob-label" id="ob-accent-label">Accent color</p>
+      <div class="ob-swatches" id="ob-swatches" role="group" aria-labelledby="ob-accent-label"></div>
+    </section>
+    <section data-step="1" hidden>
+      <h1>Getting around</h1>
+      <ul class="ob-list">
+        <li><strong>Dock</strong> at the bottom switches between Home, Games, Cinema, Tools, Partners and Settings.</li>
+        <li><strong>Search</strong> finds any game on the site. Type a name and press a result to play.</li>
+        <li><strong>Games</strong> has two libraries: Nebula Arcade and GN-Math. Pick one at the top of the window.</li>
+        <li><strong>Settings</strong> changes the theme, background and more. Your choices are saved in this browser.</li>
+      </ul>
+    </section>
+    <section data-step="2" hidden>
+      <h1>You're all set</h1>
+      <p class="gate-sub" id="ob-done-text">Your account is ready. You can replay this tour any time from the menu in the top right.</p>
+    </section>
+    <div class="ob-actions">
+      <button type="button" class="gate-link" id="ob-skip">Skip</button>
+      <span class="ob-spacer"></span>
+      <button type="button" class="gate-secondary" id="ob-back" hidden>Back</button>
+      <button type="button" class="gate-primary" id="ob-next">Next</button>
+    </div>
+  </div>
+</div>
+
+<div id="user-chip" hidden>
+  <button type="button" id="user-chip-btn" aria-haspopup="menu" aria-expanded="false"><span class="uc-avatar" id="uc-avatar"></span><span class="uc-name" id="uc-name"></span></button>
+  <div id="user-menu" role="menu" hidden>
+    <div class="um-head" id="um-head"></div>
+    <button type="button" role="menuitem" id="um-tour">Replay intro</button>
+    <button type="button" role="menuitem" id="um-out">Sign out</button>
+  </div>
+</div>
+
+<style id="nebula-auth">
+#loading-screen{z-index:400000!important}
+.gate{position:fixed;inset:0;z-index:300000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(9,9,15,.94);overflow:auto}
+.gate[hidden]{display:none}
+.gate-card{width:min(100%,400px);padding:28px;background:rgba(19,19,28,.96);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.gate-card h1{font:700 22px/1.25 var(--font-ui);letter-spacing:-.02em;color:var(--ink);margin:0 0 6px}
+.gate-sub{font-size:14px;line-height:1.55;color:var(--ink-soft);margin:0 0 18px}
+.gate-tabs{display:flex;gap:4px;padding:3px;margin-bottom:16px;background:var(--bg);border:1px solid var(--line);border-radius:10px}
+.gate-tabs button{flex:1;padding:8px;border:0;border-radius:8px;background:transparent;color:var(--ink-soft);font:600 13px var(--font-ui);cursor:pointer}
+.gate-tabs button[aria-selected="true"]{background:var(--bg-3);color:var(--ink)}
+.gate label{display:block;margin-bottom:12px;font:600 13px var(--font-ui);color:var(--ink-soft)}
+.gate label input:not([type=checkbox]){display:block;width:100%;height:42px;margin-top:6px;padding:0 12px;font:500 14px var(--font-ui);color:var(--ink)}
+.gate .gate-check{display:flex;align-items:center;gap:8px;font-weight:500}
+.gate-error{min-height:18px;margin:0 0 10px;font-size:13px;color:#ff7b7b}
+.gate-primary,.gate-secondary{height:42px;padding:0 18px;border:0;border-radius:10px;font:700 14px var(--font-ui);cursor:pointer}
+.gate-primary{width:auto;background:var(--accent-color);color:#fff}
+#auth-submit{width:100%}
+.gate-primary:hover{filter:brightness(1.1)}
+.gate-secondary{background:var(--bg-3);color:var(--ink)}
+.gate-link{border:0;background:none;color:var(--ink-soft);font:600 13px var(--font-ui);cursor:pointer}
+.gate-link:hover{color:var(--ink)}
+.gate-note{margin:16px 0 0;font-size:12px;line-height:1.55;color:var(--ink-dim)}
+.ob-dots{display:flex;gap:6px;margin-bottom:18px}
+.ob-dots span{width:22px;height:4px;border-radius:2px;background:var(--bg-3)}
+.ob-dots span.on{background:var(--accent-color)}
+.ob-label{margin:4px 0 8px;font:600 13px var(--font-ui);color:var(--ink-soft)}
+.ob-swatches{display:flex;gap:10px;flex-wrap:wrap}
+.ob-swatches button{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.ob-swatches button[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px var(--bg)}
+.ob-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.ob-list li{font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.ob-list strong{color:var(--ink)}
+.ob-actions{display:flex;align-items:center;gap:8px;margin-top:24px}
+.ob-spacer{flex:1}
+/* Menu bar account chip */
+#user-chip{position:fixed;top:0;right:12px;height:32px;z-index:300;display:flex;align-items:center}
+#user-chip[hidden]{display:none}
+#user-chip-btn{display:flex;align-items:center;gap:7px;height:24px;padding:0 8px 0 3px;border:0;border-radius:12px;background:transparent;color:var(--ink);font:600 13px var(--font-ui);cursor:pointer}
+#user-chip-btn:hover{background:rgba(255,255,255,.08)}
+.uc-avatar{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--accent-color);color:#fff;font-size:10px;font-weight:700}
+.uc-name{max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#user-menu{position:absolute;top:34px;right:0;min-width:180px;padding:6px;background:rgba(20,20,30,.96);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+#user-menu[hidden]{display:none}
+.um-head{padding:8px 10px;font:500 12px var(--font-ui);color:var(--ink-soft);border-bottom:1px solid var(--line);margin-bottom:4px}
+#user-menu button{display:block;width:100%;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:var(--ink);text-align:left;font:500 13px var(--font-ui);cursor:pointer}
+#user-menu button:hover{background:rgba(255,255,255,.08)}
+body:not([data-tab="home"]) .header{right:150px}
+@media(max-width:760px){.uc-name{display:none}body:not([data-tab="home"]) .header{right:56px}}
+</style>
+
+<script>
+(function(){
+  'use strict';
+  var KEY='nebula_accounts',SES='nebula_session';
+  var $=function(id){return document.getElementById(id)};
+  var overlay=$('auth-overlay'),ob=$('onboard-overlay'),form=$('auth-form');
+  var mode='signup',user=null,step=0;
+  var COLORS=['#8b5cf6','#3b82f6','#06b6d4','#22c55e','#f59e0b','#ef4444'];
+
+  function accounts(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+  function save(a){localStorage.setItem(KEY,JSON.stringify(a))}
+  function sessionUser(){var u=localStorage.getItem(SES)||sessionStorage.getItem(SES);return u&&accounts()[u]?u:null}
+  function hex(buf){return Array.prototype.map.call(new Uint8Array(buf),function(b){return b.toString(16).padStart(2,'0')}).join('')}
+  function randomSalt(){var a=new Uint8Array(16);crypto.getRandomValues(a);return hex(a)}
+  function weakHash(str){var h1=0xdeadbeef,h2=0x41c6ce57;for(var i=0;i<str.length;i++){var c=str.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^h1>>>16,2246822507)^Math.imul(h2^h2>>>13,3266489909);h2=Math.imul(h2^h2>>>16,2246822507)^Math.imul(h1^h1>>>13,3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(16)}
+  // PBKDF2 where the browser allows it (secure contexts); a simple fallback otherwise.
+  function hashPw(pw,salt,scheme){
+    var enc=new TextEncoder();
+    if(scheme!=='f1'&&window.crypto&&crypto.subtle){
+      return crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']).then(function(k){
+        return crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:150000,hash:'SHA-256'},k,256);
+      }).then(function(b){return 'p1:'+hex(b)});
+    }
+    return Promise.resolve('f1:'+weakHash(salt+':'+pw));
+  }
+  function setLocked(locked){
+    var c=document.querySelector('.container'),d=document.querySelector('.bottom-dock');
+    if(c)c.inert=locked;if(d)d.inert=locked;
+  }
+
+  /* ---------- Sign in / create account ---------- */
+  function setMode(m){
+    mode=m;
+    var signup=m==='signup';
+    document.querySelectorAll('.gate-tabs button').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.mode===m))});
+    $('auth-confirm-wrap').hidden=!signup;
+    $('auth-title').textContent=signup?'Create your account':'Welcome back';
+    $('auth-sub').textContent=signup?'Pick a username and password to get started.':'Sign in to continue.';
+    $('auth-submit').textContent=signup?'Create account':'Sign in';
+    $('auth-pass').autocomplete=signup?'new-password':'current-password';
+    $('auth-error').textContent='';
+  }
+  function showAuth(){
+    setLocked(true);ob.hidden=true;$('user-chip').hidden=true;
+    overlay.hidden=false;
+    setMode(Object.keys(accounts()).length?'login':'signup');
+    form.reset();$('auth-keep').checked=true;
+    setTimeout(function(){$('auth-user').focus()},30);
+  }
+  function err(msg){$('auth-error').textContent=msg}
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=$('auth-user').value.trim().toLowerCase(),pw=$('auth-pass').value;
+    var accts=accounts(),btn=$('auth-submit');
+    if(!/^[a-z0-9_]{3,20}$/.test(name))return err('Username must be 3–20 characters: letters, numbers or underscores.');
+    if(mode==='signup'){
+      if(accts[name])return err('That username is taken on this device. Sign in or pick another.');
+      if(pw.length<6)return err('Password must be at least 6 characters.');
+      if(pw!==$('auth-pass2').value)return err('Passwords don\'t match.');
+      btn.disabled=true;var salt=randomSalt();
+      hashPw(pw,salt).then(function(h){
+        var a=accounts();a[name]={salt:salt,hash:h,display:name,created:Date.now(),onboarded:false};save(a);
+        signIn(name,true);
+      }).catch(function(){err('Could not create the account in this browser.')}).then(function(){btn.disabled=false});
+    }else{
+      var acct=accts[name];
+      if(!acct)return err('No account with that username on this device.');
+      btn.disabled=true;
+      hashPw(pw,acct.salt,acct.hash.slice(0,2)).then(function(h){
+        if(h!==acct.hash)return err('Incorrect password.');
+        signIn(name,false);
+      }).catch(function(){err('Could not check the password in this browser.')}).then(function(){btn.disabled=false});
+    }
+  });
+  document.querySelectorAll('.gate-tabs button').forEach(function(b){b.addEventListener('click',function(){setMode(b.dataset.mode)})});
+
+  function signIn(name,isNew){
+    user=name;
+    var keep=$('auth-keep').checked;
+    localStorage.removeItem(SES);sessionStorage.removeItem(SES);
+    (keep?localStorage:sessionStorage).setItem(SES,name);
+    overlay.hidden=true;form.reset();
+    if(isNew||!accounts()[name].onboarded)startOnboarding();else enter();
+  }
+  function enter(){
+    var a=accounts()[user];
+    ob.hidden=true;overlay.hidden=true;setLocked(false);
+    var label=a.display||user;
+    $('uc-name').textContent=label;$('uc-avatar').textContent=label.charAt(0).toUpperCase();
+    $('um-head').textContent='Signed in as '+user;
+    $('user-chip').hidden=false;
+    if(typeof switchTab==='function')switchTab('home');
+  }
+  function signOut(){
+    localStorage.removeItem(SES);sessionStorage.removeItem(SES);user=null;
+    closeMenu();showAuth();
+  }
+
+  /* ---------- Onboarding ---------- */
+  var sw=$('ob-swatches');
+  COLORS.forEach(function(c){
+    var b=document.createElement('button');b.type='button';b.style.background=c;b.dataset.color=c;
+    b.setAttribute('aria-label','Accent color '+c);b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){
+      sw.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});
+      if(typeof setThemeAccent==='function')setThemeAccent(c,true);
+    });
+    sw.appendChild(b);
+  });
+  function renderStep(){
+    ob.querySelectorAll('section').forEach(function(s){s.hidden=Number(s.dataset.step)!==step});
+    ob.querySelectorAll('#ob-dots span').forEach(function(d,i){d.classList.toggle('on',i<=step)});
+    $('ob-back').hidden=step===0;$('ob-skip').hidden=step===2;
+    $('ob-next').textContent=step===2?'Start playing':'Next';
+    if(step===2){var n=$('ob-name').value.trim();$('ob-done-text').textContent=(n?n+', your':'Your')+' account is ready. You can replay this tour any time from the menu in the top right.'}
+  }
+  function startOnboarding(){
+    step=0;setLocked(true);$('user-chip').hidden=true;
+    $('ob-name').value=accounts()[user].display||user;
+    var cur=getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim().toLowerCase();
+    sw.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.color===cur))});
+    ob.hidden=false;renderStep();setTimeout(function(){$('ob-name').focus()},30);
+  }
+  function finishOnboarding(){
+    var a=accounts(),n=$('ob-name').value.trim();
+    if(a[user]){if(n)a[user].display=n;a[user].onboarded=true;save(a)}
+    enter();
+  }
+  $('ob-next').addEventListener('click',function(){if(step<2){step++;renderStep()}else finishOnboarding()});
+  $('ob-back').addEventListener('click',function(){if(step>0){step--;renderStep()}});
+  $('ob-skip').addEventListener('click',finishOnboarding);
+
+  /* ---------- Account menu ---------- */
+  var menu=$('user-menu'),chipBtn=$('user-chip-btn');
+  function closeMenu(){menu.hidden=true;chipBtn.setAttribute('aria-expanded','false')}
+  chipBtn.addEventListener('click',function(e){e.stopPropagation();menu.hidden=!menu.hidden;chipBtn.setAttribute('aria-expanded',String(!menu.hidden))});
+  document.addEventListener('click',function(e){if(!menu.hidden&&!menu.contains(e.target))closeMenu()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu()});
+  $('um-out').addEventListener('click',signOut);
+  $('um-tour').addEventListener('click',function(){closeMenu();startOnboarding()});
+
+  /* ---------- Start ---------- */
+  user=sessionUser();
+  if(user){var a0=accounts()[user];if(a0.onboarded)enter();else startOnboarding()}
+  else showAuth();
+})();
+</script>
