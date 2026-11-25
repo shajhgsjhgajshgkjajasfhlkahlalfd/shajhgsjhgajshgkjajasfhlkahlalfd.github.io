@@ -5517,32 +5517,18 @@ body[data-tab="home"] #featured-grid .card{width:124px}
 
 <div id="onboard-overlay" class="gate" role="dialog" aria-modal="true" aria-labelledby="ob-title" hidden>
   <div class="gate-card">
-    <div class="ob-dots" id="ob-dots" aria-hidden="true"><span></span><span></span><span></span></div>
     <section data-step="0">
       <h1 id="ob-title">Welcome to Nebula Arcade</h1>
-      <p class="gate-sub">Let's set up your space. What should we call you?</p>
+      <p class="gate-sub">Let's set up your space, then take a quick tour of the site. What should we call you?</p>
       <label>Display name<input id="ob-name" maxlength="24" autocomplete="nickname" spellcheck="false"></label>
       <p class="ob-label" id="ob-accent-label">Accent color</p>
       <div class="ob-swatches" id="ob-swatches" role="group" aria-labelledby="ob-accent-label"></div>
     </section>
-    <section data-step="1" hidden>
-      <h1>Getting around</h1>
-      <ul class="ob-list">
-        <li><strong>Dock</strong> at the bottom switches between Home, Games, Cinema, Tools, Partners and Settings.</li>
-        <li><strong>Search</strong> finds any game on the site. Type a name and press a result to play.</li>
-        <li><strong>Games</strong> has two libraries: Nebula Arcade and GN-Math. Pick one at the top of the window.</li>
-        <li><strong>Settings</strong> changes the theme, background and more. Your choices are saved in this browser.</li>
-      </ul>
-    </section>
-    <section data-step="2" hidden>
-      <h1>You're all set</h1>
-      <p class="gate-sub" id="ob-done-text">Your account is ready. You can replay this tour any time from the menu in the top right.</p>
-    </section>
     <div class="ob-actions">
-      <button type="button" class="gate-link" id="ob-skip">Skip</button>
+      <button type="button" class="gate-link" id="ob-skip">Skip tour</button>
       <span class="ob-spacer"></span>
       <button type="button" class="gate-secondary" id="ob-back" hidden>Back</button>
-      <button type="button" class="gate-primary" id="ob-next">Next</button>
+      <button type="button" class="gate-primary" id="ob-next">Take the tour</button>
     </div>
   </div>
 </div>
@@ -5551,7 +5537,7 @@ body[data-tab="home"] #featured-grid .card{width:124px}
   <button type="button" id="user-chip-btn" aria-haspopup="menu" aria-expanded="false"><span class="uc-avatar" id="uc-avatar"></span><span class="uc-name" id="uc-name"></span></button>
   <div id="user-menu" role="menu" hidden>
     <div class="um-head" id="um-head"></div>
-    <button type="button" role="menuitem" id="um-tour">Replay intro</button>
+    <button type="button" role="menuitem" id="um-tour">Replay tour</button>
     <button type="button" role="menuitem" id="um-out">Sign out</button>
   </div>
 </div>
@@ -5720,8 +5706,7 @@ body:not([data-tab="home"]) .header{right:150px}
     ob.querySelectorAll('section').forEach(function(s){s.hidden=Number(s.dataset.step)!==step});
     ob.querySelectorAll('#ob-dots span').forEach(function(d,i){d.classList.toggle('on',i<=step)});
     $('ob-back').hidden=step===0;$('ob-skip').hidden=step===2;
-    $('ob-next').textContent=step===2?'Start playing':'Next';
-    if(step===2){var n=$('ob-name').value.trim();$('ob-done-text').textContent=(n?n+', your':'Your')+' account is ready. You can replay this tour any time from the menu in the top right.'}
+    $('ob-next').textContent='Take the tour';
   }
   function startOnboarding(){
     step=0;setLocked(true);$('user-chip').hidden=true;
@@ -5735,7 +5720,14 @@ body:not([data-tab="home"]) .header{right:150px}
     if(a[user]){if(n)a[user].display=n;a[user].onboarded=true;save(a)}
     enter();
   }
-  $('ob-next').addEventListener('click',function(){if(step<2){step++;renderStep()}else finishOnboarding()});
+  function markDone(){var b=accounts();if(b[user]){b[user].onboarded=true;save(b)}}
+  function beginTour(){
+    var a=accounts(),n=$('ob-name').value.trim();
+    if(a[user]&&n){a[user].display=n;save(a)}
+    enter();
+    if(window.NebulaTour)window.NebulaTour.start(markDone);else markDone();
+  }
+  $('ob-next').addEventListener('click',beginTour);
   $('ob-back').addEventListener('click',function(){if(step>0){step--;renderStep()}});
   $('ob-skip').addEventListener('click',finishOnboarding);
 
@@ -5746,7 +5738,7 @@ body:not([data-tab="home"]) .header{right:150px}
   document.addEventListener('click',function(e){if(!menu.hidden&&!menu.contains(e.target))closeMenu()});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu()});
   $('um-out').addEventListener('click',signOut);
-  $('um-tour').addEventListener('click',function(){closeMenu();startOnboarding()});
+  $('um-tour').addEventListener('click',function(){closeMenu();if(window.NebulaTour)window.NebulaTour.start(function(){})});
 
   /* ---------- Start ---------- */
   user=sessionUser();
@@ -5761,3 +5753,100 @@ body:not([data-tab="home"]) .header{left:auto;width:auto;max-width:calc(100vw - 
 body:not([data-tab="home"]) .live-datetime{justify-content:flex-end;align-items:center}
 @media(max-width:760px){body:not([data-tab="home"]) .header{max-width:calc(100vw - 190px)}}
 </style>
+
+<style id="nebula-tour">
+.tour-shield{position:fixed;inset:0;z-index:280000;background:transparent}
+.tour-shield.dim{background:rgba(5,5,10,.72)}
+.tour-spot{position:fixed;z-index:280001;border-radius:12px;border:2px solid var(--accent-color);box-shadow:0 0 0 9999px rgba(5,5,10,.72);pointer-events:none;transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease}
+.tour-spot[hidden]{display:none}
+.tour-card{position:fixed;z-index:280002;width:320px;max-width:calc(100vw - 24px);padding:18px 20px;background:rgba(22,22,32,.98);border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.55)}
+.tour-count{margin:0 0 6px;font:600 12px var(--font-ui);color:var(--ink-soft)}
+.tour-title{margin:0 0 6px;font:700 17px/1.3 var(--font-ui);letter-spacing:-.01em;color:var(--ink)}
+.tour-body{margin:0;font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.tour-actions{display:flex;align-items:center;gap:8px;margin-top:16px}
+.tour-actions .gate-primary,.tour-actions .gate-secondary{height:36px;padding:0 14px;font-size:13px}
+</style>
+<script>
+(function(){
+  'use strict';
+  var STEPS=[
+    {tab:'home',sel:'.search-box',title:'Search everything',body:'Type a game name to find it from anywhere on the site.'},
+    {tab:'home',sel:'#featured-grid',title:'Your desktop',body:'These are suggested games. Click an icon and the game opens in the built-in player.'},
+    {tab:'home',sel:'.bottom-dock',title:'The dock',body:'This is how you move around. Each icon opens a different part of the site, and hovering shows its name.'},
+    {tab:'games',sel:'#games .provider-tabs',title:'Games',body:'Two libraries live here. Nebula Arcade is the main collection, and GN-Math loads a second catalog you can filter by tag.'},
+    {tab:'movies',sel:'#cinema-featured',title:'Cinema',body:'Browse and watch movies in the built-in player.'},
+    {tab:'tools',sel:'#tools .section-title',title:'Tools',body:'Handy extras for your browser and your next session.'},
+    {tab:'settings',sel:'#settings .settings-heading',title:'Settings',body:'Change the accent color, background, performance options, tab title and more. Everything is saved in this browser.'},
+    {tab:'home',sel:'#user-chip-btn',title:'Your account',body:'Replay this tour or sign out from this menu.'}
+  ];
+  var i=0,onDone=null,shield,spot,card,active=false,timer=null;
+  function el(tag,cls){var e=document.createElement(tag);e.className=cls;return e}
+  function build(){
+    shield=el('div','tour-shield');spot=el('div','tour-spot');card=el('div','tour-card');
+    card.setAttribute('role','dialog');card.setAttribute('aria-label','Site tour');
+    card.innerHTML='<p class="tour-count"></p><h2 class="tour-title"></h2><p class="tour-body"></p><div class="tour-actions"><button type="button" class="gate-link" data-a="skip">Skip tour</button><span class="ob-spacer"></span><button type="button" class="gate-secondary" data-a="back">Back</button><button type="button" class="gate-primary" data-a="next">Next</button></div>';
+    card.addEventListener('click',function(e){var a=e.target.getAttribute&&e.target.getAttribute('data-a');if(a==='next')go(i+1);else if(a==='back')go(i-1);else if(a==='skip')end()});
+    document.body.append(shield,spot,card);
+  }
+  function target(){return document.querySelector(STEPS[i].sel)}
+  function place(){
+    if(!active)return;
+    var el=target(),r=el?el.getBoundingClientRect():null,vw=innerWidth,vh=innerHeight,pad=8;
+    var cw=Math.min(320,vw-24),ch=card.offsetHeight,top,left;
+    card.style.width=cw+'px';
+    if(!r||(r.width===0&&r.height===0)){
+      spot.hidden=true;shield.classList.add('dim');
+      top=(vh-ch)/2;left=(vw-cw)/2;
+    }else{
+      spot.hidden=false;shield.classList.remove('dim');
+      spot.style.left=(r.left-pad)+'px';spot.style.top=(r.top-pad)+'px';
+      spot.style.width=(r.width+pad*2)+'px';spot.style.height=(r.height+pad*2)+'px';
+      if(r.bottom+pad+14+ch<=vh-12)top=r.bottom+pad+14;
+      else if(r.top-pad-14-ch>=12)top=r.top-pad-14-ch;
+      else top=Math.max(12,vh-ch-96);
+      left=r.left+r.width/2-cw/2;
+    }
+    card.style.top=Math.round(Math.max(12,top))+'px';
+    card.style.left=Math.round(Math.min(Math.max(12,left),vw-cw-12))+'px';
+  }
+  function go(n){
+    if(n<0)return;
+    if(n>=STEPS.length){end();return}
+    i=n;var s=STEPS[i];
+    if(s.tab&&document.body.dataset.tab!==s.tab&&typeof switchTab==='function')switchTab(s.tab);
+    card.querySelector('.tour-count').textContent='Step '+(i+1)+' of '+STEPS.length;
+    card.querySelector('.tour-title').textContent=s.title;
+    card.querySelector('.tour-body').textContent=s.body;
+    card.querySelector('[data-a="back"]').hidden=i===0;
+    var next=card.querySelector('[data-a="next"]');next.textContent=i===STEPS.length-1?'Finish':'Next';
+    clearTimeout(timer);
+    timer=setTimeout(function(){
+      var t=target();
+      if(t&&t.scrollIntoView)t.scrollIntoView({block:'center',behavior:'instant'});
+      place();next.focus({preventScroll:true});
+    },80);
+  }
+  function key(e){
+    if(!active)return;
+    if(e.key==='Escape')end();
+    else if(e.key==='ArrowRight')go(i+1);
+    else if(e.key==='ArrowLeft')go(i-1);
+  }
+  function end(){
+    if(!active)return;
+    active=false;clearTimeout(timer);
+    [shield,spot,card].forEach(function(n){n&&n.remove()});
+    document.removeEventListener('keydown',key);
+    removeEventListener('resize',place);removeEventListener('scroll',place,true);
+    if(typeof switchTab==='function')switchTab('home');
+    var cb=onDone;onDone=null;if(cb)cb();
+  }
+  window.NebulaTour={start:function(cb){
+    if(active)return;
+    active=true;onDone=cb||null;build();
+    document.addEventListener('keydown',key);
+    addEventListener('resize',place);addEventListener('scroll',place,true);
+    go(0);
+  }};
+})();
+</script>
