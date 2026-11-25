@@ -1007,43 +1007,6 @@
         }
 
         /* ══════════════════════════════════════════════════════
-           SETUP MODAL
-        ══════════════════════════════════════════════════════ */
-        #setup-modal {
-            position: fixed; inset: 0; z-index: 1000000;
-            display: none; align-items: center; justify-content: center;
-            background: rgba(4,6,12,0.84);
-            padding: 16px;
-            backdrop-filter: blur(6px);
-        }
-        #setup-modal.open { display: flex; }
-        .setup-box {
-            width: 100%; max-width: 500px; max-height: 92vh;
-            overflow: auto;
-            background: var(--bg-2);
-            border: 1px solid var(--line-solid);
-            border-radius: var(--r-xl);
-            padding: 24px 22px;
-            box-shadow: 0 28px 80px rgba(0,0,0,0.6);
-            display: flex; flex-direction: column; gap: 12px;
-        }
-        .setup-box h2 {
-            font-family: var(--font-display);
-            font-size: 19px; font-weight: 800; letter-spacing: -0.03em;
-            color: var(--ink); line-height: 1.4;
-        }
-        .setup-sub { font-size: 12px; color: var(--ink-soft); line-height: 1.7; }
-        .setup-section {
-            border-top: 1px solid var(--line);
-            padding-top: 14px;
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .setup-actions { display: flex; gap: 8px; margin-top: 5px; }
-        .setup-actions .btn-action { flex: 1; }
-        .btn-ghost { border-color: var(--line-solid); color: var(--ink-soft); background: transparent; }
-        .btn-ghost:hover { border-color: var(--ink-soft); background: rgba(255,255,255,0.04); color: var(--ink); transform: none; }
-
-        /* ══════════════════════════════════════════════════════
            INTEGRATED GAME PLAYER
         ══════════════════════════════════════════════════════ */
         #cxz-player {
@@ -1749,12 +1712,7 @@
     height: auto !important;
     max-height: none !important;
 }
-.container > .tab-content.active > h1,
-.container > .tab-content.active > h2,
-.container > .tab-content.active > h3,
-.container > .tab-content.active > p,
-.container > .tab-content.active > div,
-.container > .tab-content.active > section {
+.container > .tab-content.active {
     visibility: visible;
 }
 </style>
@@ -1927,8 +1885,8 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
     <!-- Main Content Container -->
     <div class="container">
 
-        <!-- Original Nebula Arcade identity -->
-        <div class="brand-banner" aria-label="Nebula Arcade">
+        <!-- Site branding is kept in the navigation; no top banner. -->
+        <div class="brand-banner" aria-label="Nebula Arcade" hidden>
             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==" alt="" width="54" height="54">
             <div class="brand-banner-copy">
                 <div class="brand-banner-name">Nebula<span>Arcade</span></div>
@@ -2251,7 +2209,7 @@ aria-label="Fullscreen">
                     <div class="setting-subhead" style="text-align:left;">Performance</div>
                     <label class="checkbox-label">
                         <input type="checkbox" id="liquid-glass-check" onchange="toggleLiquidGlass(this.checked)">
-                        Liquid Glass Buttons
+                        Liquid Glass Buttons (made by muffled_lemon)
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" id="perf-mode-check" onchange="togglePerfMode(this.checked)">
@@ -2501,28 +2459,6 @@ aria-label="Fullscreen">
 
 
 
-            <div class="setup-section">
-                <div class="setting-subhead" style="text-align:left;">Tab Cloak</div>
-                <select id="setup-preset"></select>
-                <input type="text" id="setup-cloak-name" placeholder="Tab name">
-                <input type="text" id="setup-cloak-icon" placeholder="Favicon URL">
-            </div>
-
-            <div class="setup-section">
-                <div class="setting-subhead" style="text-align:left;">Block Screen</div>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="setup-block-on">
-                    Show block screen on startup
-                </label>
-                <select id="setup-block-theme"></select>
-            </div>
-
-            <div class="setup-actions">
-                <button class="btn-action btn-ghost" onclick="skipSetup()">Skip for now</button>
-                <button class="btn-action" onclick="finishSetup()">Save &amp; Finish</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
@@ -3265,30 +3201,6 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
 
         function downloadHTML() {
             let html = document.documentElement.outerHTML;
-            const modalHtml = `
-<!-- Injected by Nebula Arcade -->
-<div id="cxz-downloaded-modal" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#0c0c14;border:2px solid #ff6600;box-shadow:0 0 20px rgba(255,102,0,0.6);color:#ff6600;padding:12px 20px;border-radius:8px;font-family:'Press Start 2P',Courier,monospace,sans-serif;font-size:12px;z-index:99999999;display:flex;align-items:center;gap:14px;box-sizing:border-box;animation:cxzSlideDown 0.4s ease-out;user-select:none;">
-    <span>Downloaded from Nebula Arcade</span>
-    <button onclick="document.getElementById('cxz-downloaded-modal').remove()" style="background:none;border:1px solid #ff6600;color:#ff6600;padding:4px 8px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:11px;line-height:1;">✕</button>
-</div>
-<style>
-@keyframes cxzSlideDown {
-    from { opacity: 0; transform: translate(-50%, -30px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
-}
-</style>
-<script>
-setTimeout(function() {
-    var el = document.getElementById('cxz-downloaded-modal');
-    if (el) {
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        el.style.opacity = '0';
-        el.style.transform = 'translate(-50%, -20px)';
-        setTimeout(function() { if (el) el.remove(); }, 600);
-    }
-}, 4500);
-<\/script>
-`;
             if (html.includes('</body>')) {
                 html = html.replace('</body>', modalHtml + '\n</body>');
             } else {
@@ -3362,14 +3274,13 @@ setTimeout(function() {
             "./index.html",
             "index.html"
           ];
-          var modalHtml = '<div id="cxz-downloaded-modal" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#0c0c14;border:2px solid #ff6600;box-shadow:0 0 20px rgba(255,102,0,0.6);color:#ff6600;padding:12px 20px;border-radius:8px;font-family:\\'Press Start 2P\\',Courier,monospace,sans-serif;font-size:12px;z-index:99999999;display:flex;align-items:center;gap:14px;box-sizing:border-box;user-select:none;"><span>Downloaded from Nebula Arcade</span><button onclick="document.getElementById(\\'cxz-downloaded-modal\\').remove()" style="background:none;border:1px solid #ff6600;color:#ff6600;padding:4px 8px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:11px;line-height:1;">✕</button></div><script>setTimeout(function(){var el=document.getElementById("cxz-downloaded-modal");if(el){el.style.transition="opacity 0.6s, transform 0.6s";el.style.opacity="0";el.style.transform="translate(-50%,-20px)";setTimeout(function(){if(el)el.remove();},600);}},4500);<\\/script>';
           (function load(i) {
             if (i >= mirrors.length) return;
             fetch(mirrors[i] + "?t=" + Date.now()).then(function(res){ if (!res.ok) return Promise.reject(); return res.text(); })
               .then(function(text){
                 var frame = document.getElementById("fm");
                 var fdoc = frame.contentDocument || frame.contentWindow.document;
-                if (text.indexOf('</body>') >= 0) { text = text.replace('</body>', modalHtml + '\\n</body>'); } else { text += modalHtml; }
+
                 fdoc.open();
                 fdoc.write(text);
                 fdoc.close();
@@ -5417,3 +5328,10 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 </script>
 </body>
 </html>
+
+<style id="nebula-panel-isolation-fix">
+.container > .tab-content { display:none !important; position:relative; isolation:isolate; contain:layout style; }
+.container > .tab-content.active { display:block !important; }
+.container > .tab-content:not(.active) { visibility:hidden !important; pointer-events:none !important; }
+.brand-banner[hidden] { display:none !important; }
+</style>
