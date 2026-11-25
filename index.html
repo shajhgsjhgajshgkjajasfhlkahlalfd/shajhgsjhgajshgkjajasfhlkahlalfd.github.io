@@ -6072,11 +6072,22 @@ function logError(message) {
 function loadAdminSuggestions() {
   const box = document.getElementById("admin-suggestions");
   if (!box) return;
-  const items = readJSON("nebulaSuggestions");
+  const esc = v => String(v ?? "").replace(/[&<>"']/g,
+    c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  let items = [];
+  try { items = loadSuggestions(); } catch (e) { items = []; }
+  if (!Array.isArray(items)) items = [];
   box.innerHTML = items.length
-    ? items.map(s => `<div class="suggest-item">${esc(s.name)}</div>`).join("")
+    ? items.map(s => `
+        <div class="suggest-item">
+          <strong>${esc(s.game)}</strong>
+          ${s.link ? `<div><a href="${esc(s.link)}" target="_blank" rel="noopener noreferrer">${esc(s.link)}</a></div>` : ""}
+          ${s.notes ? `<div>${esc(s.notes)}</div>` : ""}
+          <small>${s.ts ? new Date(s.ts).toLocaleString() : ""} · ${s.sent ? "sent" : "saved locally"}</small>
+        </div>`).join("")
     : "<div>No suggestions yet</div>";
 }
+
 
 function loadAdminErrors() {
   const box = document.getElementById("admin-errors");
