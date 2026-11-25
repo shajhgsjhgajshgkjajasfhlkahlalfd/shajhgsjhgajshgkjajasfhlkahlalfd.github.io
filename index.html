@@ -1885,7 +1885,7 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
         <div class="brand-banner" aria-label="Classroom-X-Zone">
             <img src="./g/assets/favicon-96x96.png" alt="" width="54" height="54">
             <div class="brand-banner-copy">
-                <div class="brand-banner-name">Classroom-X-Zone<span></span></div>
+                <div class="brand-banner-name">Classroom-X<span>Zone</span></div>
                 <div class="brand-banner-tagline">made by zach ❤</div>
             </div>
         </div>
@@ -2466,12 +2466,9 @@ aria-label="Fullscreen">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
         </button>
         <!-- Lucide shield -->
-<button id="dock-admin" class="dock-item" onclick="requestAdminAccess()" title="Admin" aria-label="Admin">
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield">
-    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
-  </svg>
-</button>
-
+        <button id="dock-admin" class="dock-item" onclick="requestAdminAccess()" title="Admin" aria-label="Admin">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+        </button>
         <!-- Lucide settings -->
         <button class="dock-item" onclick="switchTab('settings', this)" title="Settings">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -6038,70 +6035,242 @@ body:not([data-tab="home"]) .live-datetime{justify-content:flex-end;align-items:
     addEventListener('resize',place);addEventListener('scroll',place,true);
     go(0);
   }};
-})()
-const ADMIN_HASH = "4c62f6bac27a480dbc0418546652f9d83d1516b557597d085374aa84c94a75c4";
+})();
+    let adminSequence = [];
+const adminCode = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight"];
 
-async function hashHex(str) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-  return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
+document.addEventListener("keydown", e => {
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    adminSequence.push(e.key);
+    if (adminSequence.length > adminCode.length) adminSequence.shift();
+    if (adminSequence.join(",") === adminCode.join(",")) {
+        adminSequence = [];
+        requestAdminAccess();
+    }
+});
+
+const ADMIN_HASH_BUILTIN = "4c62f6bac27a480dbc0418546652f9d83d1516b557597d085374aa84c94a75c4";
+const ADMIN_HASH_KEY = "cxz_admin_hash";
+
+async function adminHashHex(str) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 
-function readJSON(key) {
-  try { return JSON.parse(localStorage.getItem(key)) || []; }
-  catch { return []; }
+function adminReadJSON(key) {
+    try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
 }
 
-const esc = v => String(v ?? "").replace(/[&<>"']/g,
-  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function adminEsc(v) {
+    return String(v == null ? "" : v).replace(/[&<>"']/g,
+        c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
 
 async function requestAdminAccess() {
-  const password = prompt("Admin Password");
-  if (password === null) return;
-  if (!crypto.subtle) { alert("Needs HTTPS (secure context)"); return; }
-  const hex = await hashHex(password.trim());
-  if (hex === ADMIN_HASH) openAdminPanel();
-  else alert("Access denied");
+    if (!(window.crypto && crypto.subtle)) {
+        alert("Admin needs a secure (HTTPS) page.");
+        return;
+    }
+    const stored = ADMIN_HASH_BUILTIN || localStorage.getItem(ADMIN_HASH_KEY);
+    if (!stored) {
+        const p1 = prompt("No admin password is set on this device yet.\nCreate one (at least 6 characters):");
+        if (p1 === null) return;
+        if (p1.length < 6) { alert("Use at least 6 characters."); return; }
+        const p2 = prompt("Confirm the new admin password:");
+        if (p2 !== p1) { alert("Passwords did not match."); return; }
+        localStorage.setItem(ADMIN_HASH_KEY, await adminHashHex(p1));
+        openAdminPanel();
+        return;
+    }
+    const password = prompt("Admin Password");
+    if (password === null) return;
+    if ((await adminHashHex(password)) === stored) openAdminPanel();
+    else alert("Access denied");
 }
 
 function logError(message) {
-  const errors = readJSON("cxz-errors");
-  errors.push({ time: new Date().toLocaleString(), message });
-  localStorage.setItem("cxz-errors", JSON.stringify(errors.slice(-100)));
+    const errors = adminReadJSON("cxz-errors");
+    errors.push({ time: new Date().toLocaleString(), message: String(message) });
+    try { localStorage.setItem("cxz-errors", JSON.stringify(errors.slice(-100))); } catch (e) {}
 }
+
+window.addEventListener("error", e => {
+    logError(`${e.message} (${e.filename}:${e.lineno})`);
+});
 
 function loadAdminSuggestions() {
-  const box = document.getElementById("admin-suggestions");
-  if (!box) return;
-  const esc = v => String(v ?? "").replace(/[&<>"']/g,
-    c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  let items = [];
-  try { items = loadSuggestions(); } catch (e) { items = []; }
-  if (!Array.isArray(items)) items = [];
-  box.innerHTML = items.length
-    ? items.map(s => `
-        <div class="suggest-item">
-          <strong>${esc(s.game)}</strong>
-          ${s.link ? `<div><a href="${esc(s.link)}" target="_blank" rel="noopener noreferrer">${esc(s.link)}</a></div>` : ""}
-          ${s.notes ? `<div>${esc(s.notes)}</div>` : ""}
-          <small>${s.ts ? new Date(s.ts).toLocaleString() : ""} · ${s.sent ? "sent" : "saved locally"}</small>
-        </div>`).join("")
-    : "<div>No suggestions yet</div>";
+    const box = document.getElementById("admin-suggestions");
+    if (!box) return;
+    const items = adminReadJSON("cxz_suggestions");
+    box.innerHTML = items.length
+        ? items.map((s, i) => `
+            <div class="suggest-item admin-item" style="--i:${Math.min(i, 14)}">
+                <strong>${adminEsc(s.game)}</strong>
+                ${s.link ? `<div><a href="${adminEsc(s.link)}" target="_blank" rel="noopener noreferrer">${adminEsc(s.link)}</a></div>` : ""}
+                ${s.notes ? `<div>${adminEsc(s.notes)}</div>` : ""}
+                <small>${s.ts ? new Date(s.ts).toLocaleString() : ""} &middot; ${s.sent ? "sent" : "saved on this device"}</small>
+            </div>`).join("")
+        : '<div class="suggest-item admin-item">No suggestions yet.</div>';
 }
 
-
 function loadAdminErrors() {
-  const box = document.getElementById("admin-errors");
-  if (!box) return;
-  const errs = readJSON("cxz-errors");
-  box.innerHTML = errs.length
-    ? errs.map(e => `<div class="suggest-item">${esc(e.time)} - ${esc(e.message)}</div>`).join("")
-    : "<div>No errors logged</div>";
+    const box = document.getElementById("admin-errors");
+    if (!box) return;
+    const errs = adminReadJSON("cxz-errors").slice().reverse();
+    box.innerHTML = errs.length
+        ? errs.map((e, i) => `
+            <div class="suggest-item admin-item" style="--i:${Math.min(i, 14)}">
+                <small>${adminEsc(e.time)}</small>
+                <div>${adminEsc(e.message)}</div>
+            </div>`).join("")
+        : '<div class="suggest-item admin-item">No errors logged.</div>';
+}
+
+function loadAdminStats() {
+    const box = document.getElementById("admin-stats");
+    if (!box) return;
+    const sugg = adminReadJSON("cxz_suggestions");
+    let used = 0;
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); used += k.length + (localStorage.getItem(k) || "").length; } } catch (e) {}
+    const games = (typeof GAMES !== "undefined" && Array.isArray(GAMES)) ? GAMES.length : 0;
+    const rows = [
+        ["Games in catalog", games],
+        ["Suggestions saved", sugg.length],
+        ["Suggestions sent", sugg.filter(s => s.sent).length],
+        ["Errors logged", adminReadJSON("cxz-errors").length],
+        ["Local storage (KB)", Math.round(used * 2 / 1024)]
+    ];
+    box.innerHTML = rows.map(([k, v], i) => `
+        <div class="suggest-item admin-item" style="--i:${i}">
+            <small>${adminEsc(k)}</small>
+            <div class="admin-stat-num" data-count="${Number(v) || 0}">0</div>
+        </div>`).join("") + `
+        <div class="btn-row admin-actions">
+            <button class="btn-action" onclick="adminClearErrors()">Clear errors</button>
+            <button class="btn-action" onclick="adminClose()">Close admin</button>
+        </div>`;
+    box.querySelectorAll(".admin-stat-num").forEach(el => {
+        const target = Number(el.dataset.count) || 0;
+        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduce || target === 0) { el.textContent = target; return; }
+        const t0 = performance.now(), dur = 700;
+        (function tick(now) {
+            const p = Math.min(1, (now - t0) / dur);
+            el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+            if (p < 1) requestAnimationFrame(tick);
+        })(t0);
+    });
+}
+
+function adminClearErrors() {
+    localStorage.removeItem("cxz-errors");
+    loadAdminErrors();
+    loadAdminStats();
+}
+
+function adminClose() {
+    if (typeof switchTab === "function") switchTab("home");
+    const b = document.getElementById("dock-admin");
+    if (b) b.classList.remove("active");
 }
 
 function openAdminPanel() {
-  try { loadAdminSuggestions(); loadAdminErrors(); } catch (e) { console.warn(e); }
-  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-  document.getElementById("admin").classList.add("active");
-  document.body.dataset.tab = "admin";
+    try {
+        const player = document.getElementById("cxz-player");
+        if (player && player.classList.contains("open") && window.CXZPlayer) window.CXZPlayer.close();
+    } catch (e) {}
+    try { loadAdminSuggestions(); loadAdminErrors(); loadAdminStats(); } catch (e) { console.warn(e); }
+
+    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".dock-item").forEach(b => b.classList.remove("active"));
+    const adminTab = document.getElementById("admin");
+    adminTab.classList.add("active");
+    const adminBtn = document.getElementById("dock-admin");
+    if (adminBtn) adminBtn.classList.add("active");
+    document.body.dataset.tab = "admin";
+    if (typeof animateTab === "function") animateTab(adminTab);
+    window.scrollTo({ top: 0 });
 }
 </script>
+
+<style id="cxz-motion">
+@keyframes cxzCardIn   { from { opacity: 0; translate: 0 22px; scale: .94; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes cxzDockIn   { from { opacity: 0; translate: 0 18px; scale: .7; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes cxzGateIn   { from { opacity: 0; translate: 0 18px; scale: .94; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes cxzFade     { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cxzFloat    { 0%,100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+@keyframes cxzPulse    { 0%,100% { box-shadow: inset 0 -2px 0 var(--accent-color), 0 0 0 0 transparent; }
+                         50%     { box-shadow: inset 0 -2px 0 var(--accent-color), 0 0 16px 0 color-mix(in srgb, var(--accent-color) 45%, transparent); } }
+@keyframes cxzShimmer  { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes cxzSlideRow { from { opacity: 0; translate: -14px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes cxzWinIn    { from { opacity: 0; scale: .92; translate: 0 16px; } to { opacity: 1; scale: 1; translate: 0 0; } }
+@keyframes cxzRing     { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-color) 45%, transparent); }
+                         100% { box-shadow: 0 0 0 10px transparent; } }
+body .item-card { animation: cxzCardIn .5s cubic-bezier(.22,.8,.3,1) backwards; animation-delay: calc(var(--i, 0) * 28ms); }
+body .card, body .tool-card, body .provider-card, body .cinema-card {
+    transition: translate .25s cubic-bezier(.22,.8,.3,1), scale .25s cubic-bezier(.22,.8,.3,1),
+                box-shadow .25s ease, border-color .2s ease, background .2s ease;
+}
+body .card:hover, body .tool-card:hover, body .provider-card:hover { translate: 0 -6px; scale: 1.035; box-shadow: 0 16px 34px rgba(0,0,0,.4), 0 0 22px color-mix(in srgb, var(--accent-color) 22%, transparent); }
+body .card:active, body .tool-card:active, body .provider-card:active { translate: 0 -1px; scale: .975; transition-duration: .08s; }
+body .card img { transition: scale .45s cubic-bezier(.22,.8,.3,1), filter .3s ease; }
+body .card:hover img { scale: 1.08; filter: brightness(1.08) saturate(1.1); }
+body .square-grid .card { overflow: hidden; }
+body .bottom-dock.dock-ready .dock-item { animation: cxzDockIn .5s cubic-bezier(.34,1.56,.64,1) backwards; }
+body .bottom-dock.dock-ready .dock-item:nth-child(1) { animation-delay: .05s; }
+body .bottom-dock.dock-ready .dock-item:nth-child(2) { animation-delay: .10s; }
+body .bottom-dock.dock-ready .dock-item:nth-child(3) { animation-delay: .15s; }
+body .bottom-dock.dock-ready .dock-item:nth-child(4) { animation-delay: .20s; }
+body .bottom-dock.dock-ready .dock-item:nth-child(5) { animation-delay: .25s; }
+body .bottom-dock.dock-ready .dock-item:nth-child(6) { animation-delay: .30s; }
+body .bottom-dock.dock-ready .dock-item:nth-child(7) { animation-delay: .35s; }
+body .bottom-dock.dock-ready .dock-item:nth-child(8) { animation-delay: .40s; }
+body .bottom-dock.dock-ready .dock-item:nth-child(9) { animation-delay: .45s; }
+body .dock-item { transition: translate .22s cubic-bezier(.34,1.56,.64,1), scale .22s cubic-bezier(.34,1.56,.64,1), background .15s, color .15s; }
+body .dock-item:hover { translate: 0 -5px; scale: 1.14; }
+body .dock-item:active { translate: 0 0; scale: .88; transition-duration: .08s; }
+body .dock-item svg, body .dock-item i { transition: rotate .3s cubic-bezier(.34,1.56,.64,1); }
+body .dock-item:hover svg, body .dock-item:hover i { rotate: -8deg; }
+body .dock-item.active { animation: cxzPulse 2.8s ease-in-out infinite; }
+body .btn-action, body .gate-primary, body .gate-secondary, body .cinema-play {
+    transition: translate .2s ease, scale .2s ease, filter .15s ease, box-shadow .2s ease;
+}
+body .btn-action:hover, body .gate-primary:hover, body .gate-secondary:hover { translate: 0 -2px; box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-color) 30%, transparent); }
+body .btn-action:active, body .gate-primary:active, body .gate-secondary:active { translate: 0 0; scale: .95; transition-duration: .06s; }
+body .swatch-box, body .ob-swatches button { transition: scale .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+body .swatch-box:hover, body .ob-swatches button:hover { scale: 1.22; }
+body .search-box input { transition: border-color .2s ease, box-shadow .25s ease, scale .25s cubic-bezier(.22,.8,.3,1) !important; }
+body .search-box input:focus { scale: 1.015; animation: cxzRing .6s ease-out; }
+body .settings-col, body .suggest-panel { transition: translate .25s ease, border-color .2s ease, box-shadow .25s ease; }
+body .settings-col:hover, body .suggest-panel:hover { translate: 0 -3px; }
+body .suggest-item { transition: translate .2s ease, background .2s ease; }
+body .suggest-item:hover { translate: 4px 0; }
+body[data-tab="home"] .live-datetime { animation: cxzFloat 7s ease-in-out infinite; }
+body .section-title, body .page-description { animation: cxzFade .6s ease backwards; }
+body .page-description { animation-delay: .08s; }
+body .progress-bar { background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.35) 50%, transparent 100%);
+    background-size: 200% 100%; background-repeat: no-repeat; animation: cxzShimmer 1.4s linear infinite; background-color: var(--accent-color); }
+body .gate:not([hidden]) .gate-card { animation: cxzGateIn .38s cubic-bezier(.22,.8,.3,1) backwards; }
+body .gate:not([hidden]) { animation: cxzFade .25s ease backwards; }
+body #cxz-player.open .cxz-window { animation: cxzWinIn .38s cubic-bezier(.22,.8,.3,1) backwards; }
+body #cxz-movie-player.open { animation: cxzFade .3s ease backwards; }
+body .toast-msg { animation: slide-in .28s cubic-bezier(.34,1.56,.64,1); }
+body .admin-item { animation: cxzSlideRow .4s cubic-bezier(.22,.8,.3,1) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+body .admin-stat-num { font: 700 22px var(--font-ui); font-variant-numeric: tabular-nums; color: var(--accent-color); }
+body .admin-actions { margin-top: 12px; flex-wrap: wrap; gap: 8px; }
+body.performance-mode .card, body.performance-mode .tool-card, body.performance-mode .provider-card,
+body.performance-mode .dock-item, body.performance-mode .btn-action, body.performance-mode .settings-col,
+body.performance-mode .suggest-panel, body.performance-mode .suggest-item, body.performance-mode .search-box input,
+body.auto-lite .card, body.auto-lite .tool-card, body.auto-lite .provider-card, body.auto-lite .dock-item,
+body.auto-lite .btn-action, body.auto-lite .settings-col, body.auto-lite .suggest-panel, body.auto-lite .search-box input
+    { translate: none !important; scale: none !important; rotate: none !important; }
+body.performance-mode .live-datetime, body.auto-lite .live-datetime,
+body.performance-mode .dock-item.active, body.auto-lite .dock-item.active,
+body.performance-mode .progress-bar, body.auto-lite .progress-bar { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+    body *, body *::before, body *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    body .card:hover, body .dock-item:hover { translate: none !important; scale: none !important; }
+}
+</style>
