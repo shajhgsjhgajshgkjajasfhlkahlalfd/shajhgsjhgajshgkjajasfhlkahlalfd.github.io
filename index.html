@@ -5505,13 +5505,15 @@ body[data-tab="home"] #featured-grid .card{width:124px}
     </div>
     <form id="auth-form" novalidate>
       <label>Username<input id="auth-user" autocomplete="username" maxlength="20" spellcheck="false" autocapitalize="off"></label>
-      <label>Password<input id="auth-pass" type="password" autocomplete="current-password" maxlength="100"></label>
+      <label id="auth-code-wrap" hidden>Recovery code<input id="auth-code" autocomplete="off" spellcheck="false" autocapitalize="characters" maxlength="24" placeholder="XXXX-XXXX-XXXX-XXXX"></label>
+      <label id="auth-pass-wrap">Password<input id="auth-pass" type="password" autocomplete="current-password" maxlength="100"></label>
       <label id="auth-confirm-wrap" hidden>Confirm password<input id="auth-pass2" type="password" autocomplete="new-password" maxlength="100"></label>
-      <label class="gate-check"><input type="checkbox" id="auth-keep" checked> Keep me signed in on this device</label>
+      <label class="gate-check" id="auth-keep-wrap"><input type="checkbox" id="auth-keep" checked> Keep me signed in on this device</label>
+      <div class="gate-aux"><button type="button" class="gate-link" id="auth-forgot">Forgot password?</button><button type="button" class="gate-link" id="auth-back" hidden>Back to sign in</button></div>
       <p id="auth-error" class="gate-error" role="alert"></p>
       <button type="submit" class="gate-primary" id="auth-submit">Create account</button>
     </form>
-    <p class="gate-note">Accounts are saved only in this browser. They don't sync to other devices, and there's no password reset, so choose one you'll remember.</p>
+    <p class="gate-note">Accounts are saved only in this browser. They don't sync to other devices. You'll get a recovery code when you create one, and it's the only way to reset a forgotten password.</p>
   </div>
 </div>
 
@@ -5533,11 +5535,51 @@ body[data-tab="home"] #featured-grid .card{width:124px}
   </div>
 </div>
 
+
+<div id="rec-overlay" class="gate" role="dialog" aria-modal="true" aria-labelledby="rec-title" hidden>
+  <div class="gate-card">
+    <h1 id="rec-title">Save your recovery code</h1>
+    <p class="gate-sub">This code is the only way to reset your password if you forget it. Store it somewhere safe and keep it private, because anyone who has it can reset your password.</p>
+    <div class="rec-code" id="rec-code"></div>
+    <button type="button" class="gate-secondary" id="rec-copy">Copy code</button>
+    <label class="gate-check" style="margin-top:16px"><input type="checkbox" id="rec-ack"> I've saved my recovery code</label>
+    <div class="ob-actions"><span class="ob-spacer"></span><button type="button" class="gate-primary" id="rec-continue" disabled>Continue</button></div>
+  </div>
+</div>
+
+<div id="acct-overlay" class="gate" role="dialog" aria-modal="true" aria-labelledby="acct-title" hidden>
+  <div class="gate-card">
+    <h1 id="acct-title">Account settings</h1>
+    <p class="gate-sub" id="acct-sub"></p>
+    <label>Current password<input id="acct-cur" type="password" autocomplete="current-password" maxlength="100"></label>
+    <p id="acct-msg" class="gate-error" role="alert"></p>
+    <div class="acct-block">
+      <h2>Change password</h2>
+      <label>New password<input id="acct-new" type="password" autocomplete="new-password" maxlength="100"></label>
+      <label>Confirm new password<input id="acct-new2" type="password" autocomplete="new-password" maxlength="100"></label>
+      <button type="button" class="gate-secondary" id="acct-change">Change password</button>
+    </div>
+    <div class="acct-block">
+      <h2>Recovery code</h2>
+      <p class="gate-sub" id="acct-rec-status"></p>
+      <button type="button" class="gate-secondary" id="acct-regen"></button>
+    </div>
+    <div class="acct-block">
+      <h2>Delete account</h2>
+      <p class="gate-sub">This removes your account from this browser and can't be undone. Site settings such as theme and background stay on this device.</p>
+      <label class="gate-check"><input type="checkbox" id="acct-del-ack"> I understand this can't be undone</label>
+      <button type="button" class="gate-danger" id="acct-delete">Delete account</button>
+    </div>
+    <div class="ob-actions"><span class="ob-spacer"></span><button type="button" class="gate-primary" id="acct-close">Done</button></div>
+  </div>
+</div>
+
 <div id="user-chip" hidden>
   <button type="button" id="user-chip-btn" aria-haspopup="menu" aria-expanded="false"><span class="uc-avatar" id="uc-avatar"></span><span class="uc-name" id="uc-name"></span></button>
   <div id="user-menu" role="menu" hidden>
     <div class="um-head" id="um-head"></div>
     <button type="button" role="menuitem" id="um-tour">Replay tour</button>
+    <button type="button" role="menuitem" id="um-acct">Account settings</button>
     <button type="button" role="menuitem" id="um-out">Sign out</button>
   </div>
 </div>
@@ -5590,6 +5632,17 @@ body[data-tab="home"] #featured-grid .card{width:124px}
 #user-menu button:hover{background:rgba(255,255,255,.08)}
 body:not([data-tab="home"]) .header{right:150px}
 @media(max-width:760px){.uc-name{display:none}body:not([data-tab="home"]) .header{right:56px}}
+.gate{align-items:flex-start}.gate-card{margin:auto}
+.gate [hidden]{display:none!important}
+.gate-error.ok{color:#6ee7a0}
+.gate-aux{margin:-2px 0 8px}
+.gate-danger{height:42px;padding:0 18px;border:0;border-radius:10px;background:#d64545;color:#fff;font:700 14px var(--font-ui);cursor:pointer}
+.gate-danger:hover{filter:brightness(1.1)}
+.acct-block{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.acct-block h2{margin:0 0 10px;font:700 15px var(--font-ui);color:var(--ink)}
+.acct-block .gate-sub{margin-bottom:12px}
+.rec-code{margin-bottom:14px;padding:16px;text-align:center;font:600 19px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;user-select:all;word-break:break-all}
+.gate-primary:disabled{opacity:.5;cursor:not-allowed}
 </style>
 
 <script>
@@ -5625,14 +5678,20 @@ body:not([data-tab="home"]) .header{right:150px}
   /* ---------- Sign in / create account ---------- */
   function setMode(m){
     mode=m;
-    var signup=m==='signup';
+    var signup=m==='signup',reset=m==='reset';
     document.querySelectorAll('.gate-tabs button').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.mode===m))});
-    $('auth-confirm-wrap').hidden=!signup;
-    $('auth-title').textContent=signup?'Create your account':'Welcome back';
-    $('auth-sub').textContent=signup?'Pick a username and password to get started.':'Sign in to continue.';
-    $('auth-submit').textContent=signup?'Create account':'Sign in';
-    $('auth-pass').autocomplete=signup?'new-password':'current-password';
-    $('auth-error').textContent='';
+    document.querySelector('.gate-tabs').hidden=reset;
+    $('auth-code-wrap').hidden=!reset;
+    $('auth-confirm-wrap').hidden=!(signup||reset);
+    $('auth-keep-wrap').hidden=reset;
+    $('auth-forgot').hidden=m!=='login';
+    $('auth-back').hidden=!reset;
+    $('auth-pass-wrap').firstChild.nodeValue=reset?'New password':'Password';
+    $('auth-title').textContent=signup?'Create your account':reset?'Reset your password':'Welcome back';
+    $('auth-sub').textContent=signup?'Pick a username and password to get started.':reset?'Enter your username and the recovery code you saved when you created the account.':'Sign in to continue.';
+    $('auth-submit').textContent=signup?'Create account':reset?'Reset password':'Sign in';
+    $('auth-pass').autocomplete=(signup||reset)?'new-password':'current-password';
+    $('auth-error').textContent='';$('auth-error').classList.remove('ok');
   }
   function showAuth(){
     setLocked(true);ob.hidden=true;$('user-chip').hidden=true;
@@ -5643,30 +5702,77 @@ body:not([data-tab="home"]) .header{right:150px}
   }
   function err(msg){$('auth-error').textContent=msg}
 
+  var ALPHA='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',fails={};
+  function makeCode(){var a=new Uint8Array(16),o='';crypto.getRandomValues(a);for(var i=0;i<16;i++){o+=ALPHA[a[i]%32];if(i%4===3&&i<15)o+='-'}return o}
+  function normCode(c){return String(c).toUpperCase().replace(/[^A-Z0-9]/g,'')}
+  function lockLeft(k){var f=fails[k];if(!f||!f.until)return 0;var t=Math.ceil((f.until-Date.now())/1000);if(t<=0){f.until=0;f.n=0;return 0}return t}
+  function noteFail(k){var f=fails[k]||(fails[k]={n:0,until:0});if(++f.n>=5)f.until=Date.now()+30000}
+  function tooMany(k){var w=lockLeft(k);return w?'Too many attempts. Try again in '+w+' seconds.':''}
+  function info(msg){$('auth-error').textContent=msg;$('auth-error').classList.add('ok')}
+  var origErr=err;err=function(m){$('auth-error').classList.remove('ok');origErr(m)};
+
+  /* Recovery code screen */
+  var recDone=null;
+  function showRecovery(code,cb){
+    overlay.hidden=true;$('acct-overlay').hidden=true;
+    $('rec-code').textContent=code;$('rec-ack').checked=false;$('rec-continue').disabled=true;$('rec-copy').textContent='Copy code';
+    recDone=cb;$('rec-overlay').hidden=false;setLocked(true);
+  }
+  $('rec-ack').addEventListener('change',function(){$('rec-continue').disabled=!$('rec-ack').checked});
+  $('rec-copy').addEventListener('click',function(){
+    var t=$('rec-code').textContent;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){$('rec-copy').textContent='Copied'},function(){
+      var r=document.createRange();r.selectNodeContents($('rec-code'));var sel=getSelection();sel.removeAllRanges();sel.addRange(r);$('rec-copy').textContent='Press Ctrl+C to copy';
+    });
+  });
+  $('rec-continue').addEventListener('click',function(){
+    $('rec-overlay').hidden=true;$('rec-code').textContent='';var cb=recDone;recDone=null;if(cb)cb();
+  });
+
   form.addEventListener('submit',function(e){
     e.preventDefault();
     var name=$('auth-user').value.trim().toLowerCase(),pw=$('auth-pass').value;
     var accts=accounts(),btn=$('auth-submit');
+    function end(){btn.disabled=false}
     if(!/^[a-z0-9_]{3,20}$/.test(name))return err('Username must be 3–20 characters: letters, numbers or underscores.');
     if(mode==='signup'){
       if(accts[name])return err('That username is taken on this device. Sign in or pick another.');
       if(pw.length<6)return err('Password must be at least 6 characters.');
       if(pw!==$('auth-pass2').value)return err('Passwords don\'t match.');
-      btn.disabled=true;var salt=randomSalt();
-      hashPw(pw,salt).then(function(h){
-        var a=accounts();a[name]={salt:salt,hash:h,display:name,created:Date.now(),onboarded:false};save(a);
-        signIn(name,true);
-      }).catch(function(){err('Could not create the account in this browser.')}).then(function(){btn.disabled=false});
-    }else{
-      var acct=accts[name];
-      if(!acct)return err('No account with that username on this device.');
+      btn.disabled=true;var salt=randomSalt(),rsalt=randomSalt(),code=makeCode();
+      Promise.all([hashPw(pw,salt),hashPw(normCode(code),rsalt)]).then(function(h){
+        var a=accounts();a[name]={salt:salt,hash:h[0],rec:{salt:rsalt,hash:h[1]},display:name,created:Date.now(),onboarded:false};save(a);
+        showRecovery(code,function(){signIn(name,true)});
+      }).catch(function(){err('Could not create the account in this browser.')}).then(end);
+    }else if(mode==='reset'){
+      var k='reset:'+name,lock=tooMany(k),acct=accts[name],bad='That username and recovery code don\'t match, or the account has no recovery code.';
+      if(lock)return err(lock);
+      if(pw.length<6)return err('New password must be at least 6 characters.');
+      if(pw!==$('auth-pass2').value)return err('Passwords don\'t match.');
+      if(!acct||!acct.rec){noteFail(k);return err(bad)}
       btn.disabled=true;
-      hashPw(pw,acct.salt,acct.hash.slice(0,2)).then(function(h){
-        if(h!==acct.hash)return err('Incorrect password.');
-        signIn(name,false);
-      }).catch(function(){err('Could not check the password in this browser.')}).then(function(){btn.disabled=false});
+      hashPw(normCode($('auth-code').value),acct.rec.salt,acct.rec.hash.slice(0,2)).then(function(h){
+        if(h!==acct.rec.hash){noteFail(k);return err(bad)}
+        var salt=randomSalt(),rsalt=randomSalt(),ncode=makeCode();
+        return Promise.all([hashPw(pw,salt),hashPw(normCode(ncode),rsalt)]).then(function(r){
+          var a=accounts();if(!a[name])return err(bad);
+          a[name].salt=salt;a[name].hash=r[0];a[name].rec={salt:rsalt,hash:r[1]};save(a);delete fails[k];
+          showRecovery(ncode,function(){showAuth();$('auth-user').value=name;info('Password reset. Sign in with your new password.')});
+        });
+      }).catch(function(){err('Could not reset the password in this browser.')}).then(end);
+    }else{
+      var lk='login:'+name,lockMsg=tooMany(lk),acc=accts[name];
+      if(lockMsg)return err(lockMsg);
+      if(!acc){noteFail(lk);return err('No account with that username on this device.')}
+      btn.disabled=true;
+      hashPw(pw,acc.salt,acc.hash.slice(0,2)).then(function(h){
+        if(h!==acc.hash){noteFail(lk);return err('Incorrect password.')}
+        delete fails[lk];signIn(name,false);
+      }).catch(function(){err('Could not check the password in this browser.')}).then(end);
     }
   });
+  $('auth-forgot').addEventListener('click',function(){setMode('reset');$('auth-code').focus()});
+  $('auth-back').addEventListener('click',function(){setMode(Object.keys(accounts()).length?'login':'signup')});
   document.querySelectorAll('.gate-tabs button').forEach(function(b){b.addEventListener('click',function(){setMode(b.dataset.mode)})});
 
   function signIn(name,isNew){
@@ -5739,6 +5845,61 @@ body:not([data-tab="home"]) .header{right:150px}
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu()});
   $('um-out').addEventListener('click',signOut);
   $('um-tour').addEventListener('click',function(){closeMenu();if(window.NebulaTour)window.NebulaTour.start(function(){})});
+
+  /* ---------- Account settings: change password, recovery code, delete ---------- */
+  var acctEl=$('acct-overlay');
+  function amsg(m,ok){var e=$('acct-msg');e.textContent=m;e.classList.toggle('ok',!!ok);if(m)e.scrollIntoView({block:'nearest'})}
+  function openAcct(){
+    var a=accounts()[user];if(!a)return;
+    ['acct-cur','acct-new','acct-new2'].forEach(function(id){$(id).value=''});$('acct-del-ack').checked=false;amsg('');
+    $('acct-sub').textContent='Signed in as '+user+'. Enter your current password to make changes.';
+    $('acct-rec-status').textContent=a.rec?'A recovery code is set. Generating a new one replaces the old code.':'You don\'t have a recovery code yet. Generate one so you can reset your password if you forget it.';
+    $('acct-regen').textContent=a.rec?'Generate new recovery code':'Generate recovery code';
+    $('rec-overlay').hidden=true;acctEl.hidden=false;setLocked(true);
+    setTimeout(function(){$('acct-cur').focus()},30);
+  }
+  function closeAcct(){acctEl.hidden=true;setLocked(false)}
+  function verifyCurrent(){
+    var a=accounts()[user],k='acct:'+user;
+    if(!a)return Promise.reject();
+    var lock=tooMany(k);if(lock){amsg(lock);return Promise.reject()}
+    if(!$('acct-cur').value){amsg('Enter your current password first.');return Promise.reject()}
+    return hashPw($('acct-cur').value,a.salt,a.hash.slice(0,2)).then(function(h){
+      if(h!==a.hash){noteFail(k);amsg('Current password is incorrect.');return Promise.reject()}
+      delete fails[k];return a;
+    });
+  }
+  $('um-acct').addEventListener('click',function(){closeMenu();openAcct()});
+  $('acct-close').addEventListener('click',closeAcct);
+  $('acct-change').addEventListener('click',function(){
+    var n=$('acct-new').value;
+    if(n.length<6)return amsg('New password must be at least 6 characters.');
+    if(n!==$('acct-new2').value)return amsg('New passwords don\'t match.');
+    verifyCurrent().then(function(){
+      var salt=randomSalt();
+      return hashPw(n,salt).then(function(h){
+        var all=accounts();if(!all[user])return;all[user].salt=salt;all[user].hash=h;save(all);
+        $('acct-cur').value='';$('acct-new').value='';$('acct-new2').value='';amsg('Password changed.',true);
+      });
+    }).catch(function(){});
+  });
+  $('acct-regen').addEventListener('click',function(){
+    verifyCurrent().then(function(){
+      var rsalt=randomSalt(),code=makeCode();
+      return hashPw(normCode(code),rsalt).then(function(h){
+        var all=accounts();if(!all[user])return;all[user].rec={salt:rsalt,hash:h};save(all);
+        showRecovery(code,function(){openAcct();amsg('Recovery code updated.',true)});
+      });
+    }).catch(function(){});
+  });
+  $('acct-delete').addEventListener('click',function(){
+    if(!$('acct-del-ack').checked)return amsg('Tick the box to confirm you want to delete this account.');
+    verifyCurrent().then(function(){
+      var all=accounts();delete all[user];save(all);
+      localStorage.removeItem(SES);sessionStorage.removeItem(SES);user=null;
+      acctEl.hidden=true;showAuth();info('Your account was deleted.');
+    }).catch(function(){});
+  });
 
   /* ---------- Start ---------- */
   user=sessionUser();
