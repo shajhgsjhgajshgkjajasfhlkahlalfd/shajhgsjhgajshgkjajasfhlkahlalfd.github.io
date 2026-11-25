@@ -4136,6 +4136,21 @@ const CXZPlayer = (() => {
         requestAnimationFrame(() => { if (token === launchToken) frame.src = finalURL; });
     }
 
+    // CDNs such as jsDelivr serve .html as text/plain, so an iframe pointed straight at them
+    // shows the page source. Those games are fetched and rendered as a real document instead.
+    function isRemoteHTMLGame(url) {
+        if (window.gnMathGameURLs instanceof Set && window.gnMathGameURLs.has(url)) return true;
+        try {
+            const host = new URL(url).hostname.toLowerCase();
+            return host.endsWith('.jsdelivr.net') || host === 'raw.githubusercontent.com' || host.endsWith('.githack.com');
+        } catch (_) { return false; }
+    }
+
+    function launchGame(url, token) {
+        if (isRemoteHTMLGame(url)) loadBlobFrame(url, token);
+        else setFrameURL(url, token);
+    }
+
     async function fetchGameHTML(url) {
         const controller = new AbortController();
         const timeout = window.setTimeout(() => controller.abort(), 15000);
@@ -4149,6 +4164,9 @@ const CXZPlayer = (() => {
     }
 
     function frameBlobURL(html, gameURL) {
+        if (typeof window.injectZoneBase === 'function') {
+            return URL.createObjectURL(new Blob([window.injectZoneBase(html, gameURL)], { type: 'text/html' }));
+        }
         const baseHref = new URL('.', gameURL).href.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
         const baseTag = `<base href="${baseHref}">`;
         if (/<base\b[^>]*>/i.test(html)) {
@@ -4175,7 +4193,8 @@ const CXZPlayer = (() => {
         } catch (error) {
             if (token !== launchToken) return;
             log('[Blob fallback] Source access was blocked; loading the original game URL. ' + error.message);
-            showToast('Blob mode is blocked by this host; opening the game normally');
+            showToast('Could not fetch this game; it may be offline or blocked by your network');
+            if (isRemoteHTMLGame(url)) { finishLoader(token); return; } // the raw URL would only show source text
             setFrameURL(url, token);
             fetchGameHTML(url).then(html => {
                 if (token === launchToken) currentHTML = html;
@@ -4242,7 +4261,7 @@ const CXZPlayer = (() => {
         frame.onload = null; frame.onerror = null; frame.removeAttribute('srcdoc'); frame.src = 'about:blank';
         if (currentBlobURL) { URL.revokeObjectURL(currentBlobURL); currentBlobURL = ''; }
         startLoader(); log('[Open] ' + currentGame);
-        try { setFrameURL(currentGame, token); }
+        try { launchGame(currentGame, token); }
         catch (error) { if (token !== launchToken) return; log('[Player Error] ' + (error && error.message ? error.message : error)); finishLoader(token); showToast('Could not open this game.'); }
     }
 
@@ -4299,7 +4318,7 @@ const CXZPlayer = (() => {
         launchToken++; const token = launchToken; startLoader();
         const frame = $('cxz-game-frame'); if (!frame) return;
         frame.onload = null; frame.onerror = null; frame.removeAttribute('srcdoc'); frame.src = 'about:blank';
-        window.setTimeout(() => { if (token === launchToken && currentGame) setFrameURL(currentGame, token); }, 40);
+        window.setTimeout(() => { if (token === launchToken && currentGame) launchGame(currentGame, token); }, 40);
         showToast(currentTitle + ' reloading');
     }
 
@@ -4369,6 +4388,13 @@ const CXZPlayer = (() => {
             return;
         }
 
+        if (isRemoteHTMLGame(currentGame) && currentHTML && typeof window.injectZoneBase === 'function') {
+            win.document.open();
+            win.document.write(window.injectZoneBase(currentHTML, currentGame));
+            win.document.close();
+            log('[About:Blank] Opened the game document in a new tab.');
+            return;
+        }
         const safeTitle = String(currentTitle).replace(/[<>&"]/g, '');
         const targetURL = cacheBust(currentGame);
         win.document.open();
