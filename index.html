@@ -1704,10 +1704,6 @@
 .container > .tab-content.active {
     display: block !important;
     visibility: visible !important;
-    opacity: 1 !important;
-    transform: none !important;
-    translate: none !important;
-    animation: none !important;
     content-visibility: visible !important;
     height: auto !important;
     max-height: none !important;
@@ -1886,7 +1882,7 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
     <div class="container">
 
         <!-- Site branding is kept in the navigation; no top banner. -->
-        <div class="brand-banner" aria-label="Nebula Arcade" hidden>
+        <div class="brand-banner" aria-label="Nebula Arcade">
             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik5lYnVsYSBBcmNhZGUgbG9nbyI+CjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiNjMDg0ZmMiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iIzhiNWNmNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZkMjhkOSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIgcmVzdWx0PSJiIi8+PGZlTWVyZ2U+PGZlTWVyZ2VOb2RlIGluPSJiIi8+PGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+PC9mZU1lcmdlPjwvZmlsdGVyPjwvZGVmcz4KPGNpcmNsZSBjeD0iNjQiIGN5PSI2NCIgcj0iMjYiIGZpbGw9IiMxNzEwMmUiIHN0cm9rZT0idXJsKCNnKSIgc3Ryb2tlLXdpZHRoPSI3Ii8+CjxlbGxpcHNlIGN4PSI2NCIgY3k9IjY0IiByeD0iNTciIHJ5PSIyMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTI4IDY0IDY0KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjgiIGZpbHRlcj0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNNDggNTVoMTJ2LThoOXY4aDExdjlINjl2MTBoLTlWNjRINDh6IiBmaWxsPSIjZDhiNGZlIi8+CjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjQiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI5MiIgY3k9IjY4IiByPSI0IiBmaWxsPSIjZmZmIi8+Cjwvc3ZnPg==" alt="" width="54" height="54">
             <div class="brand-banner-copy">
                 <div class="brand-banner-name">Nebula<span>Arcade</span></div>
@@ -2855,80 +2851,8 @@ aria-label="Fullscreen">
             document.querySelectorAll('#all-games-grid .item-card').forEach(card => card.style.display = '');
         }
 
-        // Smoothly morphs the date/time box and search bar between the large
-        // home layout and the compact corner layout (FLIP technique).
-        const MORPH_MS = 700;
-        const MORPH_EASE = 'cubic-bezier(0.65, 0, 0.35, 1)';
-        function morphHeader(apply, content) {
-            const clock = document.querySelector('.live-datetime');
-            const search = document.querySelector('.search-box');
-            const ad = document.querySelector('.ad-container');
-            const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (!clock || reduce) { apply(); return; }
-
-            const c0 = clock.getBoundingClientRect();
-            const s0 = search ? search.getBoundingClientRect() : null;
-            const a0 = ad ? ad.getBoundingClientRect() : null;
-            const flowEnd = () => {
-                const el = ad || search;
-                if (!el) return 0;
-                const r = el.getBoundingClientRect();
-                return r.top + r.height + (parseFloat(getComputedStyle(el).marginBottom) || 0);
-            };
-            const e0 = flowEnd();
-            clock.getAnimations().forEach(a => a.cancel());
-            if (search) search.getAnimations().forEach(a => { if (a instanceof CSSTransition) return; a.cancel(); });
-            if (ad) ad.getAnimations().forEach(a => a.cancel());
-
-            apply();
-
-            const c1 = clock.getBoundingClientRect();
-            const dx = c0.left - c1.left, dy = c0.top - c1.top;
-            const scale = c1.width ? c0.width / c1.width : 1;
-            if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(scale - 1) > 0.01) {
-                clock.animate([
-                    { transformOrigin: 'top left', transform: `translate(${dx}px, ${dy}px) scale(${scale})` },
-                    { transformOrigin: 'top left', transform: 'translate(0, 0) scale(1)' }
-                ], {
-                    duration: MORPH_MS,
-                    easing: MORPH_EASE,
-                    // Growing back to the big home clock: let the search bar
-                    // move down first so the two never touch mid-animation.
-                    delay: scale < 1 ? 110 : 0,
-                    fill: 'backwards'
-                });
-            }
-            // Content under the search bar slides with it instead of jumping.
-            // Uses the independent `translate` property so it doesn't fight
-            // the tab's own fade-in transform animation.
-            const e1 = flowEnd();
-            if (content && Math.abs(e0 - e1) > 1) {
-                content.animate([
-                    { translate: `0 ${e0 - e1}px` },
-                    { translate: '0 0' }
-                ], { duration: MORPH_MS, easing: MORPH_EASE });
-            }
-            if (search && s0 && s0.height > 0) {
-                const s1 = search.getBoundingClientRect();
-                const sdy = s0.top - s1.top;
-                if (s1.height > 0 && Math.abs(sdy) > 1) {
-                    search.animate([
-                        { transform: `translateY(${sdy}px)` },
-                        { transform: 'translateY(0)' }
-                    ], { duration: MORPH_MS, easing: MORPH_EASE });
-                }
-            }
-            if (ad && a0) {
-                const a1 = ad.getBoundingClientRect();
-                const adDy = a0.top - a1.top;
-                if (a1.height > 0 && Math.abs(adDy) > 1) {
-                    ad.animate([
-                        { transform: `translateY(${adDy}px)` },
-                        { transform: 'translateY(0)' }
-                    ], { duration: MORPH_MS, easing: MORPH_EASE });
-                }
-            }
-        }
+        // The header no longer changes layout between tabs, so there is nothing to morph.
+        function morphHeader(apply) { apply(); }
 
         function switchTab(tabId, btn) {
             // If navigation is used while a game is open, dismiss the player
@@ -5334,4 +5258,92 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 .container > .tab-content.active { display:block !important; }
 .container > .tab-content:not(.active) { visibility:hidden !important; pointer-events:none !important; }
 .brand-banner[hidden] { display:none !important; }
+</style>
+
+<style id="nebula-clean">
+/* Clean pass: one flat surface system, one typeface, one accent (follows the Settings accent color). */
+:root{
+  --bg:#0c0c10;--bg-2:#131318;--bg-3:#1a1a21;--bg-card:#131318;
+  --ink:#ececf1;--ink-soft:#9696a8;--ink-dim:#5b5b6b;
+  --line:rgba(255,255,255,.08);--line-solid:#25252f;
+  --r:8px;--r-lg:12px;--r-xl:14px;
+  --font-ui:'DM Sans',system-ui,sans-serif;--font-display:var(--font-ui);--font-mono:var(--font-ui);--mc-font:var(--font-ui);
+}
+html{background:var(--bg)!important;background-image:none!important}
+body::before{content:none!important}
+canvas#bg-canvas{opacity:.3}
+.loader-title,.loader-subtitle,.status-text{font-family:var(--font-ui);text-transform:none;letter-spacing:0}
+.loader-subtitle{color:var(--ink-soft)}
+#loading-screen{background:var(--bg)!important}
+
+/* Layout: wordmark | clock | search on one row, content below */
+.container{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:14px 24px;width:min(100% - 48px,1240px);max-width:1240px;margin:0 auto;padding:22px 0 56px}
+.brand-banner{order:0;flex:0 0 auto;width:auto;margin:0;padding:0;gap:10px;border:0;background:none;box-shadow:none;overflow:visible}
+.brand-banner::after{content:none}
+.brand-banner img{width:30px;height:30px;filter:none}
+.brand-banner-name{font:700 18px/1 var(--font-ui);letter-spacing:-.02em;color:var(--ink)}
+.brand-banner-name span{background:none;color:var(--ink-soft);-webkit-text-fill-color:currentColor;font-weight:500}
+.brand-banner-tagline{display:none}
+.header,body:not([data-tab="home"]) .header{order:1;position:static;flex:0 0 auto;width:auto;margin:0 0 0 auto;padding:0;border:0;background:none;box-shadow:none;text-align:left;justify-content:flex-start;pointer-events:auto}
+.live-datetime,body:not([data-tab="home"]) .live-datetime{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:2px 10px;width:auto;margin:0;padding:0;font:500 13px var(--font-ui);color:var(--ink-soft);text-shadow:none;will-change:auto}
+.live-datetime::before,body:not([data-tab="home"]) .live-datetime::before{content:none}
+#current-weekday,body:not([data-tab="home"]) #current-weekday{font:600 13px var(--font-ui);letter-spacing:0;text-transform:none;margin:0;color:var(--ink);text-shadow:none}
+.datetime-detail-row,body:not([data-tab="home"]) .datetime-detail-row{font:500 13px var(--font-ui);letter-spacing:0;text-transform:none;gap:10px;color:var(--ink-soft);text-shadow:none;justify-content:flex-start}
+.datetime-detail-row time{color:var(--ink-soft)}
+.datetime-separator{display:none}
+.search-box,body:not([data-tab="home"]) .search-box{order:2;flex:0 1 320px;width:auto;max-height:none;margin:0;transition:none}
+body[data-tab="suggest"] .search-box,body[data-tab="settings"] .search-box{display:none}
+.search-box input:not([type=checkbox]):not([type=radio]){min-height:40px!important;padding:0 14px 0 38px!important;font:500 14px var(--font-ui)!important;letter-spacing:0!important;color:var(--ink)!important;border:1px solid var(--line-solid)!important;border-radius:var(--r-lg)!important;background:var(--bg-2)!important;box-shadow:none!important;transition:border-color .15s}
+.search-box input:focus{border-color:var(--accent-color)!important}
+.search-box input::placeholder{font-family:var(--font-ui);color:var(--ink-dim)}
+.search-box .search-icon,body:not([data-tab="home"]) .search-icon{left:13px;right:auto;color:var(--ink-soft);transition:none}
+.search-icon svg,body:not([data-tab="home"]) .search-icon svg{width:16px;height:16px;transition:none}
+.tab-content,.container > .tab-content{order:3;flex:0 0 100%;width:100%;margin:10px 0 0;padding-top:0}
+.tab-content:not(#home){padding-top:0}
+body[data-tab="suggest"] #suggest,body[data-tab="settings"] #settings{margin-top:10px}
+
+/* Type */
+.section-title{font:700 22px/1.25 var(--font-ui);letter-spacing:-.02em;margin:0 0 6px;color:var(--ink)}
+.page-description{font-size:14px;line-height:1.6;color:var(--ink-soft);margin:0 0 20px;max-width:62ch}
+
+/* Surfaces: flat, one border, one radius */
+.card,.tool-card,.settings-col,.suggest-panel,.provider-card{background:var(--bg-2);border:1px solid var(--line-solid);border-radius:var(--r-lg);box-shadow:none;transition:border-color .15s}
+.card:hover,.tool-card:hover,.provider-card:hover,.square-grid .card:hover{transform:none;box-shadow:none;border-color:color-mix(in srgb,var(--accent-color) 65%,transparent)}
+.card:hover img{transform:none}
+.provider-card{width:auto;min-height:0;padding:10px 16px;flex-direction:row;gap:10px}
+.provider-card img{width:28px;height:28px}
+.provider-card[aria-selected="true"]{background:var(--bg-3);border-color:var(--accent-color);box-shadow:none;transform:none}
+
+/* Game grid: even columns, titles always visible */
+.grid,#featured-grid,.square-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:14px;justify-content:stretch}
+.square-grid .card{position:relative;width:auto;aspect-ratio:1/1;padding:0;overflow:hidden;border:1px solid var(--line-solid);border-radius:var(--r-lg);background:var(--bg-2);box-shadow:none}
+.square-grid .card img{width:100%;height:100%;margin:0;border-radius:0;object-fit:cover}
+.square-grid .card h3{position:absolute;inset:auto 0 0;padding:30px 12px 10px;font:600 13px/1.3 var(--font-ui);letter-spacing:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);opacity:1;transform:none;transition:none}
+.square-grid .card:focus-visible{outline:2px solid var(--accent-color);outline-offset:2px}
+
+/* Controls */
+.btn-action{background:var(--accent-color);border:0;border-radius:var(--r);box-shadow:none;transition:filter .15s}
+.btn-action:hover{filter:brightness(1.1);transform:none}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent-color);outline-offset:2px}
+select,textarea,input:not([type=checkbox]):not([type=radio]):not([type=range]){border-radius:var(--r)!important}
+
+/* Dock */
+.bottom-dock{bottom:16px;gap:2px;padding:4px;background:var(--bg-2);border:1px solid var(--line-solid);border-radius:var(--r-xl);box-shadow:0 8px 24px rgba(0,0,0,.4);backdrop-filter:none;-webkit-backdrop-filter:none}
+.dock-item{height:38px;min-width:0;padding:0 12px;border-radius:var(--r);color:var(--ink-soft);font:600 13px var(--font-ui);transform:none;transition:background .15s,color .15s}
+.dock-item:hover{color:var(--ink);background:rgba(255,255,255,.06);transform:none}
+.dock-item.active{color:var(--ink);background:var(--bg-3);box-shadow:inset 0 -2px 0 var(--accent-color)}
+.dock-item.pop{animation:none}
+
+/* Motion: one quick fade when switching tabs, nothing else on its own */
+@keyframes tabFade{from{opacity:0}to{opacity:1}}
+.tab-content.tab-anim{animation:tabFade .18s ease-out}
+.tab-content.tab-anim .item-card,.tab-content.tab-anim .settings-col,.tab-content.tab-anim .suggest-panel{animation:none}
+
+@media(max-width:760px){
+  .container{width:min(100% - 24px,1240px);padding-top:14px;gap:12px}
+  .header,body:not([data-tab="home"]) .header{margin-left:auto}
+  .search-box,body:not([data-tab="home"]) .search-box{order:2;flex:1 1 100%}
+  .grid,#featured-grid,.square-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .dock-item{width:38px;min-width:38px;padding:0}
+}
 </style>
