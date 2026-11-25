@@ -4181,20 +4181,27 @@ const CXZPlayer = (() => {
     async function loadSrcdocFrame(url, token) {
         const frame = $('cxz-game-frame');
         try {
-            log('[Fetch] ' + url);
+            log('[GN-Math] Fetching HTML from CDN: ' + url);
             const html = await fetchGameHTML(url);
             if (token !== launchToken) return;
             currentHTML = html;
+            const prepared = typeof window.injectZoneBase === 'function' ? window.injectZoneBase(html, url) : html;
+            const nextBlobURL = URL.createObjectURL(new Blob([prepared], { type: 'text/html' }));
+            const previousBlobURL = currentBlobURL;
+            currentBlobURL = nextBlobURL;
             frame.onload = () => {
                 if (token !== launchToken) return;
                 applyFrameAudioSettings();
                 finishLoader(token);
             };
-            frame.srcdoc = typeof window.injectZoneBase === 'function' ? window.injectZoneBase(html, url) : html;
+            frame.removeAttribute('srcdoc');
+            frame.src = nextBlobURL;
+            if (previousBlobURL) window.setTimeout(() => URL.revokeObjectURL(previousBlobURL), 1500);
+            log('[GN-Math] Injected fetched HTML into the player iframe.');
         } catch (error) {
             if (token !== launchToken) return;
-            log('[Fetch Error] ' + error.message);
-            showToast('Could not fetch this game; it may be offline or blocked by your network');
+            log('[GN-Math fetch error] ' + (error && error.message ? error.message : error));
+            showToast('Could not fetch this game from the CDN');
             finishLoader(token);
         }
     }
@@ -5104,9 +5111,9 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     'use strict';
 
     // ── CDN roots (match original IIFE variables) ─────────────────────
-    const zonesURL  = './g/assets/zones.json';
-    const coverBase = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@latest/';
-    const htmlBase  = 'https://cdn.jsdelivr.net/gh/freebuisness/html@latest/';
+    const zonesURL  = 'https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json';
+    const coverBase = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@main/';
+    const htmlBase  = 'https://cdn.jsdelivr.net/gh/freebuisness/html@main/';
 
     // ── State ────────────────────────────────────────────────────────
     let zones = [];
@@ -5141,11 +5148,23 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     }
 
     function injectZoneBase(html, url) {
-        const tag = '<base href="' + zoneBaseFor(url, html) + '">';
-        if (BASE_TAG_RE.test(html))    return html.replace(BASE_TAG_RE, tag);
-        if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, m => m + tag);
-        if (/<html[^>]*>/i.test(html)) return html.replace(/<html[^>]*>/i, m => m + tag);
-        return tag + html;
+        const baseHref = zoneBaseFor(url, html);
+        const tag = '<base href="' + baseHref.replace(/&/g, '&').replace(/"/g, '"') + '">';
+        if (BASE_TAG_RE.test(html)) html = html.replace(BASE_TAG_RE, tag);
+        else if (/<head[^>]*>/i.test(html)) html = html.replace(/<head[^>]*>/i, m => m + tag);
+        else if (/<html[^>]*>/i.test(html)) html = html.replace(/<html[^>]*>/i, m => m + tag);
+        else html = tag + html;
+
+        // Lightweight runtime so relative fetch/XHR/script requests stay on the CDN
+        // folder even when the document is served from a blob/srcdoc iframe.
+        const boot = '<script>/*gn-base*/(function(){var b="' + baseHref.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '";' +
+            'function abs(u){try{if(!u||/^(data:|blob:|javascript:|about:|#)/i.test(u))return u;return new URL(u,b).href;}catch(e){return u;}}' +
+            'if(window.fetch){var of=window.fetch;window.fetch=function(i,n){try{if(typeof i==="string")i=abs(i);else if(i&&i.url){var nu=abs(i.url);if(nu!==i.url)i=new Request(nu,i);}}catch(e){}return of.call(this,i,n);};}' +
+            'if(window.XMLHttpRequest){var xo=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){try{arguments[1]=abs(u);}catch(e){}return xo.apply(this,arguments);};}' +
+            '})();<\/script>';
+        if (/<head[^>]*>/i.test(html)) html = html.replace(/<head[^>]*>/i, m => m + boot);
+        else html = boot + html;
+        return html;
     }
 
     // ── Popup helpers ────────────────────────────────────────────────
