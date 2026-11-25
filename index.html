@@ -2022,18 +2022,24 @@ aria-label="Fullscreen">
         
         <div id="admin" class="tab-content">
     <h2 class="section-title">Admin Dashboard</h2>
-
+    <div class="admin-bar">
+        <span id="admin-status" class="setup-sub" role="status" aria-live="polite">Not loaded yet</span>
+        <div class="btn-row admin-actions">
+            <button class="btn-action" onclick="adminRefresh()">Refresh</button>
+            <button class="btn-action" onclick="adminClearErrors()">Clear errors</button>
+            <button class="btn-action" onclick="adminClose()">Close admin</button>
+        </div>
+    </div>
+    <div id="admin-live" class="admin-live"></div>
     <div class="settings-grid">
         <div class="settings-col">
-            <div class="col-header">Suggestions</div>
-            <div id="admin-suggestions"></div>
+            <div class="col-header">Suggestions <span id="admin-sugg-count"></span></div>
+            <div id="admin-suggestions" class="admin-list"></div>
         </div>
-
         <div class="settings-col">
-            <div class="col-header">Errors</div>
-            <div id="admin-errors"></div>
+            <div class="col-header">Errors <span id="admin-err-count"></span></div>
+            <div id="admin-errors" class="admin-list"></div>
         </div>
-
         <div class="settings-col">
             <div class="col-header">Site Stats</div>
             <div id="admin-stats"></div>
@@ -2723,7 +2729,7 @@ aria-label="Fullscreen">
                 try {
                     const res = await fetch(SUGGESTION_ENDPOINT, {
                         method: 'POST',
-                        body: JSON.stringify({ game, link, notes, site: location.hostname })
+                        body: JSON.stringify({ type: 'suggestion', game, link, notes, ts: entry.ts, site: location.hostname })
                     });
                     entry.sent = res.ok;
                 } catch (e) { entry.sent = false; }
@@ -6050,6 +6056,7 @@ document.addEventListener("keydown", e => {
     }
 });
 
+let adminKey = "";
 const ADMIN_HASH_BUILTIN = "4c62f6bac27a480dbc0418546652f9d83d1516b557597d085374aa84c94a75c4";
 const ADMIN_HASH_KEY = "cxz_admin_hash";
 
@@ -6081,96 +6088,185 @@ async function requestAdminAccess() {
         const p2 = prompt("Confirm the new admin password:");
         if (p2 !== p1) { alert("Passwords did not match."); return; }
         localStorage.setItem(ADMIN_HASH_KEY, await adminHashHex(p1));
+        adminKey = p1;
         openAdminPanel();
         return;
     }
     const password = prompt("Admin Password");
     if (password === null) return;
-    if ((await adminHashHex(password)) === stored) openAdminPanel();
+    if ((await adminHashHex(password)) === stored) { adminKey = password; openAdminPanel(); }
     else alert("Access denied");
 }
 
-function logError(message) {
+/* ---------- Telemetry sent to the Apps Script endpoint (random session id only, no personal data) ---------- */
+const ADMIN_API = (typeof SUGGESTION_ENDPOINT !== "undefined") ? SUGGESTION_ENDPOINT : "";
+const SID = (() => {
+    try {
+        let v = sessionStorage.getItem("cxz_sid");
+        if (!v) { const a = new Uint8Array(9); crypto.getRandomValues(a); v = [...a].map(x => x.toString(16).padStart(2, "0")).join(""); sessionStorage.setItem("cxz_sid", v); }
+        return v;
+    } catch (e) { return Math.random().toString(16).slice(2, 20); }
+})();
+function sendTelemetry(payload) {
+    if (!ADMIN_API) return;
+    try { fetch(ADMIN_API, { method: "POST", mode: "no-cors", keepalive: true, body: JSON.stringify(payload) }).catch(() => {}); } catch (e) {}
+}
+const reportedErrors = new Set();
+function reportError(message, source) {
+    if (reportedErrors.size >= 20 || reportedErrors.has(message)) return;
+    reportedErrors.add(message);
+    sendTelemetry({ type: "error", sid: SID, site: location.hostname, message: String(message).slice(0, 500), source: String(source || "").slice(0, 200), page: (document.body && document.body.dataset.tab) || "", ua: navigator.userAgent.slice(0, 160) });
+}
+function logError(message, source) {
+    if (/ResizeObserver loop/.test(String(message))) return;
     const errors = adminReadJSON("cxz-errors");
     errors.push({ time: new Date().toLocaleString(), message: String(message) });
     try { localStorage.setItem("cxz-errors", JSON.stringify(errors.slice(-100))); } catch (e) {}
+    reportError(String(message), source);
+}
+window.addEventListener("error", e => { logError(`${e.message} (${e.filename}:${e.lineno})`, e.filename); });
+window.addEventListener("unhandledrejection", e => {
+    const r = e.reason;
+    logError("Unhandled promise rejection: " + ((r && r.message) || r), "");
+});
+function pingServer() {
+    if (document.hidden) return;
+    sendTelemetry({ type: "ping", sid: SID, site: location.hostname, page: (document.body && document.body.dataset.tab) || "home" });
+}
+setInterval(pingServer, 30000 + Math.floor(Math.random() * 5000));
+document.addEventListener("visibilitychange", () => { if (!document.hidden) pingServer(); });
+pingServer();
+
+/* ---------- Admin data (server first, this device as fallback) ---------- */
+async function adminFetch(payload) {
+    if (!ADMIN_API) throw new Error("No server endpoint configured");
+    const res = await fetch(ADMIN_API, { method: "POST", body: JSON.stringify(Object.assign({ type: "admin", key: adminKey }, payload)) });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if (data && data.error) throw new Error(data.error);
+    return data;
+}
+const safeUrl = u => /^https?:\/\//i.test(String(u || "")) ? String(u) : "";
+const fmtTime = t => t ? new Date(Number(t) || t).toLocaleString() : "";
+const setAdminStatus = msg => { const el = document.getElementById("admin-status"); if (el) el.textContent = msg; };
+
+function renderAdminLive(ccu, totals) {
+    const box = document.getElementById("admin-live");
+    if (!box) return;
+    const tiles = [];
+    if (ccu) {
+        tiles.push(["Online now (CCU)", ccu.now]);
+        tiles.push(["Peak CCU", ccu.peak]);
+    } else {
+        tiles.push(["Online now (CCU)", "n/a"]);
+    }
+    tiles.push(["Suggestions", totals.suggestions]);
+    tiles.push(["Errors", totals.errors]);
+    box.innerHTML = tiles.map(([k, v], i) => `
+        <div class="admin-tile admin-item" style="--i:${i}">
+            <small>${adminEsc(k)}</small>
+            <div class="admin-stat-num">${adminEsc(v)}</div>
+        </div>`).join("") + (ccu && ccu.pages && Object.keys(ccu.pages).length
+        ? `<div class="admin-tile admin-wide"><small>Viewing now</small><div>${Object.entries(ccu.pages).map(([k, v]) => `${adminEsc(k)}: ${adminEsc(v)}`).join(" &middot; ")}</div></div>` : "")
+        + (ccu && ccu.peakAt ? `<div class="admin-tile admin-wide"><small>Peak reached</small><div>${adminEsc(fmtTime(ccu.peakAt))}</div></div>` : "");
 }
 
-window.addEventListener("error", e => {
-    logError(`${e.message} (${e.filename}:${e.lineno})`);
-});
-
-function loadAdminSuggestions() {
+function renderAdminSuggestions(server, local) {
     const box = document.getElementById("admin-suggestions");
     if (!box) return;
-    const items = adminReadJSON("cxz_suggestions");
-    box.innerHTML = items.length
-        ? items.map((s, i) => `
-            <div class="suggest-item admin-item" style="--i:${Math.min(i, 14)}">
-                <strong>${adminEsc(s.game)}</strong>
-                ${s.link ? `<div><a href="${adminEsc(s.link)}" target="_blank" rel="noopener noreferrer">${adminEsc(s.link)}</a></div>` : ""}
-                ${s.notes ? `<div>${adminEsc(s.notes)}</div>` : ""}
-                <small>${s.ts ? new Date(s.ts).toLocaleString() : ""} &middot; ${s.sent ? "sent" : "saved on this device"}</small>
-            </div>`).join("")
-        : '<div class="suggest-item admin-item">No suggestions yet.</div>';
+    const rows = server.map(s => ({ game: s.game, link: s.link, notes: s.notes, ts: s.ts, tag: s.site ? "from " + s.site : "received" }))
+        .concat(local.map(s => ({ game: s.game, link: s.link, notes: s.notes, ts: s.ts, tag: "not sent (this device)" })));
+    document.getElementById("admin-sugg-count").textContent = "(" + rows.length + ")";
+    box.innerHTML = rows.length ? rows.map((s, i) => {
+        const href = safeUrl(s.link);
+        return `
+        <div class="suggest-item admin-item" style="--i:${Math.min(i, 14)}">
+            <strong>${adminEsc(s.game)}</strong>
+            ${s.link ? `<div>${href ? `<a href="${adminEsc(href)}" target="_blank" rel="noopener noreferrer">${adminEsc(s.link)}</a>` : adminEsc(s.link)}</div>` : ""}
+            ${s.notes ? `<div>${adminEsc(s.notes)}</div>` : ""}
+            <small>${adminEsc(fmtTime(s.ts))} &middot; ${adminEsc(s.tag)}</small>
+        </div>`; }).join("") : '<div class="suggest-item admin-item">No suggestions yet.</div>';
 }
 
-function loadAdminErrors() {
+function renderAdminErrors(server, local, serverOk) {
     const box = document.getElementById("admin-errors");
     if (!box) return;
-    const errs = adminReadJSON("cxz-errors").slice().reverse();
-    box.innerHTML = errs.length
-        ? errs.map((e, i) => `
-            <div class="suggest-item admin-item" style="--i:${Math.min(i, 14)}">
-                <small>${adminEsc(e.time)}</small>
-                <div>${adminEsc(e.message)}</div>
-            </div>`).join("")
-        : '<div class="suggest-item admin-item">No errors logged.</div>';
+    const rows = serverOk
+        ? server.map(e => ({ time: fmtTime(e.ts), message: e.message, meta: [e.page && "tab: " + e.page, e.source, e.ua].filter(Boolean).join(" · ") }))
+        : local.slice().reverse().map(e => ({ time: e.time, message: e.message, meta: "this device" }));
+    document.getElementById("admin-err-count").textContent = "(" + rows.length + ")";
+    box.innerHTML = rows.length ? rows.map((e, i) => `
+        <div class="suggest-item admin-item" style="--i:${Math.min(i, 14)}">
+            <small>${adminEsc(e.time)}</small>
+            <div>${adminEsc(e.message)}</div>
+            ${e.meta ? `<small>${adminEsc(e.meta)}</small>` : ""}
+        </div>`).join("") : '<div class="suggest-item admin-item">No errors logged.</div>';
 }
 
-function loadAdminStats() {
+function renderAdminStats(t) {
     const box = document.getElementById("admin-stats");
     if (!box) return;
-    const sugg = adminReadJSON("cxz_suggestions");
     let used = 0;
     try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); used += k.length + (localStorage.getItem(k) || "").length; } } catch (e) {}
     const games = (typeof GAMES !== "undefined" && Array.isArray(GAMES)) ? GAMES.length : 0;
-    const rows = [
-        ["Games in catalog", games],
-        ["Suggestions saved", sugg.length],
-        ["Suggestions sent", sugg.filter(s => s.sent).length],
-        ["Errors logged", adminReadJSON("cxz-errors").length],
-        ["Local storage (KB)", Math.round(used * 2 / 1024)]
-    ];
+    const rows = [["Games in catalog", games], ["Suggestions received", t.suggestions], ["Errors logged", t.errors], ["Local storage on this device (KB)", Math.round(used * 2 / 1024)]];
     box.innerHTML = rows.map(([k, v], i) => `
         <div class="suggest-item admin-item" style="--i:${i}">
             <small>${adminEsc(k)}</small>
-            <div class="admin-stat-num" data-count="${Number(v) || 0}">0</div>
-        </div>`).join("") + `
-        <div class="btn-row admin-actions">
-            <button class="btn-action" onclick="adminClearErrors()">Clear errors</button>
-            <button class="btn-action" onclick="adminClose()">Close admin</button>
-        </div>`;
-    box.querySelectorAll(".admin-stat-num").forEach(el => {
-        const target = Number(el.dataset.count) || 0;
-        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (reduce || target === 0) { el.textContent = target; return; }
-        const t0 = performance.now(), dur = 700;
-        (function tick(now) {
-            const p = Math.min(1, (now - t0) / dur);
-            el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
-            if (p < 1) requestAnimationFrame(tick);
-        })(t0);
-    });
+            <div class="admin-stat-num">${adminEsc(v)}</div>
+        </div>`).join("");
 }
 
-function adminClearErrors() {
+async function adminRefresh() {
+    setAdminStatus("Loading…");
+    const localSugg = adminReadJSON("cxz_suggestions").filter(s => !s.sent);
+    const localErrs = adminReadJSON("cxz-errors");
+    let data = null, failure = "";
+    try { data = await adminFetch({ action: "list" }); } catch (e) { failure = e.message || "request failed"; }
+    if (data) {
+        const sg = data.suggestions || [], er = data.errors || [];
+        const totals = { suggestions: (data.totals ? data.totals.suggestions : sg.length) + localSugg.length, errors: data.totals ? data.totals.errors : er.length };
+        renderAdminLive(data.ccu, totals);
+        renderAdminSuggestions(sg, localSugg);
+        renderAdminErrors(er, localErrs, true);
+        renderAdminStats(totals);
+        const capped = data.totals && (data.totals.suggestions > sg.length || data.totals.errors > er.length);
+        setAdminStatus("Updated " + new Date().toLocaleTimeString() + (capped ? " · showing the newest entries" : ""));
+    } else {
+        const totals = { suggestions: localSugg.length + adminReadJSON("cxz_suggestions").filter(s => s.sent).length, errors: localErrs.length };
+        renderAdminLive(null, totals);
+        renderAdminSuggestions([], adminReadJSON("cxz_suggestions"));
+        renderAdminErrors([], localErrs, false);
+        renderAdminStats(totals);
+        setAdminStatus("Could not reach the server (" + failure + "). Showing data from this device only.");
+    }
+}
+
+let adminTimer = null;
+function stopAdminLive() { clearInterval(adminTimer); adminTimer = null; }
+function startAdminLive() {
+    stopAdminLive();
+    adminTimer = setInterval(async () => {
+        if (document.body.dataset.tab !== "admin") return stopAdminLive();
+        if (document.hidden) return;
+        try {
+            const d = await adminFetch({ action: "ccu" });
+            const tiles = document.querySelectorAll("#admin-live .admin-stat-num");
+            if (tiles[0] && d.ccu) tiles[0].textContent = d.ccu.now;
+            if (tiles[1] && d.ccu) tiles[1].textContent = d.ccu.peak;
+        } catch (e) {}
+    }, 15000);
+}
+
+async function adminClearErrors() {
+    if (!confirm("Clear all logged errors? This also clears them on the server.")) return;
     localStorage.removeItem("cxz-errors");
-    loadAdminErrors();
-    loadAdminStats();
+    try { await adminFetch({ action: "clear_errors" }); } catch (e) { setAdminStatus("Cleared on this device only: " + e.message); return; }
+    adminRefresh();
 }
 
 function adminClose() {
+    stopAdminLive();
     if (typeof switchTab === "function") switchTab("home");
     const b = document.getElementById("dock-admin");
     if (b) b.classList.remove("active");
@@ -6181,7 +6277,7 @@ function openAdminPanel() {
         const player = document.getElementById("cxz-player");
         if (player && player.classList.contains("open") && window.CXZPlayer) window.CXZPlayer.close();
     } catch (e) {}
-    try { loadAdminSuggestions(); loadAdminErrors(); loadAdminStats(); } catch (e) { console.warn(e); }
+    try { adminRefresh(); startAdminLive(); } catch (e) { console.warn(e); }
 
     document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
     document.querySelectorAll(".dock-item").forEach(b => b.classList.remove("active"));
@@ -6194,6 +6290,17 @@ function openAdminPanel() {
     window.scrollTo({ top: 0 });
 }
 </script>
+
+<style id="cxz-admin-style">
+.admin-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.admin-live{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.admin-tile{padding:14px 16px;background:var(--bg-2);border:1px solid var(--line-solid);border-radius:12px}
+.admin-tile small{display:block;margin-bottom:4px;color:var(--ink-soft)}
+.admin-wide{grid-column:span 2}
+.admin-list{display:grid;gap:8px;max-height:62vh;overflow:auto;padding-right:4px}
+.admin-list .suggest-item{overflow-wrap:anywhere}
+#admin-sugg-count,#admin-err-count{color:var(--ink-soft);font-weight:500}
+</style>
 
 <style id="cxz-motion">
 @keyframes cxzCardIn   { from { opacity: 0; translate: 0 22px; scale: .94; } to { opacity: 1; translate: 0 0; scale: 1; } }
