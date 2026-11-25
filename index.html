@@ -4146,8 +4146,29 @@ const CXZPlayer = (() => {
         } catch (_) { return false; }
     }
 
+    async function loadSrcdocFrame(url, token) {
+        const frame = $('cxz-game-frame');
+        try {
+            log('[Fetch] ' + url);
+            const html = await fetchGameHTML(url);
+            if (token !== launchToken) return;
+            currentHTML = html;
+            frame.onload = () => {
+                if (token !== launchToken) return;
+                applyFrameAudioSettings();
+                finishLoader(token);
+            };
+            frame.srcdoc = typeof window.injectZoneBase === 'function' ? window.injectZoneBase(html, url) : html;
+        } catch (error) {
+            if (token !== launchToken) return;
+            log('[Fetch Error] ' + error.message);
+            showToast('Could not fetch this game; it may be offline or blocked by your network');
+            finishLoader(token);
+        }
+    }
+
     function launchGame(url, token) {
-        if (isRemoteHTMLGame(url)) loadBlobFrame(url, token);
+        if (isRemoteHTMLGame(url)) loadSrcdocFrame(url, token);
         else setFrameURL(url, token);
     }
 
@@ -5397,3 +5418,79 @@ body[data-tab="home"] #featured-grid .card{flex:0 0 auto;width:clamp(150px,15vw,
   body[data-tab="home"] #featured-grid .card{width:calc(50% - 5px)}
 }
 </style>
+
+<style id="nebula-os">
+/* OS-style shell: menu bar, desktop icons, windows, dock */
+html{background:radial-gradient(70% 55% at 15% 0%,color-mix(in srgb,var(--accent-color) 30%,transparent),transparent 70%),radial-gradient(65% 55% at 95% 100%,color-mix(in srgb,var(--accent-color) 20%,#0a0a14),transparent 70%),#09090f!important;background-attachment:fixed!important}
+canvas#bg-canvas{opacity:.18}
+body::after{content:"";position:fixed;top:0;left:0;right:0;height:32px;z-index:250;background:rgba(10,10,16,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line);pointer-events:none}
+.container{justify-content:center;padding-top:60px;width:min(100% - 40px,1180px)}
+
+/* Menu bar */
+.brand-banner{position:fixed;top:0;left:14px;height:32px;z-index:300;align-items:center;gap:8px}
+.brand-banner img{width:18px;height:18px}
+.brand-banner-name{font:700 13px var(--font-ui);letter-spacing:0}
+body:not([data-tab="home"]) .header{position:fixed;top:0;right:16px;height:32px;z-index:300;display:flex;align-items:center;margin:0}
+body:not([data-tab="home"]) .live-datetime{flex-wrap:nowrap;gap:10px;white-space:nowrap}
+body:not([data-tab="home"]) .datetime-detail-row{flex-wrap:nowrap}
+
+/* Desktop: glass clock widget + spotlight search */
+body[data-tab="home"] .live-datetime{background:rgba(18,18,28,.5);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:22px;box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.search-box,body:not([data-tab="home"]) .search-box{flex:0 1 360px;margin:0 auto}
+body[data-tab="home"] .search-box{flex:0 1 620px}
+.search-box input:not([type=checkbox]):not([type=radio]){background:rgba(18,18,28,.6)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-color:var(--line)!important}
+
+/* Windows */
+.container > .tab-content.active:not(#home){margin-top:14px;padding:0 24px 24px;overflow:hidden;background:rgba(19,19,28,.88);border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.win-bar{display:flex;align-items:center;gap:8px;height:42px;margin:0 -24px 22px;padding:0 14px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line);user-select:none}
+.win-dot{width:12px;height:12px;padding:0;border:0;border-radius:50%;background:#3a3a46}
+.win-close{background:#ff5f57;cursor:pointer}
+.win-close:hover{filter:brightness(1.15)}
+.win-title{flex:1;margin-right:44px;text-align:center;font:600 13px var(--font-ui);color:var(--ink-soft)}
+
+/* App icons */
+.grid,#featured-grid,.square-grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+.square-grid .card{aspect-ratio:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 6px;overflow:visible;border:0;border-radius:12px;background:transparent}
+.square-grid .card img{width:100%;max-width:88px;height:auto;aspect-ratio:1/1;margin:0;border-radius:22%;object-fit:cover;box-shadow:0 6px 16px rgba(0,0,0,.45)}
+.square-grid .card h3{position:static;padding:0 2px;font:500 12px/1.3 var(--font-ui);text-align:center;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;background:none;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.square-grid .card:hover{background:rgba(255,255,255,.1);border-color:transparent}
+body[data-tab="home"] #featured-grid{gap:10px}
+body[data-tab="home"] #featured-grid .card{width:124px}
+
+/* Dock */
+.bottom-dock{gap:6px;padding:6px 8px;background:rgba(20,20,30,.6);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid var(--line);border-radius:20px}
+.dock-item{width:48px;height:48px;padding:0;justify-content:center;border-radius:14px;background:transparent}
+.dock-item svg{width:22px;height:22px;flex-basis:22px}
+.dock-item:hover{transform:translateY(-4px);background:rgba(255,255,255,.08)}
+.dock-item.active{background:rgba(255,255,255,.1);box-shadow:none}
+.dock-item.active::before{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--ink)}
+.dock-item::after{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);padding:4px 9px;border-radius:8px;background:rgba(10,10,16,.92);border:1px solid var(--line);font:600 12px var(--font-ui);color:var(--ink);opacity:0;pointer-events:none;transition:opacity .12s}
+.dock-item:hover::after{opacity:1}
+.dock-item#dock-mute-btn{width:48px;min-width:48px;margin-left:2px;border-radius:14px}
+@media(min-width:761px){.bottom-dock{overflow:visible}}
+@media(max-width:760px){
+  .container > .tab-content.active:not(#home){padding:0 14px 16px}
+  .win-bar{margin:0 -14px 16px}
+  .dock-item{width:40px;min-width:40px;height:42px}
+  .dock-item::after,.dock-item:hover::after{display:none}
+  .grid,#featured-grid,.square-grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+  body[data-tab="home"] #featured-grid .card{width:calc(33.333% - 8px)}
+  body:not([data-tab="home"]) .datetime-detail-row{display:none}
+}
+</style>
+<script>
+(function(){
+  var titles={games:'Games',tools:'Tools & Utilities',movies:'Cinema',partners:'Partners',suggest:'Suggest a Game',settings:'Settings'};
+  Object.keys(titles).forEach(function(id){
+    var tab=document.getElementById(id);
+    if(!tab||tab.querySelector(':scope > .win-bar'))return;
+    var bar=document.createElement('div');bar.className='win-bar';
+    var close=document.createElement('button');close.type='button';close.className='win-dot win-close';close.setAttribute('aria-label','Close window');
+    close.addEventListener('click',function(){switchTab('home');});
+    var a=document.createElement('span');a.className='win-dot';a.setAttribute('aria-hidden','true');
+    var b=a.cloneNode();
+    var t=document.createElement('span');t.className='win-title';t.textContent=titles[id];
+    bar.append(close,a,b,t);tab.prepend(bar);
+  });
+})();
+</script>
