@@ -2083,7 +2083,6 @@ aria-label="Fullscreen">
                     
                     <div class="btn-row">
                         <button class="btn-action" onclick="clearData()">Clear Data</button>
-                        <button class="btn-action" onclick="rerunSetup()">Re-run Setup</button>
                     </div>
 
                     <div class="setting-subhead">Backup Settings</div>
@@ -2500,16 +2499,7 @@ aria-label="Fullscreen">
         </button>
     </nav>
 
-    <!-- First-run Setup Modal (skippable) -->
-    <div id="setup-modal" role="dialog" aria-modal="true" aria-labelledby="setup-title">
-        <div class="setup-box">
-            <h2 id="setup-title">Welcome! Quick Setup</h2>
-            <p class="setup-sub">Pick a few options now, or skip. You can change everything later in Settings.</p>
 
-            <div class="setup-section">
-                <div class="setting-subhead" style="text-align:left;">Accent Color</div>
-                <div class="color-swatches-grid" id="setup-swatches"></div>
-            </div>
 
             <div class="setup-section">
                 <div class="setting-subhead" style="text-align:left;">Tab Cloak</div>
@@ -2814,103 +2804,6 @@ aria-label="Fullscreen">
             showToast('Block screen text reset');
         }
 
-        // ===== FIRST-RUN SETUP MODAL =====
-        let setupShown = false;
-        let setupAccent = '#ff6600';
-
-        function buildSetupUI() {
-            const sw = byId('setup-swatches');
-            if (!sw.children.length) {
-                document.querySelectorAll('#settings .color-swatches-grid .swatch-box').forEach(src => {
-                    const m = /'(#[0-9a-f]{6})'/i.exec(src.getAttribute('onclick') || '');
-                    if (!m) return;
-                    const box = document.createElement('div');
-                    box.className = 'swatch-box';
-                    box.style.background = m[1];
-                    box.dataset.color = m[1];
-                    box.onclick = () => selectSetupAccent(m[1]);
-                    sw.appendChild(box);
-                });
-            }
-            const preset = byId('setup-preset');
-            if (!preset.options.length) {
-                preset.innerHTML = byId('preset-dropdown').innerHTML;
-                preset.onchange = () => {
-                    if (!preset.value) return;
-                    const [title, icon] = preset.value.split('|');
-                    byId('setup-cloak-name').value = title;
-                    byId('setup-cloak-icon').value = icon || '';
-                };
-            }
-            const theme = byId('setup-block-theme');
-            if (!theme.options.length) theme.innerHTML = byId('block-theme-select').innerHTML;
-        }
-
-        function selectSetupAccent(hex) {
-            setupAccent = hex;
-            // Live preview so the page recolors immediately.
-            if (typeof setThemeAccent === 'function') setThemeAccent(hex, true);
-            document.querySelectorAll('#setup-swatches .swatch-box').forEach(b => {
-                b.classList.toggle('selected', b.dataset.color.toLowerCase() === hex.toLowerCase());
-            });
-        }
-
-        function openSetup() {
-            const modal = byId('setup-modal');
-            if (!modal) return;
-            buildSetupUI();
-            selectSetupAccent(localStorage.getItem(PRE + 'accent') || '#ff6600');
-            byId('setup-cloak-name').value = localStorage.getItem(PRE + 'cloak_title') || '';
-            byId('setup-cloak-icon').value = localStorage.getItem(PRE + 'cloak_icon') || '';
-            byId('setup-preset').value = '';
-            byId('setup-block-on').checked = localStorage.getItem(PRE + 'block_screen') === 'true';
-            let bt = localStorage.getItem(PRE + 'block_theme') || 'lightspeed';
-            if (!['securly', 'lightspeed', 'goguardian', 'classlink'].includes(bt)) bt = 'lightspeed';
-            byId('setup-block-theme').value = bt;
-            modal.classList.add('open');
-        }
-
-        function closeSetup() {
-            byId('setup-modal').classList.remove('open');
-            localStorage.setItem(PRE + 'setup_done', 'true');
-        }
-
-        function skipSetup() { closeSetup(); }
-
-        function finishSetup() {
-            window.__quietToasts = true;
-            try {
-                setThemeAccent(setupAccent);
-
-                const name = byId('setup-cloak-name').value.trim();
-                const icon = byId('setup-cloak-icon').value.trim();
-                if (name || icon) {
-                    byId('cloak-name-input').value = name;
-                    byId('cloak-icon-input').value = icon;
-                    saveCloak();
-                }
-
-                byId('block-screen-check').checked = byId('setup-block-on').checked;
-                byId('block-theme-select').value = byId('setup-block-theme').value;
-                savePerfSettings();
-            } finally {
-                window.__quietToasts = false;
-            }
-            closeSetup();
-            showToast('Setup saved!');
-        }
-
-        function maybeShowSetup() {
-            if (setupShown) return;
-            setupShown = true;
-            if (localStorage.getItem(PRE + 'setup_done') !== 'true') openSetup();
-        }
-
-        document.addEventListener('keydown', e => {
-            const m = byId('setup-modal');
-            if (e.key === 'Escape' && m && m.classList.contains('open')) skipSetup();
-        });
-
         // 1. STARTUP LOADER — runs AFTER the optional block screen
         window.addEventListener('DOMContentLoaded', () => {
             // Apply persisted settings before starting the loader or showing the dock.
@@ -2928,7 +2821,6 @@ aria-label="Fullscreen">
                     window.__introAnimated = true;
                     animateTab(document.querySelector('.tab-content.active'));
                 }
-                maybeShowSetup();
             };
 
             function startLoadingScreen() {
@@ -3522,10 +3414,7 @@ setTimeout(function() {
             }
         }
 
-        function rerunSetup() {
-            localStorage.removeItem(PRE + 'setup_done');
-            openSetup();
-        }
+
 
         function saveSettingsTxt() {
             const data = {};
@@ -4654,6 +4543,25 @@ const CXZPlayer = (() => {
 <title>${safeTitle}</title>
 <style>html,body,iframe{margin:0;width:100%;height:100%;overflow:hidden;background:#000}iframe{display:block;border:0}
 
+
+    /* Search alignment fix: keep the icon centered beside the text on every tab. */
+    .search-box { position: relative; }
+    .search-box input { padding-left: 52px !important; padding-right: 18px !important; }
+    .search-box .search-icon {
+        position: absolute;
+        left: 18px !important;
+        right: auto !important;
+        top: 50% !important;
+        width: 20px;
+        height: 20px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-50%) !important;
+        line-height: 0;
+        pointer-events: none;
+    }
+    .search-box .search-icon svg { display: block; width: 19px; height: 19px; }
 </style>
 </head><body>
 <iframe id="game" allowfullscreen allow="autoplay; fullscreen; gamepad; clipboard-write" title="${safeTitle}"></iframe>
