@@ -6038,117 +6038,59 @@ body:not([data-tab="home"]) .live-datetime{justify-content:flex-end;align-items:
     addEventListener('resize',place);addEventListener('scroll',place,true);
     go(0);
   }};
-})();
-    let adminSequence = [];
-const adminCode = [
-    "ArrowUp",
-    "ArrowUp",
-    "ArrowDown",
-    "ArrowDown",
-    "ArrowLeft",
-    "ArrowRight",
-    "ArrowLeft",
-    "ArrowRight"
-];
+})()
+const ADMIN_HASH = "4c62f6bac27a480dbc0418546652f9d83d1516b557597d085374aa84c94a75c4";
 
-document.addEventListener("keydown", e => {
-    adminSequence.push(e.key);
-
-    if (adminSequence.length > adminCode.length) {
-        adminSequence.shift();
-    }
-
-    if (
-        adminSequence.join(",") ===
-        adminCode.join(",")
-    ) {
-        requestAdminAccess();
-    }
-});
-    async function requestAdminAccess() {
-    const password = prompt("Admin Password");
-
-    const hash =
-        await crypto.subtle.digest(
-            "SHA-256",
-            new TextEncoder().encode(password)
-        );
-
-    const hex = [...new Uint8Array(hash)]
-        .map(x => x.toString(16).padStart(2, "0"))
-        .join("");
-
-    const ADMIN_HASH =
-        '4c62f6bac27a480dbc0418546652f9d83d1516b557597d085374aa84c94a75c4';
-
-    if (hex === ADMIN_HASH) {
-        openAdminPanel();
-    } else {
-        alert("Access denied");
-    }
-}
-    function logError(message) {
-    const errors =
-        JSON.parse(
-            localStorage.getItem("cxz-errors") || "[]"
-        );
-
-    errors.push({
-        time: new Date().toLocaleString(),
-        message
-    });
-
-    localStorage.setItem(
-        "cxz-errors",
-        JSON.stringify(errors)
-    );
+async function hashHex(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 
-window.addEventListener("error", e => {
-    logError(
-        `${e.message}
-         (${e.filename}:${e.lineno})`
-    );
-});
-
-    function loadAdminSuggestions() {
-    const box =
-        document.getElementById(
-            "admin-suggestions"
-        );
-
-    const items =
-        JSON.parse(
-            localStorage.getItem(
-                "nebulaSuggestions"
-            ) || "[]"
-        );
-
-    box.innerHTML =
-        items.map(
-            s => `
-            <div class="suggest-item">
-                ${s.name}
-            </div>
-        `
-        ).join("");
+function readJSON(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || []; }
+  catch { return []; }
 }
 
-    function openAdminPanel() {
+const esc = v => String(v ?? "").replace(/[&<>"']/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-    loadAdminSuggestions();
-    loadAdminErrors();
+async function requestAdminAccess() {
+  const password = prompt("Admin Password");
+  if (password === null) return;
+  if (!crypto.subtle) { alert("Needs HTTPS (secure context)"); return; }
+  const hex = await hashHex(password.trim());
+  if (hex === ADMIN_HASH) openAdminPanel();
+  else alert("Access denied");
+}
 
-    document
-        .querySelectorAll(".tab-content")
-        .forEach(t =>
-            t.classList.remove("active")
-        );
+function logError(message) {
+  const errors = readJSON("cxz-errors");
+  errors.push({ time: new Date().toLocaleString(), message });
+  localStorage.setItem("cxz-errors", JSON.stringify(errors.slice(-100)));
+}
 
-    document
-        .getElementById("admin")
-        .classList.add("active");
+function loadAdminSuggestions() {
+  const box = document.getElementById("admin-suggestions");
+  if (!box) return;
+  const items = readJSON("nebulaSuggestions");
+  box.innerHTML = items.length
+    ? items.map(s => `<div class="suggest-item">${esc(s.name)}</div>`).join("")
+    : "<div>No suggestions yet</div>";
+}
 
-    document.body.dataset.tab = "admin";
+function loadAdminErrors() {
+  const box = document.getElementById("admin-errors");
+  if (!box) return;
+  const errs = readJSON("cxz-errors");
+  box.innerHTML = errs.length
+    ? errs.map(e => `<div class="suggest-item">${esc(e.time)} - ${esc(e.message)}</div>`).join("")
+    : "<div>No errors logged</div>";
+}
+
+function openAdminPanel() {
+  try { loadAdminSuggestions(); loadAdminErrors(); } catch (e) { console.warn(e); }
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  document.getElementById("admin").classList.add("active");
+  document.body.dataset.tab = "admin";
 }
 </script>
