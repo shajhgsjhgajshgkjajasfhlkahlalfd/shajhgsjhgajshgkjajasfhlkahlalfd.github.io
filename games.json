@@ -1,9 +1,9 @@
 [
   {
-    "file": "https://gsdz6krbh5lerbtodme32bdcom0esatc.lambda-url.us-east-2.on.aws/__play/gh/nexorainteractives/Nexora-Assets@main/games/clpuppethockey.html",
-    "title": "Puppet Hockey",
-    "tagline": "Hockey",
-    "img": "./g/assets/puppet-hockey.png"
+    "file": "attackhole.html",
+    "title": "Attack Hole",
+    "tagline": "Gun in hole",
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUeLZDHd5LUCASJvDCntWt3Z0M5ZmNEMKJfBgjMbx98Q&s=10"
   },
   {
     "file": "FNAF.html",
