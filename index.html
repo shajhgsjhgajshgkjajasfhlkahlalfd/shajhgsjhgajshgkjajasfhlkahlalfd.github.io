@@ -5349,6 +5349,439 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
 
 })();
 </script>
+
+<style id="nebula-clean-desktop-and-os-onboarding">
+/* A quiet desktop: only the clock and app shortcuts remain visible. */
+@media (min-width: 760px) {
+  body.os {
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    padding: 0 !important;
+  }
+
+  body.os::after { display: none !important; }
+
+  body.os .container {
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none;
+  }
+
+  body.os .container > :not(.header) {
+    display: none !important;
+  }
+
+  body.os .header {
+    position: absolute !important;
+    top: 28vh !important;
+    left: 50% !important;
+    right: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    transform: translateX(-50%);
+    pointer-events: none !important;
+    z-index: 2;
+  }
+
+  body.os .header > #site-title,
+  body.os .brand-banner,
+  body.os .search-box,
+  body.os .bottom-dock,
+  body.os #user-chip,
+  body.os #os-ctx {
+    display: none !important;
+  }
+
+  body.os .live-datetime {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    text-align: center !important;
+    color: #fff !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    text-shadow: 0 3px 34px rgba(0,0,0,.42) !important;
+  }
+
+  body.os #current-weekday {
+    font: 600 clamp(54px, 7vw, 92px)/1.05 var(--font-ui) !important;
+    letter-spacing: -.055em !important;
+    text-transform: none !important;
+    color: #fff !important;
+  }
+
+  body.os .datetime-detail-row {
+    justify-content: center !important;
+    gap: 8px 14px !important;
+    color: rgba(255,255,255,.78) !important;
+    font: 500 clamp(14px, 1.45vw, 18px)/1.4 var(--font-ui) !important;
+    letter-spacing: .015em !important;
+  }
+
+  body.os .datetime-separator { display: none !important; }
+
+  /* Desktop shortcuts remain available without the old dock or homepage widgets. */
+  #os-icons {
+    display: grid !important;
+    top: 24px !important;
+    left: 24px !important;
+    bottom: 24px !important;
+    grid-auto-flow: row !important;
+    grid-template-columns: 88px !important;
+    grid-template-rows: none !important;
+    grid-auto-rows: 92px !important;
+    gap: 8px !important;
+    align-content: start !important;
+    z-index: 20 !important;
+  }
+
+  .os-icon {
+    width: 88px !important;
+    min-height: 84px !important;
+    justify-content: flex-start !important;
+    padding: 7px 4px !important;
+    border-radius: 12px !important;
+    color: #fff !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,.8) !important;
+  }
+
+  .os-icon-tile {
+    width: 54px !important;
+    height: 54px !important;
+    border-radius: 16px !important;
+    background: rgba(20,20,30,.48) !important;
+    border: 1px solid rgba(255,255,255,.17) !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.22) !important;
+    backdrop-filter: blur(18px) !important;
+  }
+
+  .os-icon:hover { background: rgba(255,255,255,.12) !important; }
+  .os-icon.sel { background: rgba(255,255,255,.2) !important; }
+
+  /* Hide the duplicate compact menu-bar clock; the large desktop clock stays. */
+  #os-clock, .os-app { display: none !important; }
+}
+
+/* Keep the existing mobile navigation usable on smaller screens. */
+@media (max-width: 759px) {
+  body.os .container > .header { display: flex !important; }
+  #os-icons { display: none !important; }
+}
+
+/* Shared system-style surfaces for sign-in, onboarding, recovery and account dialogs. */
+.gate {
+  z-index: 300000 !important;
+  padding: 24px !important;
+  background:
+    radial-gradient(ellipse at 50% 34%, rgba(111,91,170,.22), transparent 42%),
+    rgba(7,9,16,.48) !important;
+  backdrop-filter: blur(34px) saturate(1.45) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(1.45) !important;
+}
+
+.gate-card {
+  width: min(100%, 440px) !important;
+  padding: 34px !important;
+  border: 1px solid rgba(255,255,255,.19) !important;
+  border-radius: 26px !important;
+  background: linear-gradient(145deg, rgba(35,37,49,.9), rgba(18,20,30,.88)) !important;
+  box-shadow: 0 28px 90px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.09) !important;
+  backdrop-filter: blur(30px) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(1.35) !important;
+  color: #f7f7fb !important;
+  animation: nebulaSystemAppear .32s cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes nebulaSystemAppear {
+  from { opacity: 0; transform: translateY(12px) scale(.975); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.gate-card h1 {
+  margin: 0 0 9px !important;
+  color: #fff !important;
+  font: 650 25px/1.2 var(--font-ui) !important;
+  letter-spacing: -.035em !important;
+  text-align: center !important;
+}
+
+.gate-sub {
+  margin: 0 0 24px !important;
+  color: rgba(235,237,247,.68) !important;
+  font: 400 14px/1.55 var(--font-ui) !important;
+  text-align: center !important;
+}
+
+.gate-card label:not(.gate-check) {
+  display: block;
+  margin: 15px 0 7px;
+  color: rgba(242,243,250,.88);
+  font: 550 12px/1.4 var(--font-ui);
+}
+
+.gate-card input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),
+.gate-card select,
+.gate-card textarea {
+  min-height: 46px !important;
+  padding: 0 14px !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+  border-radius: 12px !important;
+  background: rgba(7,9,16,.48) !important;
+  color: #fff !important;
+  font: 450 14px var(--font-ui) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.12) !important;
+}
+
+.gate-card input:focus {
+  border-color: rgba(173,145,255,.9) !important;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.2) !important;
+  outline: none !important;
+}
+
+.gate-card input::placeholder { color: rgba(235,237,247,.38) !important; }
+
+.gate-tabs {
+  display: flex !important;
+  gap: 4px !important;
+  padding: 4px !important;
+  margin: 0 0 20px !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 13px !important;
+  background: rgba(0,0,0,.2) !important;
+}
+
+.gate-tabs button {
+  flex: 1;
+  min-height: 36px;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  color: rgba(238,239,248,.64) !important;
+  font: 550 12px var(--font-ui) !important;
+}
+
+.gate-tabs button[aria-selected="true"] {
+  background: rgba(255,255,255,.13) !important;
+  color: #fff !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18) !important;
+}
+
+.gate-primary {
+  min-height: 46px !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  border-radius: 12px !important;
+  background: linear-gradient(180deg, #9b7bfa, #7654dc) !important;
+  color: #fff !important;
+  font: 650 14px var(--font-ui) !important;
+  box-shadow: 0 8px 20px rgba(93,65,190,.28) !important;
+  transition: transform .16s ease, filter .16s ease !important;
+}
+
+.gate-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.gate-primary:disabled { opacity: .45; cursor: not-allowed; }
+
+.gate-secondary,
+.gate-danger {
+  min-height: 40px;
+  padding: 0 14px !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  border-radius: 11px !important;
+  background: rgba(255,255,255,.08) !important;
+  color: #f5f5fa !important;
+  font: 550 13px var(--font-ui) !important;
+}
+
+.gate-link {
+  color: #c7b7ff !important;
+  font: 550 12px var(--font-ui) !important;
+}
+
+.gate-aux { margin: 14px 0 2px !important; }
+.gate-error { min-height: 0; margin: 10px 0 !important; color: #ff9a9a !important; font-size: 12px !important; }
+.gate-error:empty { display: none; }
+.gate-note {
+  margin: 18px 0 0 !important;
+  color: rgba(235,237,247,.45) !important;
+  font: 400 11px/1.5 var(--font-ui) !important;
+  text-align: center !important;
+}
+
+/* Existing local accounts are presented as OS user tiles before the password field. */
+#lock-users {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 2px 0 18px;
+}
+
+#lock-users[hidden] { display: none !important; }
+
+.lock-user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 82px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: rgba(255,255,255,.82);
+  font: 500 12px var(--font-ui);
+  cursor: pointer;
+}
+
+.lock-user[aria-pressed="true"] {
+  border-color: rgba(190,170,255,.65);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+
+.lu-av {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 17px;
+  background: linear-gradient(145deg, #8b72db, #4c5d93);
+  color: white;
+  font: 650 22px var(--font-ui);
+  box-shadow: 0 8px 20px rgba(0,0,0,.24);
+}
+
+#auth-overlay:not(.no-users) #lock-users:not([hidden]) ~ #auth-form #auth-user-wrap {
+  display: none !important;
+}
+
+#auth-overlay #auth-form { margin-top: 0 !important; }
+#auth-overlay .gate-card { max-height: calc(100vh - 48px); overflow-y: auto; }
+#auth-overlay .gate-card h1 { margin-top: 0 !important; }
+#auth-overlay #auth-submit { width: 100%; margin-top: 12px; }
+#auth-overlay #auth-new { display: block; margin: 14px auto 0; }
+
+/* First-run setup and signed-in welcome use a calmer system setup-assistant layout. */
+#setup-overlay,
+#onboard-overlay {
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(111,91,170,.24), transparent 48%),
+    rgba(6,8,14,.55) !important;
+}
+
+#setup-overlay .setup-card,
+#onboard-overlay .gate-card {
+  width: min(100%, 540px) !important;
+  padding: 38px !important;
+  border-radius: 28px !important;
+  text-align: left !important;
+}
+
+#setup-overlay .gate-card h1,
+#onboard-overlay .gate-card h1 { text-align: left !important; }
+
+#setup-overlay .gate-sub,
+#onboard-overlay .gate-sub { text-align: left !important; }
+
+.setup-dots,
+#ob-dots {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 26px !important;
+}
+
+.setup-dots span,
+#ob-dots span {
+  flex: 1;
+  height: 4px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.14);
+}
+
+.setup-dots span.on,
+#ob-dots span.on { background: #a78bfa; }
+
+.setup-hero {
+  width: 88px !important;
+  height: 88px !important;
+  object-fit: contain;
+  margin: 8px auto 22px !important;
+  filter: drop-shadow(0 12px 26px rgba(139,92,246,.28));
+}
+
+.setup-body { margin-top: 22px; }
+.setup-body .wp-grid { margin-top: 10px; }
+.setup-card .ob-swatches button,
+#onboard-overlay .ob-swatches button {
+  width: 38px !important;
+  height: 38px !important;
+  border: 2px solid rgba(255,255,255,.2) !important;
+  border-radius: 50% !important;
+}
+.setup-card .ob-swatches button[aria-pressed="true"],
+#onboard-overlay .ob-swatches button[aria-pressed="true"] {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.ob-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px !important;
+}
+
+.ob-spacer { flex: 1; }
+#setup-overlay .gate-primary,
+#onboard-overlay .gate-primary { min-width: 118px; }
+
+#rec-overlay .rec-code {
+  padding: 18px;
+  border: 1px dashed rgba(255,255,255,.25);
+  border-radius: 14px;
+  background: rgba(0,0,0,.22);
+  color: #fff;
+  font: 600 18px/1.5 ui-monospace,monospace;
+  text-align: center;
+  letter-spacing: .08em;
+}
+
+@media (max-width: 600px) {
+  .gate { padding: 14px !important; }
+  .gate-card,
+  #setup-overlay .setup-card,
+  #onboard-overlay .gate-card {
+    padding: 25px 22px !important;
+    border-radius: 22px !important;
+  }
+  #setup-overlay .setup-card,
+  #onboard-overlay .gate-card { max-height: calc(100vh - 28px); overflow-y: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-card { animation: none !important; }
+}
+</style>
+
 </body>
 </html>
 
@@ -5550,7 +5983,7 @@ body[data-tab="home"] #featured-grid .card{width:124px}
 <div id="auth-overlay" class="gate" role="dialog" aria-modal="true" aria-labelledby="auth-title" hidden>
   <div class="gate-card">
     <h1 id="auth-title">Create your account</h1>
-    <p class="gate-sub" id="auth-sub">Pick a username and password to get started.</p>
+    <p class="gate-sub" id="auth-sub">Sign in or create a local account to continue.</p>
     <div class="gate-tabs" role="tablist" aria-label="Account">
       <button type="button" role="tab" data-mode="login">Sign in</button>
       <button type="button" role="tab" data-mode="signup">Create account</button>
@@ -5572,7 +6005,7 @@ body[data-tab="home"] #featured-grid .card{width:124px}
 <div id="onboard-overlay" class="gate" role="dialog" aria-modal="true" aria-labelledby="ob-title" hidden>
   <div class="gate-card">
     <section data-step="0">
-      <h1 id="ob-title">Welcome to Classroom-X-Zone</h1>
+      <h1 id="ob-title">Welcome to your desktop</h1>
       <p class="gate-sub">Let's set up your space, then take a quick tour of the site. What should we call you?</p>
       <label>Display name<input id="ob-name" maxlength="24" autocomplete="nickname" spellcheck="false"></label>
       <p class="ob-label" id="ob-accent-label">Accent color</p>
@@ -5740,7 +6173,7 @@ body:not([data-tab="home"]) .header{right:150px}
     $('auth-back').hidden=!reset;
     $('auth-pass-wrap').firstChild.nodeValue=reset?'New password':'Password';
     $('auth-title').textContent=signup?'Create your account':reset?'Reset your password':'Welcome back';
-    $('auth-sub').textContent=signup?'Pick a username and password to get started.':reset?'Enter your username and the recovery code you saved when you created the account.':'Sign in to continue.';
+    $('auth-sub').textContent=signup?'Sign in or create a local account to continue.':reset?'Enter your username and the recovery code you saved when you created the account.':'Choose your account and enter your password to continue.';
     $('auth-submit').textContent=signup?'Create account':reset?'Reset password':'Sign in';
     $('auth-pass').autocomplete=(signup||reset)?'new-password':'current-password';
     $('auth-error').textContent='';$('auth-error').classList.remove('ok');
@@ -6874,7 +7307,7 @@ body input:focus:not([type=checkbox]):not([type=radio]),body select:focus,body t
     });b.appendChild(box);
   }
   var STEPS=[
-    {t:'Welcome to Classroom-X-Zone',s:'Let\'s set up your desktop. It only takes a minute, and you can change everything later in Settings.',n:'Get started',b:function(b){if(logo){var i=el('img','setup-hero');i.alt='';i.src=logo.src;b.appendChild(i)}}},
+    {t:'Welcome to your desktop',s:'Let\'s set up your desktop. It only takes a minute, and you can change everything later in Settings.',n:'Get started',b:function(b){if(logo){var i=el('img','setup-hero');i.alt='';i.src=logo.src;b.appendChild(i)}}},
     {t:'Pick your theme',s:'Choose the accent color for buttons and highlights.',b:accentStep},
     {t:'Choose a wallpaper',s:'Pick one, or upload your own image.',b:function(b){if(window.NebulaWallpaper)window.NebulaWallpaper.mount(b)}},
     {t:'Background effects',s:'Particles that move on top of your wallpaper.',n:'Create account',b:fxStep}
