@@ -3870,8 +3870,10 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
             const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#ff6600';
 
             if (currentBgType === 'matrix') {
-                ctx.fillStyle = "rgba(8, 8, 14, 0.12)";
+                ctx.globalCompositeOperation = "destination-out";
+                ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
                 ctx.fillRect(0, 0, cw, ch);
+                ctx.globalCompositeOperation = "source-over";
                 ctx.fillStyle = accent;
                 ctx.font = fontSize + "px 'MinecraftUI', monospace";
 
@@ -3884,8 +3886,7 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
                     drops[i]++;
                 }
             } else if (currentBgType === 'starfield') {
-                ctx.fillStyle = "#08080c";
-                ctx.fillRect(0, 0, cw, ch);
+                ctx.clearRect(0, 0, cw, ch);
 
                 for (let i = 0; i < stars.length; i++) {
                     const s = stars[i];
@@ -6584,5 +6585,174 @@ body.os .container{padding-left:116px}
   document.addEventListener('pointerdown',function(e){if(!e.target.closest('#os-ctx'))hideCtx()});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')hideCtx()});
   sync();
+})();
+</script>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style id="nebula-redesign">
+/* ===== Redesign: frosted-glass desktop ===== */
+:root{--font-ui:'Figtree',system-ui,sans-serif;--font-display:'Figtree',system-ui,sans-serif;--font-mono:'Figtree',system-ui,sans-serif;--mc-font:'Figtree',system-ui,sans-serif;
+  --glass:rgba(22,22,30,.55);--glass-strong:rgba(20,20,28,.82);--hair:rgba(255,255,255,.1);--bg-2:rgba(255,255,255,.06);--bg-3:rgba(255,255,255,.1);--line-solid:rgba(255,255,255,.12);--line:rgba(255,255,255,.1)}
+html{background:#07070b!important;background-image:none!important}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.22) transparent}
+#os-wallpaper{position:fixed;inset:0;z-index:-2;background-size:cover}
+#os-wallpaper::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,var(--wp-dim,.25))}
+canvas#bg-canvas{opacity:.9;z-index:-1}
+
+/* Menu bar */
+body::after{height:34px;background:rgba(14,14,20,.5);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid rgba(255,255,255,.08)}
+.brand-banner{height:34px}.brand-banner-name{font-weight:800;font-size:13px;letter-spacing:-.01em}.brand-banner img{border-radius:6px}
+#user-chip{height:34px}.uc-avatar{border-radius:7px}
+#os-clock,.os-app{color:var(--ink)}
+
+/* Desktop clock + search */
+body[data-tab="home"] .live-datetime{background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:12px 0;gap:0;text-shadow:0 2px 28px rgba(0,0,0,.45)}
+body[data-tab="home"] #current-weekday{font:600 clamp(16px,2.4vw,22px)/1.2 var(--font-ui);letter-spacing:.02em;color:rgba(255,255,255,.85)}
+body[data-tab="home"] .datetime-detail-row{flex-direction:column-reverse;align-items:center;gap:0}
+body[data-tab="home"] .datetime-detail-row time{font:500 clamp(14px,2vw,17px) var(--font-ui);color:rgba(255,255,255,.75)}
+body[data-tab="home"] .datetime-detail-row time:last-of-type{font:800 clamp(52px,9vw,96px)/1 var(--font-ui);letter-spacing:-.04em;color:#fff;margin:2px 0 6px}
+body[data-tab="home"] .search-box input:not([type=checkbox]):not([type=radio]){min-height:56px!important;border-radius:20px!important;background:var(--glass)!important;border:1px solid rgba(255,255,255,.14)!important;backdrop-filter:blur(26px) saturate(1.4);-webkit-backdrop-filter:blur(26px) saturate(1.4);box-shadow:0 12px 40px rgba(0,0,0,.3)!important}
+
+/* Inputs, buttons */
+body input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),body select,body textarea{background:rgba(255,255,255,.07)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:12px!important;color:var(--ink)}
+body input:focus:not([type=checkbox]):not([type=radio]),body select:focus,body textarea:focus{border-color:var(--accent-color)!important;outline:none}
+.btn-action,.gate-primary{height:40px;padding:0 18px;border-radius:12px;font-weight:700}
+.gate-secondary,.gate-danger{border-radius:12px}
+
+/* Windows */
+.container > .tab-content.os-win:not(#home){background:var(--glass-strong);backdrop-filter:blur(30px) saturate(1.4);-webkit-backdrop-filter:blur(30px) saturate(1.4);border:1px solid var(--hair);border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.container > .tab-content.os-win.os-focus:not(#home){box-shadow:0 34px 90px rgba(0,0,0,.6);border-color:rgba(255,255,255,.2)}
+.os-win > .win-bar{height:46px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--hair);gap:2px;padding:0 8px 0 18px;backdrop-filter:blur(12px)}
+.win-title{order:0;flex:1;margin:0;text-align:left;font:700 13px var(--font-ui);color:var(--ink)}
+.os-win:not(.os-focus) .win-title{opacity:.5}
+.win-dot,.os-win:not(.os-focus) .win-dot{width:40px;height:30px;border-radius:8px;background:transparent!important;display:grid;place-items:center;color:var(--ink-soft)}
+.win-min{order:1}.win-max{order:2}.win-close{order:3}
+.win-dot::after,.win-bar:hover .win-dot::after{content:"";position:static;inset:auto;display:block;font:600 14px/1 var(--font-ui);color:inherit}
+.win-min::after,.win-bar:hover .win-min::after{content:"–"}.win-max::after,.win-bar:hover .win-max::after{content:"□"}.win-close::after,.win-bar:hover .win-close::after{content:"✕"}
+.win-dot:hover{background:rgba(255,255,255,.1)!important;color:var(--ink)}
+.win-close:hover{background:#e5484d!important;color:#fff}
+
+/* Desktop icons, game icons */
+.os-icon-tile{width:56px;height:56px;border-radius:17px;background:var(--glass);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.os-icon-tile svg{color:#fff}
+.square-grid .card img{border-radius:24%}
+
+/* Taskbar */
+.bottom-dock{bottom:14px;padding:6px;gap:4px;background:var(--glass);backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4);border:1px solid rgba(255,255,255,.12);border-radius:22px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.dock-item{width:46px;height:46px;border-radius:14px}
+.dock-item.active{animation:none;background:rgba(255,255,255,.12);box-shadow:none}
+.dock-item.active::before{bottom:2px;width:14px;height:3px;margin-left:-7px;border-radius:2px;background:var(--accent-color)}
+.dock-item.os-running:not(.active)::before{bottom:3px;width:5px;height:5px;margin-left:-2.5px}
+
+/* Lock screen (login), onboarding and dialogs */
+.gate{background:rgba(6,6,12,.4);backdrop-filter:blur(28px) saturate(1.3);-webkit-backdrop-filter:blur(28px) saturate(1.3)}
+.gate-card{width:min(100%,420px);padding:32px;background:var(--glass-strong);border:1px solid var(--hair);border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.gate-card h1{font-size:24px;font-weight:800}
+#auth-overlay{flex-direction:column;justify-content:center;align-items:center;gap:22px}
+#auth-overlay .gate-card{margin:0}
+#lock-clock{text-align:center;color:#fff;text-shadow:0 2px 28px rgba(0,0,0,.5)}
+#lock-clock b{display:block;font:800 clamp(56px,10vw,104px)/1 var(--font-ui);letter-spacing:-.04em}
+#lock-clock span{font:600 clamp(15px,2vw,19px) var(--font-ui);color:rgba(255,255,255,.8)}
+.lock-avatar{display:block;width:64px;height:64px;margin:0 auto 14px;border-radius:20px;object-fit:cover;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.gate-tabs{border-radius:12px}.gate-tabs button{border-radius:9px}
+.tour-card{background:var(--glass-strong);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border-radius:18px}
+.tour-spot{border-radius:16px}
+#user-menu,#os-ctx{background:var(--glass-strong);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:14px}
+
+/* Wallpaper picker */
+.wp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-bottom:12px}
+.wp-sw{aspect-ratio:16/10;border-radius:10px;border:2px solid transparent;background-size:cover;background-position:center;cursor:pointer;padding:0}
+.wp-sw[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px var(--accent-color)}
+.wp-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:6px;font:600 13px var(--font-ui);color:var(--ink-soft)}
+.wp-row input[type=range]{flex:1;min-width:100px}
+.wp-note{margin-top:10px;font-size:12px;line-height:1.5;color:var(--ink-soft)}
+@media(max-width:759px){#lock-clock b{font-size:64px}}
+</style>
+<script>
+(function(){
+  'use strict';
+  var K='nebula_wp',KI='nebula_wp_img',KD='nebula_wp_dim';
+  var WP=[
+    ['midnight','Midnight','radial-gradient(60% 55% at 15% 10%,rgba(139,92,246,.55),transparent 65%),radial-gradient(55% 60% at 90% 90%,rgba(59,130,246,.4),transparent 65%),#080a14'],
+    ['aurora','Aurora','radial-gradient(60% 50% at 20% 20%,rgba(45,212,191,.5),transparent 60%),radial-gradient(50% 60% at 80% 30%,rgba(139,92,246,.5),transparent 60%),radial-gradient(70% 60% at 50% 105%,rgba(59,130,246,.5),transparent 60%),#070b14'],
+    ['dusk','Dusk','linear-gradient(160deg,#1b1035,#7b2d5b 55%,#f08a5d)'],
+    ['ocean','Ocean','linear-gradient(180deg,#02111f,#06456b 60%,#0e7490)'],
+    ['forest','Forest','radial-gradient(70% 60% at 80% 100%,rgba(74,222,128,.35),transparent 65%),linear-gradient(160deg,#07140c,#14442b)'],
+    ['ember','Ember','radial-gradient(80% 60% at 70% 105%,rgba(255,122,24,.55),transparent 60%),linear-gradient(#150a0a,#2a0f12)'],
+    ['sakura','Sakura','linear-gradient(160deg,#2a1020,#7a3b5e 60%,#f3b6c9)'],
+    ['graphite','Graphite','linear-gradient(135deg,#0d0f13,#262b35)'],
+    ['grid','Grid','linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/48px 48px,linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/48px 48px,radial-gradient(70% 60% at 50% 0%,color-mix(in srgb,var(--accent-color) 40%,transparent),transparent),#08080d'],
+    ['accent','Accent','linear-gradient(150deg,color-mix(in srgb,var(--accent-color) 65%,#000),#07070b 80%)']
+  ];
+  var layer=document.createElement('div');layer.id='os-wallpaper';document.body.prepend(layer);
+  function get(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
+  function set(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+  var cur=get(K,'midnight'),dim=Number(get(KD,'25'));
+  function css(id){if(id==='custom'&&get(KI,''))return 'url("'+get(KI,'')+'") center/cover no-repeat';for(var i=0;i<WP.length;i++)if(WP[i][0]===id)return WP[i][2];return WP[0][2]}
+  function apply(){
+    layer.style.background=css(cur);layer.style.setProperty('--wp-dim',dim/100);
+    document.querySelectorAll('.wp-sw').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.wp===cur))});
+  }
+  function pick(id){cur=id;set(K,id);apply()}
+  function swatches(box){
+    var list=WP.map(function(w){return {id:w[0],name:w[1]}});
+    if(get(KI,''))list.push({id:'custom',name:'Your image'});
+    box.textContent='';
+    list.forEach(function(w){
+      var b=document.createElement('button');b.type='button';b.className='wp-sw';b.dataset.wp=w.id;b.title=w.name;b.setAttribute('aria-label','Wallpaper: '+w.name);
+      b.style.background=css(w.id);b.style.backgroundSize='cover';b.addEventListener('click',function(){pick(w.id)});box.appendChild(b);
+    });
+    apply();
+  }
+  var grids=[];
+  function refresh(){grids.forEach(swatches)}
+  function upload(file){
+    if(!file||!/^image\//.test(file.type))return;
+    var fr=new FileReader();
+    fr.onload=function(){
+      var img=new Image();
+      img.onload=function(){
+        var sc=Math.min(1,1920/Math.max(img.width,img.height)),c=document.createElement('canvas');
+        c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        var url=c.toDataURL('image/jpeg',.82);
+        if(!set(KI,url)){if(typeof showToast==='function')showToast('That image is too large to save in this browser');return}
+        pick('custom');refresh();
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+  function settingsColumn(){
+    var grid=document.querySelector('#settings .settings-grid');if(!grid)return;
+    var col=document.createElement('div');col.className='settings-col';
+    var h=document.createElement('div');h.className='col-header';var hs=document.createElement('span');hs.textContent='Wallpaper';h.appendChild(hs);
+    var g=document.createElement('div');g.className='wp-grid';grids.push(g);
+    var row=document.createElement('div');row.className='wp-row';
+    var file=document.createElement('input');file.type='file';file.accept='image/*';file.hidden=true;file.addEventListener('change',function(){upload(file.files[0]);file.value=''});
+    var up=document.createElement('button');up.type='button';up.className='btn-action';up.textContent='Upload image';up.addEventListener('click',function(){file.click()});
+    var rm=document.createElement('button');rm.type='button';rm.className='gate-secondary';rm.textContent='Remove image';
+    rm.addEventListener('click',function(){try{localStorage.removeItem(KI)}catch(e){}if(cur==='custom')pick('midnight');refresh()});
+    var dl=document.createElement('label');dl.textContent='Dim';var rg=document.createElement('input');rg.type='range';rg.min='0';rg.max='70';rg.value=String(dim);rg.setAttribute('aria-label','Wallpaper dimming');
+    rg.addEventListener('input',function(){dim=Number(rg.value);set(KD,String(dim));apply()});dl.appendChild(rg);
+    row.append(up,rm);
+    var dimRow=document.createElement('div');dimRow.className='wp-row';dimRow.appendChild(dl);
+    var note=document.createElement('p');note.className='wp-note';note.textContent='Background effects draw on top of your wallpaper. Images are resized and saved only in this browser.';
+    col.append(h,g,row,dimRow,note,file);grid.prepend(col);swatches(g);
+  }
+  function onboardingRow(){
+    var sw=document.getElementById('ob-swatches');if(!sw||document.getElementById('ob-wp'))return;
+    var l=document.createElement('p');l.className='ob-label';l.style.marginTop='16px';l.textContent='Wallpaper';
+    var g=document.createElement('div');g.className='wp-grid';g.id='ob-wp';grids.push(g);
+    sw.after(l,g);swatches(g);
+  }
+  function lockScreen(){
+    var o=document.getElementById('auth-overlay');if(!o||document.getElementById('lock-clock'))return;
+    var c=document.createElement('div');c.id='lock-clock';var t=document.createElement('b'),d=document.createElement('span');c.append(t,d);o.prepend(c);
+    var tick=function(){var n=new Date();t.textContent=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});d.textContent=n.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})};tick();setInterval(tick,15000);
+    var logo=document.querySelector('.brand-banner img'),card=o.querySelector('.gate-card');
+    if(logo&&card){var a=document.createElement('img');a.className='lock-avatar';a.alt='';a.src=logo.src;card.prepend(a)}
+  }
+  apply();settingsColumn();onboardingRow();lockScreen();
+  window.NebulaWallpaper={set:pick,refresh:refresh};
 })();
 </script>
