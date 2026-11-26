@@ -1830,40 +1830,33 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                 fetchTimer = setTimeout(function () {
                     if (token !== loadToken) return;
                     renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main>
-<style id="cxz-stack-fix">
-/* Desktop icons are siblings of .container. Windows live inside .container,
-   so the container itself must sit above the icons or the icons paint on top. */
+<style id="cxz-chromebook-fix">
 @media (min-width: 760px) {
+  /* Icons stay on the desktop, never over windows */
   #os-icons { z-index: 4 !important; }
-  body.os .container {
-    z-index: 40 !important;
-    pointer-events: none;
-  }
-  body.os .container > .tab-content.os-win:not(#home) {
+  .container > .tab-content.os-win:not(#home) {
     z-index: 1000 !important;
-    background: #12141c !important;
+    background: #16161f !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    pointer-events: auto !important;
   }
-  body.os .container > .tab-content.os-win.os-focus:not(#home) {
-    z-index: 1100 !important;
+  .container > .tab-content.os-win.os-focus:not(#home) { z-index: 1100 !important; }
+  /* Maximized windows fill the screen from the top */
+  .container > .tab-content.os-win.os-max:not(#home) {
+    left: 0 !important; top: 0 !important;
+    width: 100vw !important; height: 100vh !important;
+    border-radius: 0 !important; padding-bottom: 72px !important;
   }
-  body.os .container > .tab-content.os-win.os-max:not(#home) {
-    left: 0 !important;
-    top: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-  }
-  /* Hide desktop icons whenever a window is open so they cannot overlay content. */
-  body.os[data-win]:not([data-win="home"]) #os-icons {
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-  /* Loosen the Chromebook layout at 100% zoom */
+  /* Loosen the compressed layout on typical Chromebook widths */
   body.os { font-size: 16px; }
   body.os .container { padding-left: 0 !important; }
+  body.os .live-datetime { gap: 14px !important; }
+  body.os #current-weekday { font-size: clamp(48px, 6vw, 80px) !important; }
+}
+@media (min-width: 760px) and (max-width: 1400px) {
+  body.os .container > .tab-content.os-win:not(#home):not(.os-max) {
+    min-width: 0;
+  }
 }
 </style>
 </body></html>', token);
@@ -5488,7 +5481,7 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     grid-auto-rows: 92px !important;
     gap: 8px !important;
     align-content: start !important;
-    z-index: 20 !important;
+    z-index: 4 !important;
   }
 
   .os-icon {
@@ -7063,10 +7056,10 @@ body.performance-mode .progress-bar, body.auto-lite .progress-bar { animation: n
 <style id="nebula-wm">
 /* ===== Window manager ===== */
 body.os .container{padding-left:116px}
-.container > .tab-content.os-win:not(#home){position:fixed;display:block!important;visibility:visible!important;pointer-events:auto!important;content-visibility:visible!important;max-height:none!important;min-width:340px;min-height:240px;margin:0;padding:0 24px;overflow:auto;flex:none;order:0;z-index:100;border-radius:12px;background:rgba(19,19,28,.94);border:1px solid var(--line);box-shadow:0 12px 32px rgba(0,0,0,.35)}
+.container > .tab-content.os-win:not(#home){position:fixed;display:block!important;visibility:visible!important;pointer-events:auto!important;content-visibility:visible!important;max-height:none!important;min-width:340px;min-height:240px;margin:0;padding:0 24px;overflow:auto;flex:none;order:0;z-index:1000!important;border-radius:12px;background:#16161f!important;border:1px solid var(--line);box-shadow:0 12px 32px rgba(0,0,0,.35)}
 .container > .tab-content.os-win.os-min:not(#home){display:none!important}
 .container > .tab-content.os-win.os-focus:not(#home){box-shadow:0 30px 80px rgba(0,0,0,.6);border-color:rgba(255,255,255,.16)}
-.container > .tab-content.os-win.os-max:not(#home){left:0!important;top:32px!important;width:100vw!important;height:calc(100vh - 32px)!important;border-radius:0;padding-bottom:84px}
+.container > .tab-content.os-win.os-max:not(#home){left:0!important;top:0!important;width:100vw!important;height:100vh!important;border-radius:0;padding-bottom:72px;z-index:1000!important}
 .os-win > .win-bar{position:sticky;top:0;z-index:3;margin:0 -24px 18px;background:rgba(28,28,40,.97);cursor:default;touch-action:none}
 .win-dot{position:relative;cursor:pointer}
 .win-min{background:#febc2e}.win-max{background:#28c840}
@@ -7112,10 +7105,10 @@ body.os .container{padding-left:116px}
   function clearPos(w){['left','top','width','height'].forEach(function(k){w.style.removeProperty(k)})}
   function place(w,id){
     if(mobile()||w.classList.contains('os-max'))return;
-    var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*18;
-    var mx=innerWidth<1400?24:56,my=innerWidth<1400?24:48;
-    var W=Math.min(Math.max(a.w,Math.min(innerWidth-mx*2,1200)),innerWidth-mx*2);
-    var H=Math.min(Math.max(a.h,Math.min(innerHeight-my*2-36,780)),innerHeight-my*2-36);
+    var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*20;
+    var mx=innerWidth<1400?20:60,my=innerWidth<1400?20:48;
+    var W=Math.min(Math.max(a.w,Math.min(innerWidth-mx*2,1100)),innerWidth-mx*2);
+    var H=Math.min(Math.max(a.h,Math.min(innerHeight-my*2-40,720)),innerHeight-my*2-40);
     put(w,{width:W,height:H,left:clamp((innerWidth-W)/2+o,mx,innerWidth-W-mx),top:clamp((innerHeight-H)/2+o,my,innerHeight-H-my)});
   }
   function topVisible(){for(var i=order.length-1;i>=0;i--)if(!$(order[i]).classList.contains('os-min'))return order[i];return null}
@@ -7289,7 +7282,7 @@ body input:focus:not([type=checkbox]):not([type=radio]),body select:focus,body t
 .gate-secondary,.gate-danger{border-radius:12px}
 
 /* Windows */
-.container > .tab-content.os-win:not(#home){background:#12141c!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid var(--hair);border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.container > .tab-content.os-win:not(#home){background:#16161f!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid var(--hair);border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.35);z-index:1000!important}
 .container > .tab-content.os-win.os-focus:not(#home){box-shadow:0 34px 90px rgba(0,0,0,.6);border-color:rgba(255,255,255,.2)}
 .os-win > .win-bar{height:46px;background:rgba(255,255,255,.04);border-bottom:1px solid var(--hair);gap:2px;padding:0 8px 0 18px;backdrop-filter:blur(12px)}
 .win-title{order:0;flex:1;margin:0;text-align:left;font:700 13px var(--font-ui);color:var(--ink)}
@@ -7342,22 +7335,22 @@ body input:focus:not([type=checkbox]):not([type=radio]),body select:focus,body t
   'use strict';
   var K='nebula_wp',KI='nebula_wp_img',KD='nebula_wp_dim';
   var WP=[
-    ['midnight','Midnight','radial-gradient(60% 55% at 15% 10%,rgba(139,92,246,.55),transparent 65%),radial-gradient(55% 60% at 90% 90%,rgba(59,130,246,.4),transparent 65%),#080a14'],
-    ['aurora','Aurora','radial-gradient(60% 50% at 20% 20%,rgba(45,212,191,.5),transparent 60%),radial-gradient(50% 60% at 80% 30%,rgba(139,92,246,.5),transparent 60%),radial-gradient(70% 60% at 50% 105%,rgba(59,130,246,.5),transparent 60%),#070b14'],
-    ['dusk','Dusk','linear-gradient(160deg,#1b1035,#7b2d5b 55%,#f08a5d)'],
-    ['ocean','Ocean','linear-gradient(180deg,#02111f,#06456b 60%,#0e7490)'],
-    ['forest','Forest','radial-gradient(70% 60% at 80% 100%,rgba(74,222,128,.35),transparent 65%),linear-gradient(160deg,#07140c,#14442b)'],
-    ['ember','Ember','radial-gradient(80% 60% at 70% 105%,rgba(255,122,24,.55),transparent 60%),linear-gradient(#150a0a,#2a0f12)'],
-    ['sakura','Sakura','linear-gradient(160deg,#2a1020,#7a3b5e 60%,#f3b6c9)'],
-    ['graphite','Graphite','linear-gradient(135deg,#0d0f13,#262b35)'],
-    ['grid','Grid','linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/48px 48px,linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/48px 48px,radial-gradient(70% 60% at 50% 0%,color-mix(in srgb,var(--accent-color) 40%,transparent),transparent),#08080d'],
-    ['accent','Accent','linear-gradient(150deg,color-mix(in srgb,var(--accent-color) 65%,#000),#07070b 80%)']
+    ['midnight','Midnight','https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80'],
+    ['aurora','Aurora','https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=1920&q=80'],
+    ['dusk','Dusk','https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80'],
+    ['ocean','Ocean','https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=1920&q=80'],
+    ['forest','Forest','https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80'],
+    ['ember','Ember','https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=1920&q=80'],
+    ['sakura','Sakura','https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1920&q=80'],
+    ['graphite','Graphite','https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80'],
+    ['city','City','https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1920&q=80'],
+    ['desert','Desert','https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=1920&q=80']
   ];
   var layer=document.createElement('div');layer.id='os-wallpaper';document.body.prepend(layer);
   function get(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
   function set(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
   var cur=get(K,'midnight'),dim=Number(get(KD,'25'));
-  function css(id){if(id==='custom'&&get(KI,''))return 'url("'+get(KI,'')+'") center/cover no-repeat';for(var i=0;i<WP.length;i++)if(WP[i][0]===id)return WP[i][2];return WP[0][2]}
+  function css(id){if(id==='custom'&&get(KI,''))return 'url("'+get(KI,'')+'") center/cover no-repeat';for(var i=0;i<WP.length;i++)if(WP[i][0]===id)return 'url("'+WP[i][2]+'") center/cover no-repeat';return 'url("'+WP[0][2]+'") center/cover no-repeat'}
   function apply(){
     layer.style.background=css(cur);layer.style.setProperty('--wp-dim',dim/100);
     document.querySelectorAll('.wp-sw').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.wp===cur))});
