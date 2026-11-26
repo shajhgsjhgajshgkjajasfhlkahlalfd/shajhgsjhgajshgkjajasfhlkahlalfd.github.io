@@ -1829,7 +1829,49 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                 // Never let a blocked fetch keep the whole site behind this overlay.
                 fetchTimer = setTimeout(function () {
                     if (token !== loadToken) return;
-                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main></body></html>', token);
+                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main>
+<style id="cxz-chromebook-fix">
+/* Chromebook / laptop layout fixes */
+@media (min-width: 760px) {
+  /* Windows always above desktop icons */
+  .container > .tab-content.os-win:not(#home) {
+    z-index: 200 !important;
+  }
+  .container > .tab-content.os-win.os-focus:not(#home) {
+    z-index: 220 !important;
+  }
+  /* Icons stay on the desktop, behind windows */
+  #os-icons {
+    z-index: 5 !important;
+    pointer-events: auto;
+  }
+  /* Maximized windows fill the screen from the top */
+  .container > .tab-content.os-win.os-max:not(#home) {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    padding-bottom: 72px !important;
+  }
+  /* Title bar sits flush at the top of a maximized window */
+  .container > .tab-content.os-win.os-max:not(#home) > .win-bar {
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+  }
+  /* Give windows a bit more room on typical Chromebook widths */
+  body.os .container {
+    padding-left: 0 !important;
+  }
+}
+/* On narrower Chromebook viewports, start windows fuller */
+@media (min-width: 760px) and (max-width: 1366px) {
+  .container > .tab-content.os-win:not(#home):not(.os-max) {
+    min-width: 0;
+  }
+}
+</style>
+</body></html>', token);
                 }, 5000);
             } catch (e) {
                 window.__cxzBlockDone = true;
@@ -5451,7 +5493,7 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     grid-auto-rows: 92px !important;
     gap: 8px !important;
     align-content: start !important;
-    z-index: 20 !important;
+    z-index: 5 !important;
   }
 
   .os-icon {
@@ -7029,7 +7071,7 @@ body.os .container{padding-left:116px}
 .container > .tab-content.os-win:not(#home){position:fixed;display:block!important;visibility:visible!important;pointer-events:auto!important;content-visibility:visible!important;max-height:none!important;min-width:340px;min-height:240px;margin:0;padding:0 24px;overflow:auto;flex:none;order:0;z-index:100;border-radius:12px;background:rgba(19,19,28,.94);border:1px solid var(--line);box-shadow:0 12px 32px rgba(0,0,0,.35)}
 .container > .tab-content.os-win.os-min:not(#home){display:none!important}
 .container > .tab-content.os-win.os-focus:not(#home){box-shadow:0 30px 80px rgba(0,0,0,.6);border-color:rgba(255,255,255,.16)}
-.container > .tab-content.os-win.os-max:not(#home){left:0!important;top:32px!important;width:100vw!important;height:calc(100vh - 32px)!important;border-radius:0;padding-bottom:84px}
+.container > .tab-content.os-win.os-max:not(#home){left:0!important;top:0!important;width:100vw!important;height:100vh!important;border-radius:0;padding-bottom:84px}
 .os-win > .win-bar{position:sticky;top:0;z-index:3;margin:0 -24px 18px;background:rgba(28,28,40,.97);cursor:default;touch-action:none}
 .win-dot{position:relative;cursor:pointer}
 .win-min{background:#febc2e}.win-max{background:#28c840}
@@ -7058,7 +7100,7 @@ body.os .container{padding-left:116px}
 #os-ctx hr{border:0;border-top:1px solid var(--line);margin:4px 0}
 @media(max-width:1000px){#os-icons{display:none}body.os .container{padding-left:0}}
 @media(max-width:759px){
-  .container > .tab-content.os-win:not(#home){left:0!important;top:32px!important;width:100vw!important;height:calc(100vh - 32px)!important;border-radius:0;padding:0 14px 84px;min-width:0}
+  .container > .tab-content.os-win:not(#home){left:0!important;top:0!important;width:100vw!important;height:100vh!important;border-radius:0;padding:0 14px 84px;min-width:0}
   .os-win > .win-bar{margin:0 -14px 14px}.win-grip{display:none}#os-clock{display:none}.os-app{display:none}
 }
 </style>
@@ -7075,8 +7117,10 @@ body.os .container{padding-left:116px}
   function clearPos(w){['left','top','width','height'].forEach(function(k){w.style.removeProperty(k)})}
   function place(w,id){
     if(mobile()||w.classList.contains('os-max'))return;
-    var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*30,W=Math.min(a.w,innerWidth-24),H=Math.min(a.h,innerHeight-140);
-    put(w,{width:W,height:H,left:clamp((innerWidth-W)/2-90+o,8,innerWidth-W-8),top:clamp((innerHeight-H)/2-30+o,40,innerHeight-H-90)});
+    var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*24;
+    var marginX=innerWidth<1200?16:48, marginY=innerWidth<1200?16:40;
+    var W=Math.min(a.w,innerWidth-marginX*2), H=Math.min(a.h,innerHeight-marginY*2-48);
+    put(w,{width:W,height:H,left:clamp((innerWidth-W)/2+o,marginX,innerWidth-W-marginX),top:clamp((innerHeight-H)/2+o,marginY,innerHeight-H-marginY)});
   }
   function topVisible(){for(var i=order.length-1;i>=0;i--)if(!$(order[i]).classList.contains('os-min'))return order[i];return null}
   function sync(){
