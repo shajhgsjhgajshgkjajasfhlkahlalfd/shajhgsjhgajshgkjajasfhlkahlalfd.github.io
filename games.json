@@ -202,5 +202,11 @@
     "title": "Paper io 2",
     "tagline": "FILL THE WHOLE MAP.",
     "img": "https://gsmedia.b-cdn.net/uploads/images/100Paper1.webp"
+  },
+   {
+    "file": "clusterrush.html",
+    "title": "Cluster Truck",
+    "tagline": "FILL THE WHOLE MAP.",
+    "img": "./g/assets/Cluster-Rush.html"
   }
 ]
