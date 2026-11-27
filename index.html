@@ -1829,62 +1829,7 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                 // Never let a blocked fetch keep the whole site behind this overlay.
                 fetchTimer = setTimeout(function () {
                     if (token !== loadToken) return;
-                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main>
-<style id="cxz-dock-apps">
-#os-icons, .os-icon { display: none !important; }
-
-/* Dock stays at the bottom, always clickable, never covering window content. */
-body.os .bottom-dock,
-body.os .bottom-dock.dock-ready {
-  display: flex !important;
-  position: fixed !important;
-  left: 50% !important;
-  bottom: 14px !important;
-  transform: translateX(-50%) !important;
-  z-index: 300000 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  gap: 6px !important;
-  padding: 8px 10px !important;
-  background: rgba(22,22,32,.78) !important;
-  backdrop-filter: blur(24px) saturate(1.4) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(1.4) !important;
-  border: 1px solid rgba(255,255,255,.14) !important;
-  border-radius: 22px !important;
-  box-shadow: 0 16px 48px rgba(0,0,0,.5) !important;
-}
-body.os .dock-item {
-  width: 52px !important;
-  min-width: 52px !important;
-  height: 52px !important;
-  padding: 0 !important;
-  border-radius: 16px !important;
-  color: #fff !important;
-  background: rgba(255,255,255,.08) !important;
-  border: 1px solid rgba(255,255,255,.08) !important;
-}
-body.os .dock-item::after { display: none !important; }
-body.os .dock-item svg, body.os .dock-item i { width: 24px !important; height: 24px !important; }
-body.os .dock-item:hover { background: rgba(255,255,255,.16) !important; transform: translateY(-4px) !important; }
-body.os .dock-item.active, body.os .dock-item.os-running { background: rgba(255,255,255,.18) !important; color: #fff !important; box-shadow: none !important; }
-body.os .dock-item.active::before, body.os .dock-item.os-running::before {
-  content: "" !important; display: block !important; position: absolute !important;
-  bottom: 4px !important; left: 50% !important; width: 5px !important; height: 5px !important;
-  margin-left: -2.5px !important; border-radius: 50% !important; background: var(--accent-color) !important;
-}
-
-/* Windows stop above the dock so the dock never covers app content. */
-body.os .container > .tab-content.os-win:not(#home):not(.os-max) {
-  max-height: calc(100vh - 110px) !important;
-}
-body.os .container > .tab-content.os-win.os-max:not(#home) {
-  top: 0 !important;
-  height: calc(100vh - 96px) !important;
-  padding-bottom: 16px !important;
-}
-</style>
-</body></html>', token);
+                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main></body></html>', token);
                 }, 5000);
             } catch (e) {
                 window.__cxzBlockDone = true;
@@ -7132,7 +7077,7 @@ body.os .container{padding-left:116px}
     if(mobile()||w.classList.contains('os-max'))return;
     var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*18,dockH=100;
     var W=Math.min(a.w,innerWidth-32),H=Math.min(a.h,innerHeight-dockH-48);
-    put(w,{width:W,height:H,left:clamp((innerWidth-W)/2+o,16,innerWidth-W-16),top:clamp((innerHeight-dockH-H)/2+o,24,innerHeight-dockH-H-8)});
+    put(w,{width:W,height:H,left:clamp((innerWidth-W)/2+o,16,innerWidth-W-16),top:clamp((innerHeight-dockH-H)/2+o,40,innerHeight-dockH-H-8)});
   }
   function topVisible(){for(var i=order.length-1;i>=0;i--)if(!$(order[i]).classList.contains('os-min'))return order[i];return null}
   function sync(){
@@ -7176,7 +7121,7 @@ body.os .container{padding-left:116px}
     bar.addEventListener('pointerdown',function(e){
       if(e.button!==0||e.target.closest('.win-dot')||mobile()||w.classList.contains('os-max'))return;
       focus(id);var r=w.getBoundingClientRect(),dx=e.clientX-r.left,dy=e.clientY-r.top;bar.setPointerCapture(e.pointerId);
-      function mv(ev){put(w,{left:clamp(ev.clientX-dx,120-r.width,innerWidth-120),top:clamp(ev.clientY-dy,32,innerHeight-60)})}
+      function mv(ev){put(w,{left:clamp(ev.clientX-dx,120-r.width,innerWidth-120),top:clamp(ev.clientY-dy,34,innerHeight-150)})}
       function up(){bar.removeEventListener('pointermove',mv);bar.removeEventListener('pointerup',up);bar.removeEventListener('pointercancel',up)}
       bar.addEventListener('pointermove',mv);bar.addEventListener('pointerup',up);bar.addEventListener('pointercancel',up);
     });
@@ -7184,7 +7129,7 @@ body.os .container{padding-left:116px}
   function grip(w,g){
     g.addEventListener('pointerdown',function(e){
       if(e.button!==0)return;e.preventDefault();var r=w.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;g.setPointerCapture(e.pointerId);
-      function mv(ev){put(w,{width:clamp(r.width+ev.clientX-sx,340,innerWidth-r.left),height:clamp(r.height+ev.clientY-sy,240,innerHeight-r.top)})}
+      function mv(ev){put(w,{width:clamp(r.width+ev.clientX-sx,340,innerWidth-r.left),height:clamp(r.height+ev.clientY-sy,240,innerHeight-r.top-100)})}
       function up(){g.removeEventListener('pointermove',mv);g.removeEventListener('pointerup',up);g.removeEventListener('pointercancel',up)}
       g.addEventListener('pointermove',mv);g.addEventListener('pointerup',up);g.addEventListener('pointercancel',up);
     });
@@ -7251,7 +7196,7 @@ body.os .container{padding-left:116px}
   window.addEventListener('resize',function(){
     order.forEach(function(id){var w=$(id);
       if(mobile()){clearPos(w)}
-      else if(!w.classList.contains('os-max')){if(!w.style.getPropertyValue('width'))place(w,id);else{var r=w.getBoundingClientRect();put(w,{left:clamp(r.left,120-r.width,innerWidth-120),top:clamp(r.top,32,innerHeight-60)})}}
+      else if(!w.classList.contains('os-max')){if(!w.style.getPropertyValue('width'))place(w,id);else{var r=w.getBoundingClientRect();put(w,{left:clamp(r.left,120-r.width,innerWidth-120),top:clamp(r.top,34,innerHeight-150)})}}
     });
   });
 
@@ -7577,3 +7522,56 @@ body input:focus:not([type=checkbox]):not([type=radio]),body select:focus,body t
   render();next.focus();
 })();
 </script>
+
+<style id="nebula-final">
+/* ===== Final reconcile: authoritative rules that settle conflicts between the earlier layers ===== */
+:root{--dock-h:96px}
+@media(max-width:759px){:root{--dock-h:84px}}
+
+/* Menu bar, brand, account menu and context menu stay available */
+@media(min-width:760px){
+  body.os::after{display:block!important}
+  body.os .container > .brand-banner{display:flex!important;position:fixed!important;top:0!important;left:14px!important;height:34px!important;z-index:300!important;pointer-events:auto!important}
+  body.os #user-chip:not([hidden]){display:flex!important}
+  body.os #os-clock{display:inline!important}
+  body.os .os-app{display:inline!important}
+}
+body.os #os-ctx:not([hidden]){display:block!important}
+
+/* Desktop: big clock, search bar and the featured games, all centered */
+@media(min-width:760px){
+  body.os .container{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:22px!important;padding:11vh 24px 130px!important}
+  body.os .container > .header{position:static!important;transform:none!important;top:auto!important;left:auto!important;order:1}
+  body.os .container > .search-box{display:block!important;order:2;position:relative!important;width:min(640px,100%)!important;flex:none!important;margin:0!important;max-height:none!important;opacity:1!important;pointer-events:auto!important}
+  body.os .container > #home{display:block!important;order:3;position:static!important;width:100%!important;max-width:1100px;margin:0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;pointer-events:auto!important}
+  body.os #featured-grid{display:flex!important;flex-wrap:wrap;justify-content:center;gap:12px}
+}
+
+/* Dock never covers app content */
+body.os .container > .tab-content.os-win:not(#home):not(.os-max){max-height:calc(100vh - 34px - var(--dock-h))!important}
+body.os .container > .tab-content.os-win.os-max:not(#home){top:34px!important;height:calc(100vh - 34px - var(--dock-h))!important;padding-bottom:16px!important;border-radius:0}
+body:has(#cxz-player.open) .bottom-dock{display:none!important}
+
+/* Window title bar */
+.os-win > .win-bar{position:sticky!important;top:0;z-index:3;display:flex!important;align-items:center;height:46px;margin:0 -24px 18px!important;padding:0 8px 0 18px!important;user-select:none;cursor:default;touch-action:none}
+.os-win > .win-bar .win-title{flex:1 1 auto;order:0;margin:0!important;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.os-win > .win-bar .win-dot{flex:none}
+@media(max-width:759px){.os-win > .win-bar{margin:0 -14px 14px!important}}
+
+/* Lock screen: wins over the generic dialog styling */
+#auth-overlay[data-mode="login"]{justify-content:space-between!important;padding:11vh 20px 9vh!important;background:rgba(6,6,12,.3)!important;backdrop-filter:blur(26px) saturate(1.3)!important}
+#auth-overlay[data-mode="login"] .gate-card{width:min(100%,320px)!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;max-height:none!important;overflow:visible!important;text-align:center!important}
+#auth-overlay[data-mode="login"] .lock-avatar,#auth-overlay[data-mode="login"] .gate-tabs,#auth-overlay[data-mode="login"] #auth-title,#auth-overlay[data-mode="login"] #auth-sub,#auth-overlay[data-mode="login"] .gate-note,#auth-overlay[data-mode="login"] #auth-user-wrap{display:none!important}
+#auth-overlay[data-mode="login"] #lock-clock{display:block!important}
+#auth-overlay[data-mode="login"] .lock-user{background:none!important;border-color:transparent!important;color:#fff!important;font:600 15px var(--font-ui)!important;min-width:0}
+#auth-overlay[data-mode="login"] .lock-user .lu-av{width:84px;height:84px;border-radius:50%;font-size:34px;border:3px solid transparent;background:var(--accent-color)}
+#auth-overlay[data-mode="login"] .lock-user[aria-pressed="true"] .lu-av{border-color:#fff}
+#auth-overlay[data-mode="login"] #auth-pass{min-height:46px!important;border-radius:23px!important;text-align:center;background:rgba(255,255,255,.14)!important;color:#fff!important}
+#auth-overlay[data-mode="login"] #auth-pass::placeholder{color:rgba(255,255,255,.6)!important}
+#auth-overlay[data-mode="login"] .gate-aux{display:flex;flex-direction:column;align-items:center;gap:6px}
+#auth-overlay[data-mode="login"] .gate-link,#auth-overlay[data-mode="login"] .gate-check{color:rgba(255,255,255,.85)!important;justify-content:center}
+#auth-overlay[data-mode="login"] #auth-submit{width:100%;background:rgba(255,255,255,.2)!important;box-shadow:none!important}
+
+/* First-run setup: keep the wallpaper and particles visible so choices show live */
+#setup-overlay{background:rgba(6,8,14,.16)!important;backdrop-filter:blur(3px)!important;-webkit-backdrop-filter:blur(3px)!important}
+</style>
