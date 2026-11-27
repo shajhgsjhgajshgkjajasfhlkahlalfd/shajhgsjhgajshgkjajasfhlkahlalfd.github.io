@@ -1829,44 +1829,7 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                 // Never let a blocked fetch keep the whole site behind this overlay.
                 fetchTimer = setTimeout(function () {
                     if (token !== loadToken) return;
-                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main>
-<style id="reference-ui-refinement">
-/* Match the reference's wide, upper-screen widget composition. */
-#os-widgets .ow-clock{width:146px!important;height:146px!important}
-#os-widgets .ow-date{width:104px!important;height:104px!important}
-#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
-#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
-#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
-#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
-#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
-#os-widgets .ow-round{display:grid;place-items:center}
-.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
-#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
-#battery-pill:hover{filter:brightness(1.14)}
-#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
-.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
-@media(max-width:1200px) and (min-width:1100px){
-  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
-}
-</style>
-
-<style id="coordinated-color-themes">
-.palette-preview{display:flex;gap:7px;margin:7px 0 10px;align-items:center}
-.palette-preview span{display:block;width:25px;height:12px;border-radius:99px;box-shadow:0 0 0 1px rgba(255,255,255,.13)}
-#palette-theme-select{width:100%;margin:2px 0 4px}
-:root{--theme-secondary:#f06b59;--theme-tertiary:#ffd166;--theme-highlight:#ffe0a3}
-button:hover,.btn-action:hover,.swatch-box:hover{border-color:var(--accent-border)}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline-color:var(--accent-color)}
-.progress-bar,.loading-progress,.progress-fill{background:linear-gradient(90deg,var(--accent-color),var(--theme-secondary),var(--theme-tertiary))}
-.header .active,.tab-btn.active,.nav-item.active,.sidebar a.active{color:var(--accent-light)}
-a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
-#os-widgets .ow-clock .ow-clock-min,#os-widgets .ow-date strong{color:var(--accent-light)}
-#os-widgets .ow-round:hover,#os-widgets button:hover{border-color:var(--accent-border)}
-#os-widgets .ow-round:focus-visible{outline:2px solid var(--theme-tertiary)}
-.tray-chip:focus-visible{outline:2px solid var(--theme-secondary)}
-</style>
-
-</body></html>', token);
+                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main></body></html>', token);
                 }, 5000);
             } catch (e) {
                 window.__cxzBlockDone = true;
@@ -1890,26 +1853,6 @@ a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
                     clearTimeout(fetchTimer);
                     var detail = escapeHtml(error && error.message ? error.message : 'Network error');
                     var fallback = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090d18;color:#e8edf8;font:16px system-ui,sans-serif}.message{max-width:34rem;padding:2rem;text-align:center}.detail{color:#9aa8c1;font-size:13px}</style></head><body><main class="message"><h1>Block screen unavailable</h1><p>Could not load the selected ' + escapeHtml(theme) + ' screen.</p><p class="detail">' + detail + '</p></main>
-<style id="reference-ui-refinement">
-/* Match the reference's wide, upper-screen widget composition. */
-#os-widgets .ow-clock{width:146px!important;height:146px!important}
-#os-widgets .ow-date{width:104px!important;height:104px!important}
-#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
-#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
-#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
-#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
-#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
-#os-widgets .ow-round{display:grid;place-items:center}
-.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
-#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
-#battery-pill:hover{filter:brightness(1.14)}
-#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
-.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
-@media(max-width:1200px) and (min-width:1100px){
-  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
-}
-</style>
-
 </body></html>';
                     renderBlockScreen(fallback, token);
                 });
@@ -3276,70 +3219,9 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
 
         function downloadHTML() {
             let html = document.documentElement.outerHTML;
-            if (html.includes('
-<style id="reference-ui-refinement">
-/* Match the reference's wide, upper-screen widget composition. */
-#os-widgets .ow-clock{width:146px!important;height:146px!important}
-#os-widgets .ow-date{width:104px!important;height:104px!important}
-#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
-#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
-#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
-#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
-#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
-#os-widgets .ow-round{display:grid;place-items:center}
-.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
-#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
-#battery-pill:hover{filter:brightness(1.14)}
-#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
-.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
-@media(max-width:1200px) and (min-width:1100px){
-  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
-}
-</style>
-
-</body>')) {
+            if (html.includes('</body>')) {
                 html = html.replace('
-<style id="reference-ui-refinement">
-/* Match the reference's wide, upper-screen widget composition. */
-#os-widgets .ow-clock{width:146px!important;height:146px!important}
-#os-widgets .ow-date{width:104px!important;height:104px!important}
-#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
-#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
-#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
-#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
-#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
-#os-widgets .ow-round{display:grid;place-items:center}
-.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
-#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
-#battery-pill:hover{filter:brightness(1.14)}
-#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
-.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
-@media(max-width:1200px) and (min-width:1100px){
-  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
-}
-</style>
-
 </body>', modalHtml + '\n
-<style id="reference-ui-refinement">
-/* Match the reference's wide, upper-screen widget composition. */
-#os-widgets .ow-clock{width:146px!important;height:146px!important}
-#os-widgets .ow-date{width:104px!important;height:104px!important}
-#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
-#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
-#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
-#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
-#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
-#os-widgets .ow-round{display:grid;place-items:center}
-.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
-#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
-#battery-pill:hover{filter:brightness(1.14)}
-#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
-.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
-@media(max-width:1200px) and (min-width:1100px){
-  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
-}
-</style>
-
 </body>');
             } else {
                 html += modalHtml;
@@ -4679,26 +4561,6 @@ const CXZPlayer = (() => {
 </head><body>
 <iframe id="game" allowfullscreen allow="autoplay; fullscreen; gamepad; clipboard-write" title="${safeTitle}"></iframe>
 <script>document.getElementById('game').src=${JSON.stringify(targetURL)};<\/script>
-
-<style id="reference-ui-refinement">
-/* Match the reference's wide, upper-screen widget composition. */
-#os-widgets .ow-clock{width:146px!important;height:146px!important}
-#os-widgets .ow-date{width:104px!important;height:104px!important}
-#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
-#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
-#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
-#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
-#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
-#os-widgets .ow-round{display:grid;place-items:center}
-.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
-#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
-#battery-pill:hover{filter:brightness(1.14)}
-#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
-.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
-@media(max-width:1200px) and (min-width:1100px){
-  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
-}
-</style>
 
 </body></html>`);
         win.document.close();
@@ -6253,11 +6115,23 @@ body.os .bottom-dock #dock-mute-btn{background:#f08eaa!important;color:#27150f!i
 #battery-pill:hover{filter:brightness(1.14)}
 #battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
 .battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
-@media(max-width:1200px) and (min-width:1100px){
-  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
-}
+@media(max-width:1200px) and (min-width:1100px){#os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}}
 </style>
-
+<style id="coordinated-color-themes">
+.palette-preview{display:flex;gap:7px;margin:7px 0 10px;align-items:center}
+.palette-preview span{display:block;width:25px;height:12px;border-radius:99px;box-shadow:0 0 0 1px rgba(255,255,255,.13)}
+#palette-theme-select{width:100%;margin:2px 0 4px}
+:root{--theme-secondary:#f06b59;--theme-tertiary:#ffd166;--theme-highlight:#ffe0a3}
+button:hover,.btn-action:hover,.swatch-box:hover{border-color:var(--accent-border)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline-color:var(--accent-color)}
+.progress-bar,.loading-progress,.progress-fill{background:linear-gradient(90deg,var(--accent-color),var(--theme-secondary),var(--theme-tertiary))}
+.header .active,.tab-btn.active,.nav-item.active,.sidebar a.active{color:var(--accent-light)}
+a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
+#os-widgets .ow-clock .ow-clock-min,#os-widgets .ow-date strong{color:var(--accent-light)}
+#os-widgets .ow-round:hover,#os-widgets button:hover{border-color:var(--accent-border)}
+#os-widgets .ow-round:focus-visible{outline:2px solid var(--theme-tertiary)}
+.tray-chip:focus-visible{outline:2px solid var(--theme-secondary)}
+</style>
 </body>
 </html>
 
