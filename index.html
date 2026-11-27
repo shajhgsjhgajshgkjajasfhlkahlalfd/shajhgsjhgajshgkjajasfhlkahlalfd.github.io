@@ -1829,7 +1829,28 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                 // Never let a blocked fetch keep the whole site behind this overlay.
                 fetchTimer = setTimeout(function () {
                     if (token !== loadToken) return;
-                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main></body></html>', token);
+                    renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main>
+<style id="reference-ui-refinement">
+/* Match the reference's wide, upper-screen widget composition. */
+#os-widgets .ow-clock{width:146px!important;height:146px!important}
+#os-widgets .ow-date{width:104px!important;height:104px!important}
+#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
+#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
+#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
+#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
+#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
+#os-widgets .ow-round{display:grid;place-items:center}
+.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
+#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
+#battery-pill:hover{filter:brightness(1.14)}
+#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
+.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
+@media(max-width:1200px) and (min-width:1100px){
+  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
+}
+</style>
+
+</body></html>', token);
                 }, 5000);
             } catch (e) {
                 window.__cxzBlockDone = true;
@@ -1852,7 +1873,28 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                 .catch(function (error) {
                     clearTimeout(fetchTimer);
                     var detail = escapeHtml(error && error.message ? error.message : 'Network error');
-                    var fallback = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090d18;color:#e8edf8;font:16px system-ui,sans-serif}.message{max-width:34rem;padding:2rem;text-align:center}.detail{color:#9aa8c1;font-size:13px}</style></head><body><main class="message"><h1>Block screen unavailable</h1><p>Could not load the selected ' + escapeHtml(theme) + ' screen.</p><p class="detail">' + detail + '</p></main></body></html>';
+                    var fallback = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090d18;color:#e8edf8;font:16px system-ui,sans-serif}.message{max-width:34rem;padding:2rem;text-align:center}.detail{color:#9aa8c1;font-size:13px}</style></head><body><main class="message"><h1>Block screen unavailable</h1><p>Could not load the selected ' + escapeHtml(theme) + ' screen.</p><p class="detail">' + detail + '</p></main>
+<style id="reference-ui-refinement">
+/* Match the reference's wide, upper-screen widget composition. */
+#os-widgets .ow-clock{width:146px!important;height:146px!important}
+#os-widgets .ow-date{width:104px!important;height:104px!important}
+#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
+#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
+#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
+#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
+#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
+#os-widgets .ow-round{display:grid;place-items:center}
+.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
+#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
+#battery-pill:hover{filter:brightness(1.14)}
+#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
+.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
+@media(max-width:1200px) and (min-width:1100px){
+  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
+}
+</style>
+
+</body></html>';
                     renderBlockScreen(fallback, token);
                 });
         }
@@ -3157,8 +3199,71 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
 
         function downloadHTML() {
             let html = document.documentElement.outerHTML;
-            if (html.includes('</body>')) {
-                html = html.replace('</body>', modalHtml + '\n</body>');
+            if (html.includes('
+<style id="reference-ui-refinement">
+/* Match the reference's wide, upper-screen widget composition. */
+#os-widgets .ow-clock{width:146px!important;height:146px!important}
+#os-widgets .ow-date{width:104px!important;height:104px!important}
+#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
+#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
+#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
+#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
+#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
+#os-widgets .ow-round{display:grid;place-items:center}
+.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
+#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
+#battery-pill:hover{filter:brightness(1.14)}
+#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
+.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
+@media(max-width:1200px) and (min-width:1100px){
+  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
+}
+</style>
+
+</body>')) {
+                html = html.replace('
+<style id="reference-ui-refinement">
+/* Match the reference's wide, upper-screen widget composition. */
+#os-widgets .ow-clock{width:146px!important;height:146px!important}
+#os-widgets .ow-date{width:104px!important;height:104px!important}
+#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
+#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
+#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
+#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
+#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
+#os-widgets .ow-round{display:grid;place-items:center}
+.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
+#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
+#battery-pill:hover{filter:brightness(1.14)}
+#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
+.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
+@media(max-width:1200px) and (min-width:1100px){
+  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
+}
+</style>
+
+</body>', modalHtml + '\n
+<style id="reference-ui-refinement">
+/* Match the reference's wide, upper-screen widget composition. */
+#os-widgets .ow-clock{width:146px!important;height:146px!important}
+#os-widgets .ow-date{width:104px!important;height:104px!important}
+#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
+#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
+#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
+#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
+#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
+#os-widgets .ow-round{display:grid;place-items:center}
+.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
+#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
+#battery-pill:hover{filter:brightness(1.14)}
+#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
+.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
+@media(max-width:1200px) and (min-width:1100px){
+  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
+}
+</style>
+
+</body>');
             } else {
                 html += modalHtml;
             }
@@ -4492,6 +4597,27 @@ const CXZPlayer = (() => {
 </head><body>
 <iframe id="game" allowfullscreen allow="autoplay; fullscreen; gamepad; clipboard-write" title="${safeTitle}"></iframe>
 <script>document.getElementById('game').src=${JSON.stringify(targetURL)};<\/script>
+
+<style id="reference-ui-refinement">
+/* Match the reference's wide, upper-screen widget composition. */
+#os-widgets .ow-clock{width:146px!important;height:146px!important}
+#os-widgets .ow-date{width:104px!important;height:104px!important}
+#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
+#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
+#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
+#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
+#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
+#os-widgets .ow-round{display:grid;place-items:center}
+.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
+#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
+#battery-pill:hover{filter:brightness(1.14)}
+#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
+.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
+@media(max-width:1200px) and (min-width:1100px){
+  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
+}
+</style>
+
 </body></html>`);
         win.document.close();
         log('[About:Blank] Opened the original game URL in a new tab.');
@@ -6027,6 +6153,27 @@ body.os .bottom-dock #dock-mute-btn{background:#f08eaa!important;color:#27150f!i
 #os-desktop .header{display:none!important}
 @media(max-width:1099px){#os-widgets{display:block!important}}
 @media(max-width:760px){:root{--dock-h:42px}body.os .bottom-dock{grid-template-columns:auto 1fr auto!important}.shelf-center{bottom:42px!important;max-width:calc(100vw - 18px)!important;overflow-x:auto!important}.shelf-right{gap:3px!important}.tray-chip.hide-m{display:none!important}#os-widgets .ow-clock{transform:scale(.72);transform-origin:top right}#os-widgets .ow-date{transform:scale(.78);transform-origin:top right}#os-widgets .ow-wx,#os-widgets .ow-notes{transform:scale(.82);transform-origin:top right}}
+</style>
+
+
+<style id="reference-ui-refinement">
+/* Match the reference's wide, upper-screen widget composition. */
+#os-widgets .ow-clock{width:146px!important;height:146px!important}
+#os-widgets .ow-date{width:104px!important;height:104px!important}
+#os-widgets .ow-wx{width:254px!important;min-height:148px!important;padding:18px 20px!important;border-radius:48px!important}
+#os-widgets .ow-wx-i{width:34px;height:34px;display:grid;place-items:center}
+#os-widgets .ow-wx-i svg{width:32px;height:32px;stroke-width:1.8}
+#os-widgets .ow-notes{width:264px!important;min-height:148px!important}
+#os-widgets .ow-round svg{width:14px;height:14px;stroke-width:2.3}
+#os-widgets .ow-round{display:grid;place-items:center}
+.tray-chip svg{width:14px;height:14px;stroke-width:2.2;flex:none}
+#battery-pill{background:#603818!important;color:#ffe7ce!important;font-weight:800!important;cursor:pointer!important}
+#battery-pill:hover{filter:brightness(1.14)}
+#battery-pill:focus-visible,.ow button:focus-visible{outline:2px solid #f0a2bb;outline-offset:3px}
+.battery-popover{background:rgba(37,23,13,.97)!important;border-color:rgba(255,220,180,.18)!important}
+@media(max-width:1200px) and (min-width:1100px){
+  #os-widgets .ow-clock{transform:scale(.88);transform-origin:top left}
+}
 </style>
 
 </body>
@@ -7844,23 +7991,40 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
   Array.prototype.slice.call(dock.children).forEach(function(it){(it.id==='os-start'?L:it.id==='dock-mute-btn'?R:C).appendChild(it)});
   dock.append(L,C,R);
   var mute=R.querySelector('#dock-mute-btn');
-  var fs=el('button','tray-chip hide-m','⛶');fs.type='button';fs.title='Toggle fullscreen';fs.setAttribute('aria-label','Toggle fullscreen');
+  var fs=el('button','tray-chip hide-m');fs.innerHTML='<i data-lucide="maximize"></i>';fs.type='button';fs.title='Toggle fullscreen';fs.setAttribute('aria-label','Toggle fullscreen');
   fs.addEventListener('click',function(){try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){}});
-  var on=el('div','tray-chip hide-m'),dot=el('span','tray-dot'),onT=el('span');on.append(dot,onT);
-  function net(){var o=navigator.onLine;on.classList.toggle('off',!o);onT.textContent=o?'Online':'Offline'}
+  var on=el('div','tray-chip hide-m'),dot=el('i');dot.setAttribute('data-lucide','wifi');var onT=el('span');on.append(dot,onT);
+  function net(){var o=navigator.onLine;on.classList.toggle('off',!o);onT.textContent=o?'Online':'Offline';dot.setAttribute('data-lucide',o?'wifi':'wifi-off');if(window.lucide&&lucide.createIcons)lucide.createIcons()}
   net();addEventListener('online',net);addEventListener('offline',net);
   R.insertBefore(fs,mute);R.insertBefore(on,mute);
-  if(navigator.getBattery){navigator.getBattery().then(function(b){
-    var bt=el('button','tray-chip hide-m');bt.type='button';bt.id='battery-pill';bt.setAttribute('aria-expanded','false');bt.setAttribute('aria-label','Battery status');
+  function batteryPill(b){
+    var bt=el('button','tray-chip hide-m');bt.type='button';bt.id='battery-pill';bt.setAttribute('aria-expanded','false');
+    var bi=el('i');bi.setAttribute('data-lucide','battery');var label=el('span');bt.append(bi,label);
     var panel=el('div','battery-popover');panel.id='battery-popover';panel.hidden=true;panel.setAttribute('role','status');
     var heading=el('strong','battery-heading','Battery');var detail=el('span','battery-detail');var time=el('small','battery-time');panel.append(heading,detail,time);document.body.appendChild(panel);
-    function u(){var pct=Math.round(b.level*100),state=b.charging?'Charging':'On battery';bt.textContent=(b.charging?'⚡ ':'▰ ')+pct+'%';bt.title=state+' · '+pct+'%';bt.setAttribute('aria-label',state+', '+pct+' percent');detail.textContent=state+' · '+pct+'%';var secs=b.charging?b.chargingTime:b.dischargingTime;time.textContent=Number.isFinite(secs)&&secs>0?((b.charging?'Full in ':'Remaining ')+Math.floor(secs/3600)+'h '+Math.floor((secs%3600)/60)+'m'):'Time estimate unavailable';}
-    u();b.addEventListener('levelchange',u);b.addEventListener('chargingchange',u);b.addEventListener('chargingtimechange',u);b.addEventListener('dischargingtimechange',u);
-    bt.addEventListener('click',function(e){e.stopPropagation();panel.hidden=!panel.hidden;bt.setAttribute('aria-expanded',String(!panel.hidden));var r=bt.getBoundingClientRect();panel.style.right=Math.max(8,innerWidth-r.right)+'px';panel.style.bottom=(innerHeight-r.top+8)+'px'});
+    function update(){
+      if(!b){label.textContent='—';bt.title='Battery information is not available in this browser';bt.setAttribute('aria-label','Battery information unavailable');detail.textContent='This browser does not expose battery status.';time.textContent='The battery pill is active, but live readings are unsupported.';return}
+      var pct=Math.round(b.level*100),state=b.charging?'Charging':'On battery';
+      label.textContent=pct+'%';bt.title=state+' · '+pct+'%';bt.setAttribute('aria-label',state+', '+pct+' percent');
+      detail.textContent=state+' · '+pct+'%';
+      var secs=b.charging?b.chargingTime:b.dischargingTime;
+      time.textContent=Number.isFinite(secs)&&secs>0?((b.charging?'Full in ':'Remaining ')+Math.floor(secs/3600)+'h '+Math.floor((secs%3600)/60)+'m'):'Time estimate unavailable';
+      bi.setAttribute('data-lucide',b.charging?'battery-charging':(pct>75?'battery-full':pct>25?'battery-medium':'battery-low'));
+      if(window.lucide&&lucide.createIcons)lucide.createIcons();
+    }
+    update();
+    if(b){['levelchange','chargingchange','chargingtimechange','dischargingtimechange'].forEach(function(ev){b.addEventListener(ev,update)})}
+    bt.addEventListener('click',function(e){
+      e.stopPropagation();panel.hidden=!panel.hidden;bt.setAttribute('aria-expanded',String(!panel.hidden));
+      var r=bt.getBoundingClientRect();panel.style.right=Math.max(8,innerWidth-r.right)+'px';panel.style.bottom=(innerHeight-r.top+8)+'px';
+    });
     document.addEventListener('pointerdown',function(e){if(!panel.hidden&&!panel.contains(e.target)&&!bt.contains(e.target)){panel.hidden=true;bt.setAttribute('aria-expanded','false')}});
     document.addEventListener('keydown',function(e){if(e.key==='Escape'){panel.hidden=true;bt.setAttribute('aria-expanded','false')}});
     R.insertBefore(bt,mute);
-  }).catch(function(){})}else{var bt=el('div','tray-chip hide-m','Battery unavailable');R.insertBefore(bt,mute)}
+    if(window.lucide&&lucide.createIcons)lucide.createIcons();
+  }
+  if(navigator.getBattery){navigator.getBattery().then(batteryPill).catch(function(){batteryPill(null)})}
+  else{batteryPill(null)}
   var ck=el('div','tray-clock'),ct=el('b'),cd=el('span');ck.append(ct,cd);R.appendChild(ck);
   function tick(){var n=new Date(),w=window.__nebulaWx;ct.textContent=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});cd.textContent=n.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})+(w?' · '+w.t+'°'+w.u:'')}
   tick();setInterval(tick,10000);addEventListener('nebula-wx',tick);
@@ -7887,7 +8051,7 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
 
   /* Weather with hourly strip (Open-Meteo, no key) */
   var wx=el('div','ow ow-wx'),wb=el('div');wx.appendChild(wb);
-  var CODES={0:['Clear','☀️'],1:['Mostly clear','🌤️'],2:['Partly cloudy','⛅'],3:['Cloudy','☁️'],45:['Fog','🌫️'],48:['Fog','🌫️'],51:['Drizzle','🌦️'],53:['Drizzle','🌦️'],55:['Drizzle','🌦️'],61:['Light rain','🌧️'],63:['Rain','🌧️'],65:['Heavy rain','🌧️'],71:['Light snow','🌨️'],73:['Snow','🌨️'],75:['Heavy snow','❄️'],80:['Showers','🌦️'],81:['Showers','🌧️'],82:['Heavy showers','⛈️'],95:['Thunderstorm','⛈️'],96:['Thunderstorm','⛈️'],99:['Thunderstorm','⛈️']};
+  var CODES={0:['Clear','sun'],1:['Mostly clear','cloud-sun'],2:['Partly cloudy','cloud-sun'],3:['Cloudy','cloud'],45:['Fog','cloud-fog'],48:['Fog','cloud-fog'],51:['Drizzle','cloud-drizzle'],53:['Drizzle','cloud-drizzle'],55:['Drizzle','cloud-drizzle'],61:['Light rain','cloud-rain'],63:['Rain','cloud-rain'],65:['Heavy rain','cloud-rain'],71:['Light snow','cloud-snow'],73:['Snow','cloud-snow'],75:['Heavy snow','snowflake'],80:['Showers','cloud-rain'],81:['Showers','cloud-rain'],82:['Heavy showers','cloud-lightning'],95:['Thunderstorm','cloud-lightning'],96:['Thunderstorm','cloud-lightning'],99:['Thunderstorm','cloud-lightning']};
   var loc=null;try{loc=JSON.parse(get('nebula_weather_loc','null'))}catch(e){}
   var unit=get('nebula_weather_unit','f');
   function form(msg){
@@ -7910,7 +8074,7 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
       wb.textContent='';
       var top=el('div','ow-wx-top'),t=el('div','ow-wx-t',temp+'°'),mid=el('div','ow-wx-c',info[0]),hl=el('span','','H '+Math.round(dl.temperature_2m_max[0])+'°  L '+Math.round(dl.temperature_2m_min[0])+'°');
       t.title='Click to switch °F / °C';t.addEventListener('click',function(){unit=unit==='f'?'c':'f';set('nebula_weather_unit',unit);load()});
-      mid.appendChild(hl);top.append(t,mid,el('div','ow-wx-i',info[1]));wb.appendChild(top);
+      mid.appendChild(hl);var wi=el('div','ow-wx-i');wi.innerHTML='<i data-lucide="'+info[1]+'"></i>';top.append(t,mid,wi);wb.appendChild(top);if(window.lucide&&lucide.createIcons)lucide.createIcons();
       var times=d.hourly.time,now=c.time.slice(0,13),i0=0;for(var i=0;i<times.length;i++){if(times[i].slice(0,13)>=now){i0=i;break}}
       var hr=el('div','ow-wx-h');
       [0,3,6,9].forEach(function(o){var k=i0+o;if(k>=times.length)return;var cell=el('div'),sm=el('small',null,times[k].slice(11,13)+':00');cell.append(sm,el('span','',Math.round(d.hourly.temperature_2m[k])+'°'));hr.appendChild(cell)});
@@ -7924,7 +8088,7 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
   var notes=null;try{notes=JSON.parse(get('nebula_notes','null'))}catch(e){}
   if(!Array.isArray(notes)||!notes.length)notes=[get('nebula_note','')];
   var idx=0,nt=el('div','ow ow-notes'),nh=el('div','ow-nh'),pg=el('button','ow-page'),ta=el('textarea','ow-note');
-  var tr=el('button','ow-round','🗑'),pl=el('button','ow-round','+');[pg,tr,pl].forEach(function(b){b.type='button'});
+  var tr=el('button','ow-round'),pl=el('button','ow-round');tr.innerHTML='<i data-lucide="trash-2"></i>';pl.innerHTML='<i data-lucide="plus"></i>';[pg,tr,pl].forEach(function(b){b.type='button'});
   tr.title='Delete this note';pl.title='New note';pg.title='Next note';
   nh.append(el('b','','Notes'),pg,tr,pl);ta.placeholder='Write something down…';ta.maxLength=2000;ta.setAttribute('aria-label','Note');nt.append(nh,ta);
   function saveN(){set('nebula_notes',JSON.stringify(notes))}
@@ -7935,15 +8099,16 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
   pg.addEventListener('click',function(){idx=(idx+1)%notes.length;showN()});
   showN();
 
-  col.append(clock,dw,wx,nt);
-  var cards=[clock,dw,wx,nt],NAMES=['clock','date','weather','notes'],KEY='nebula_widget_pos2',saved={};
+  col.append(clock,dw,wx,nt);if(window.lucide&&lucide.createIcons)lucide.createIcons();
+  var cards=[clock,dw,wx,nt],NAMES=['clock','date','weather','notes'],KEY='nebula_widget_pos3',saved={};
   try{saved=JSON.parse(get(KEY,'{}'))||{}}catch(e){}
   function defaults(i){
-    var R=innerWidth-20,e=cards[i],w=e.offsetWidth,ch=cards[0].offsetHeight;
-    if(i===0)return {x:R-cards[1].offsetWidth-14-w,y:24};
-    if(i===1)return {x:R-w,y:24+(ch-e.offsetHeight)/2};
-    var y=24+ch+16;if(i===3)y+=cards[2].offsetHeight+16;
-    return {x:R-w,y:y};
+    var W=innerWidth;
+    /* Deliberately airy, left-to-right composition from the reference. */
+    if(i===0)return {x:Math.round(W*.228),y:8};
+    if(i===1)return {x:Math.round(W*.240),y:175};
+    if(i===2)return {x:Math.round(W*.400),y:20};
+    return {x:Math.round(W*.610),y:20};
   }
   function clampPos(e,x,y){return {x:Math.min(Math.max(x,0),Math.max(0,innerWidth-e.offsetWidth-4)),y:Math.min(Math.max(y,8),Math.max(8,innerHeight-e.offsetHeight-72))}}
   function apply(){cards.forEach(function(e,i){var p=saved[NAMES[i]]||defaults(i);p=clampPos(e,p.x,p.y);e.style.left=Math.round(p.x)+'px';e.style.top=Math.round(p.y)+'px'})}
