@@ -7949,39 +7949,56 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
   function net(){var o=navigator.onLine;on.classList.toggle('off',!o);onT.textContent=o?'Online':'Offline';dot.innerHTML='<i data-lucide="'+(o?'wifi':'wifi-off')+'"></i>';if(window.lucide&&lucide.createIcons)lucide.createIcons()}
   net();addEventListener('online',net);addEventListener('offline',net);
   R.insertBefore(fs,mute);R.insertBefore(on,mute);
-  function batteryPill(b){
+  function batteryPill(){
     var bt=el('button','tray-chip hide-m');bt.type='button';bt.id='battery-pill';bt.setAttribute('aria-expanded','false');
-    var bi=el('span','tray-ico');bi.innerHTML='<i data-lucide="battery"></i>';var label=el('span');bt.append(bi,label);
+    var bi=el('span','tray-ico'),label=el('span','','…');bt.append(bi,label);
     var panel=el('div','battery-popover');panel.id='battery-popover';panel.hidden=true;panel.setAttribute('role','status');
-    var heading=el('strong','battery-heading','Battery');var detail=el('span','battery-detail');var time=el('small','battery-time');panel.append(heading,detail,time);document.body.appendChild(panel);
-    function update(){
-      if(!b){label.textContent='—';bt.title='Battery information is not available in this browser';bt.setAttribute('aria-label','Battery information unavailable');detail.textContent='This browser does not expose battery status.';time.textContent='The battery pill is active, but live readings are unsupported.';return}
-      var pct=Math.round(b.level*100),state=b.charging?'Charging':'On battery';
-      label.textContent=pct+'%';bt.title=state+' · '+pct+'%';bt.setAttribute('aria-label',state+', '+pct+' percent');
-      detail.textContent=state+' · '+pct+'%';
-      var secs=b.charging?b.chargingTime:b.dischargingTime;
-      time.textContent=Number.isFinite(secs)&&secs>0?((b.charging?'Full in ':'Remaining ')+Math.floor(secs/3600)+'h '+Math.floor((secs%3600)/60)+'m'):'Time estimate unavailable';
-      bi.innerHTML='<i data-lucide="'+(b.charging?'battery-charging':(pct>75?'battery-full':pct>25?'battery-medium':'battery-low'))+'"></i>';
-      if(window.lucide&&lucide.createIcons)lucide.createIcons();
+    var heading=el('strong','battery-heading','Battery'),detail=el('span','battery-detail'),time=el('small','battery-time'),diag=el('small','battery-diag');
+    panel.append(heading,detail,time,diag);document.body.appendChild(panel);
+    var mgr=null,failure='',lastEvt='none yet',brave=false,lastIcon='';
+    function setIcon(name){if(name===lastIcon)return;lastIcon=name;bi.innerHTML='<i data-lucide="'+name+'"></i>';if(window.lucide&&lucide.createIcons)lucide.createIcons()}
+    function browser(){var u=navigator.userAgent;return brave?'Brave':/Edg\//.test(u)?'Edge':/OPR\//.test(u)?'Opera':/Firefox\//.test(u)?'Firefox':/Chrome\//.test(u)?'Chrome':/Safari\//.test(u)?'Safari':'Unknown'}
+    function dur(x){return Number.isFinite(x)?(Math.floor(x/3600)+'h '+Math.floor((x%3600)/60)+'m'):'n/a'}
+    function render(){
+      var lines=[],framed=false;try{framed=window.top!==window}catch(e){framed=true}
+      if(!mgr){
+        label.textContent='—';setIcon('battery');bt.title='Battery information is not available';bt.setAttribute('aria-label','Battery information unavailable');
+        detail.textContent='No battery readings available.';time.textContent='';
+        lines.push(!navigator.getBattery?"This browser doesn't support the Battery API (Firefox and Safari don't).":failure==='NotAllowedError'?'The browser blocked battery access for this page. If the site runs inside a frame, the frame needs allow="battery".':failure?('The browser refused the request ('+failure+').'):'Reading the battery…');
+      }else{
+        var pct=Math.round(mgr.level*100),state=mgr.charging?'Charging':'On battery';
+        label.textContent=pct+'%';bt.title=state+' · '+pct+'%';bt.setAttribute('aria-label',state+', '+pct+' percent');
+        detail.textContent=state+' · '+pct+'%';
+        var secs=mgr.charging?mgr.chargingTime:mgr.dischargingTime;
+        time.textContent=Number.isFinite(secs)&&secs>0?((mgr.charging?'Full in ':'Remaining ')+dur(secs)):'Time estimate unavailable';
+        setIcon(mgr.charging?'battery-charging':(pct>75?'battery-full':pct>25?'battery-medium':'battery-low'));
+        lines.push('Raw reading: level '+mgr.level+', charging '+mgr.charging+', to full '+dur(mgr.chargingTime)+', to empty '+dur(mgr.dischargingTime));
+        lines.push('Last change event: '+lastEvt);
+        if(brave)lines.push('Brave reports a fixed battery value for privacy, so it never changes. Use Chrome or Edge to see real readings.');
+      }
+      lines.push('Browser: '+browser()+' · secure page: '+(window.isSecureContext?'yes':'no')+' · inside a frame: '+(framed?'yes':'no'));
+      if(!window.isSecureContext)lines.push('The Battery API only works on HTTPS pages.');
+      diag.textContent=lines.join('\n');
     }
-    update();
-    if(b){['levelchange','chargingchange','chargingtimechange','dischargingtimechange'].forEach(function(ev){b.addEventListener(ev,update)})}
-    // Some browsers fire battery events late or not at all, so also re-read the battery regularly.
-    if(navigator.getBattery){
-      var refresh=function(){navigator.getBattery().then(function(nb){b=nb;update()}).catch(function(){})};
-      setInterval(refresh,4000);document.addEventListener('visibilitychange',refresh);addEventListener('focus',refresh);addEventListener('online',refresh);addEventListener('offline',refresh);
+    function attach(m){
+      if(mgr===m)return;mgr=m;
+      ['levelchange','chargingchange','chargingtimechange','dischargingtimechange'].forEach(function(ev){m.addEventListener(ev,function(){lastEvt=new Date().toLocaleTimeString()+' ('+ev+')';render()})});
     }
+    function read(){
+      if(!navigator.getBattery){failure='';render();return}
+      return navigator.getBattery().then(function(m){failure='';attach(m);render()}).catch(function(e){failure=(e&&e.name)||'error';mgr=null;render()});
+    }
+    if(navigator.brave&&navigator.brave.isBrave)navigator.brave.isBrave().then(function(v){brave=!!v;render()}).catch(function(){});
+    read();setInterval(read,3000);document.addEventListener('visibilitychange',read);addEventListener('focus',read);
     bt.addEventListener('click',function(e){
       e.stopPropagation();panel.hidden=!panel.hidden;bt.setAttribute('aria-expanded',String(!panel.hidden));
-      var r=bt.getBoundingClientRect();panel.style.right=Math.max(8,innerWidth-r.right)+'px';panel.style.bottom=(innerHeight-r.top+8)+'px';
+      var r=bt.getBoundingClientRect();panel.style.right=Math.max(8,innerWidth-r.right)+'px';panel.style.bottom=(innerHeight-r.top+8)+'px';read();
     });
     document.addEventListener('pointerdown',function(e){if(!panel.hidden&&!panel.contains(e.target)&&!bt.contains(e.target)){panel.hidden=true;bt.setAttribute('aria-expanded','false')}});
     document.addEventListener('keydown',function(e){if(e.key==='Escape'){panel.hidden=true;bt.setAttribute('aria-expanded','false')}});
-    R.insertBefore(bt,mute);
-    if(window.lucide&&lucide.createIcons)lucide.createIcons();
+    R.insertBefore(bt,mute);render();
   }
-  if(navigator.getBattery){navigator.getBattery().then(batteryPill).catch(function(){batteryPill(null)})}
-  else{batteryPill(null)}
+  batteryPill();
   var ck=el('div','tray-clock'),ct=el('b'),cd=el('span');ck.append(ct,cd);R.appendChild(ck);
   function tick(){var n=new Date(),w=window.__nebulaWx;ct.textContent=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});cd.textContent=n.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})+(w?' · '+w.t+'°'+w.u:'')}
   tick();setInterval(tick,10000);addEventListener('nebula-wx',tick);
@@ -8191,3 +8208,7 @@ button.tray-chip:hover{background:color-mix(in srgb,var(--accent-color) 40%,var(
   if(lab)lab.textContent='Theme';
 })();
 </script>
+<style id="nebula-battery-diag">
+.battery-popover{width:min(310px,calc(100vw - 16px))}
+.battery-popover .battery-diag{display:block;margin-top:10px;padding-top:10px;border-top:1px solid var(--t-line);font:500 11px/1.55 var(--font-ui);color:var(--ink-soft);white-space:pre-line}
+</style>
