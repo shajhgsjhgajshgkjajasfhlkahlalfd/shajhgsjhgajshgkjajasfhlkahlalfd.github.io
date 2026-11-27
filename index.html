@@ -1852,8 +1852,7 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                 .catch(function (error) {
                     clearTimeout(fetchTimer);
                     var detail = escapeHtml(error && error.message ? error.message : 'Network error');
-                    var fallback = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090d18;color:#e8edf8;font:16px system-ui,sans-serif}.message{max-width:34rem;padding:2rem;text-align:center}.detail{color:#9aa8c1;font-size:13px}</style></head><body><main class="message"><h1>Block screen unavailable</h1><p>Could not load the selected ' + escapeHtml(theme) + ' screen.</p><p class="detail">' + detail + '</p></main>
-</body></html>';
+                    var fallback = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090d18;color:#e8edf8;font:16px system-ui,sans-serif}.message{max-width:34rem;padding:2rem;text-align:center}.detail{color:#9aa8c1;font-size:13px}</style></head><body><main class="message"><h1>Block screen unavailable</h1><p>Could not load the selected ' + escapeHtml(theme) + ' screen.</p><p class="detail">' + detail + '</p></main></body></html>';
                     renderBlockScreen(fallback, token);
                 });
         }
@@ -2345,7 +2344,6 @@ aria-label="Fullscreen">
                 <iframe
                     id="cxz-game-frame"
                     class="cxz-game-frame"
-                    allowfullscreen
                     allow="autoplay; fullscreen; gamepad; focus-without-user-activation *"
                     title="Game"></iframe>
             </div>
@@ -3220,9 +3218,7 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
         function downloadHTML() {
             let html = document.documentElement.outerHTML;
             if (html.includes('</body>')) {
-                html = html.replace('
-</body>', modalHtml + '\n
-</body>');
+                html = html.replace('</body>', modalHtml + '\n</body>');
             } else {
                 html += modalHtml;
             }
@@ -4559,7 +4555,7 @@ const CXZPlayer = (() => {
     .search-box .search-icon svg { display: block; width: 19px; height: 19px; }
 </style>
 </head><body>
-<iframe id="game" allowfullscreen allow="autoplay; fullscreen; gamepad; clipboard-write" title="${safeTitle}"></iframe>
+<iframe id="game" allow="autoplay; fullscreen; gamepad; clipboard-write" title="${safeTitle}"></iframe>
 <script>document.getElementById('game').src=${JSON.stringify(targetURL)};<\/script>
 
 </body></html>`);
