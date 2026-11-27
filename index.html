@@ -6349,7 +6349,7 @@ body:not([data-tab="home"]) .header{right:150px}
   }
   function setLocked(locked){
     var c=document.querySelector('.container'),d=document.querySelector('.bottom-dock');
-    if(c)c.inert=locked;if(d)d.inert=locked;
+    var k=document.getElementById('os-desktop'),m=document.getElementById('os-menubar');if(c)c.inert=locked;if(d)d.inert=locked;if(k)k.inert=locked;if(m)m.inert=locked;
   }
 
   /* ---------- Sign in / create account ---------- */
@@ -7575,3 +7575,37 @@ body:has(#cxz-player.open) .bottom-dock{display:none!important}
 /* First-run setup: keep the wallpaper and particles visible so choices show live */
 #setup-overlay{background:rgba(6,8,14,.16)!important;backdrop-filter:blur(3px)!important;-webkit-backdrop-filter:blur(3px)!important}
 </style>
+
+<style id="nebula-desktop-stack">
+/* The desktop (clock, search, featured games) and the menu bar now live in their own containers,
+   so no older layout rule on .container can push them around. */
+body.os::after{display:none!important}
+body.os .container{display:block!important;position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100vh!important;margin:0!important;padding:0!important;pointer-events:none!important;z-index:20!important;overflow:visible!important}
+
+#os-menubar{position:fixed;top:0;left:0;right:0;height:34px;z-index:250;display:flex;align-items:center;background:rgba(14,14,20,.5);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid rgba(255,255,255,.08)}
+#os-menubar .brand-banner{display:flex!important;position:static!important;align-items:center;gap:8px;width:auto!important;height:34px!important;margin:0 0 0 14px!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;pointer-events:auto}
+#os-menubar .brand-banner img{width:20px!important;height:20px!important;border-radius:6px}
+#os-menubar .brand-banner-copy{display:flex;align-items:center}
+#os-menubar .brand-banner-name{font:800 13px/1 var(--font-ui);color:#fff}
+#os-menubar .brand-banner-tagline{display:none!important}
+#os-menubar .os-app{display:inline!important}
+
+#os-desktop{position:fixed;inset:0;z-index:0;display:flex;flex-direction:column;align-items:center;gap:22px;padding:11vh 24px 130px;overflow:hidden auto}
+#os-desktop .header{position:static!important;transform:none!important;top:auto!important;left:auto!important;right:auto!important;display:flex!important;justify-content:center!important;width:auto!important;margin:0!important;padding:0!important;pointer-events:none}
+#os-desktop .search-box{display:block!important;position:relative!important;flex:none;width:min(640px,100%)!important;margin:0!important;max-height:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+#os-desktop #home{display:block!important;visibility:visible!important;position:static!important;width:100%!important;max-width:1100px;margin:0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;pointer-events:auto!important;overflow:visible!important}
+#os-desktop #featured-grid{display:flex!important;flex-wrap:wrap;justify-content:center;gap:12px}
+@media(max-width:759px){#os-desktop{padding:9vh 14px 110px;gap:16px}}
+</style>
+<script>
+(function(){
+  var c=document.querySelector('.container');if(!c||document.getElementById('os-desktop'))return;
+  var bar=document.createElement('div');bar.id='os-menubar';
+  var desk=document.createElement('div');desk.id='os-desktop';
+  var brand=c.querySelector(':scope > .brand-banner'),head=c.querySelector(':scope > .header'),box=c.querySelector(':scope > .search-box'),home=document.getElementById('home');
+  if(brand)bar.appendChild(brand);
+  [head,box,home].forEach(function(n){if(n)desk.appendChild(n)});
+  document.body.insertBefore(desk,c);
+  document.body.insertBefore(bar,desk);
+})();
+</script>
