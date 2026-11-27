@@ -7684,7 +7684,7 @@ body input:focus:not([type=checkbox]):not([type=radio]),body select:focus,body t
   }
   var STEPS=[
     {t:'Welcome to your desktop',s:'Let\'s set up your desktop. It only takes a minute, and you can change everything later in Settings.',n:'Get started',b:function(b){if(logo){var i=el('img','setup-hero');i.alt='';i.src=logo.src;b.appendChild(i)}}},
-    {t:'Pick your theme',s:'Choose the accent color for buttons and highlights.',b:accentStep},
+    {t:'Pick your theme',s:'Pick a color theme. It changes the whole desktop, and you can switch any time in Settings.',b:function(b){if(window.NebulaThemes)window.NebulaThemes.mount(b)}},
     {t:'Choose a wallpaper',s:'Pick one, or upload your own image.',b:function(b){if(window.NebulaWallpaper)window.NebulaWallpaper.mount(b)}},
     {t:'Background effects',s:'Particles that move on top of your wallpaper.',n:'Create account',b:fxStep}
   ],i=0;
@@ -7945,13 +7945,13 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
   var mute=R.querySelector('#dock-mute-btn');
   var fs=el('button','tray-chip hide-m');fs.innerHTML='<i data-lucide="maximize"></i>';fs.type='button';fs.title='Toggle fullscreen';fs.setAttribute('aria-label','Toggle fullscreen');
   fs.addEventListener('click',function(){try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){}});
-  var on=el('div','tray-chip hide-m'),dot=el('i');dot.setAttribute('data-lucide','wifi');var onT=el('span');on.append(dot,onT);
-  function net(){var o=navigator.onLine;on.classList.toggle('off',!o);onT.textContent=o?'Online':'Offline';dot.setAttribute('data-lucide',o?'wifi':'wifi-off');if(window.lucide&&lucide.createIcons)lucide.createIcons()}
+  var on=el('div','tray-chip hide-m'),dot=el('span','tray-ico');dot.innerHTML='<i data-lucide="wifi"></i>';var onT=el('span');on.append(dot,onT);
+  function net(){var o=navigator.onLine;on.classList.toggle('off',!o);onT.textContent=o?'Online':'Offline';dot.innerHTML='<i data-lucide="'+(o?'wifi':'wifi-off')+'"></i>';if(window.lucide&&lucide.createIcons)lucide.createIcons()}
   net();addEventListener('online',net);addEventListener('offline',net);
   R.insertBefore(fs,mute);R.insertBefore(on,mute);
   function batteryPill(b){
     var bt=el('button','tray-chip hide-m');bt.type='button';bt.id='battery-pill';bt.setAttribute('aria-expanded','false');
-    var bi=el('i');bi.setAttribute('data-lucide','battery');var label=el('span');bt.append(bi,label);
+    var bi=el('span','tray-ico');bi.innerHTML='<i data-lucide="battery"></i>';var label=el('span');bt.append(bi,label);
     var panel=el('div','battery-popover');panel.id='battery-popover';panel.hidden=true;panel.setAttribute('role','status');
     var heading=el('strong','battery-heading','Battery');var detail=el('span','battery-detail');var time=el('small','battery-time');panel.append(heading,detail,time);document.body.appendChild(panel);
     function update(){
@@ -7961,11 +7961,16 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
       detail.textContent=state+' · '+pct+'%';
       var secs=b.charging?b.chargingTime:b.dischargingTime;
       time.textContent=Number.isFinite(secs)&&secs>0?((b.charging?'Full in ':'Remaining ')+Math.floor(secs/3600)+'h '+Math.floor((secs%3600)/60)+'m'):'Time estimate unavailable';
-      bi.setAttribute('data-lucide',b.charging?'battery-charging':(pct>75?'battery-full':pct>25?'battery-medium':'battery-low'));
+      bi.innerHTML='<i data-lucide="'+(b.charging?'battery-charging':(pct>75?'battery-full':pct>25?'battery-medium':'battery-low'))+'"></i>';
       if(window.lucide&&lucide.createIcons)lucide.createIcons();
     }
     update();
     if(b){['levelchange','chargingchange','chargingtimechange','dischargingtimechange'].forEach(function(ev){b.addEventListener(ev,update)})}
+    // Some browsers fire battery events late or not at all, so also re-read the battery regularly.
+    if(navigator.getBattery){
+      var refresh=function(){navigator.getBattery().then(function(nb){b=nb;update()}).catch(function(){})};
+      setInterval(refresh,4000);document.addEventListener('visibilitychange',refresh);addEventListener('focus',refresh);addEventListener('online',refresh);addEventListener('offline',refresh);
+    }
     bt.addEventListener('click',function(e){
       e.stopPropagation();panel.hidden=!panel.hidden;bt.setAttribute('aria-expanded',String(!panel.hidden));
       var r=bt.getBoundingClientRect();panel.style.right=Math.max(8,innerWidth-r.right)+'px';panel.style.bottom=(innerHeight-r.top+8)+'px';
@@ -8081,5 +8086,108 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
   addEventListener('resize',apply);
   if(window.ResizeObserver){var ro=new ResizeObserver(apply);cards.forEach(function(c){ro.observe(c)})}
   apply();
+})();
+</script>
+
+<style id="nebula-theme-sync">
+/* ===== One theme drives the whole site: every surface below is derived from the active theme's colors ===== */
+:root{
+  --t-bg:color-mix(in srgb,var(--accent-color) 9%,#0a0a0f);
+  --t-surface:color-mix(in srgb,var(--accent-color) 14%,#101016);
+  --t-surface2:color-mix(in srgb,var(--accent-color) 24%,#14141b);
+  --t-deep:color-mix(in srgb,var(--theme-secondary) 14%,#07080f);
+  --t-ink:color-mix(in srgb,var(--theme-highlight) 14%,#fff);
+  --t-soft:color-mix(in srgb,var(--theme-highlight) 40%,#8e8e9c);
+  --t-line:color-mix(in srgb,var(--accent-color) 24%,rgba(255,255,255,.12));
+  --bg:var(--t-bg);--bg-2:color-mix(in srgb,var(--t-surface) 78%,transparent);--bg-3:var(--t-surface2);
+  --ink:var(--t-ink);--ink-soft:var(--t-soft);--line:var(--t-line);--line-solid:var(--t-line);
+  --glass:color-mix(in srgb,var(--t-surface) 68%,transparent);--glass-strong:color-mix(in srgb,var(--t-surface) 90%,transparent);
+  --shelf-h:56px;--dock-h:64px;
+}
+html,body{background:var(--t-bg)!important}
+
+/* Shelf, with the app capsule built into the bar (no floating pill overlapping apps) */
+body.os .bottom-dock{height:var(--shelf-h)!important;min-height:var(--shelf-h)!important;padding:0 12px!important;background:color-mix(in srgb,var(--t-surface) 92%,transparent)!important;border-top:1px solid var(--t-line)!important}
+body.os .bottom-dock .shelf-center{position:static!important;left:auto!important;bottom:auto!important;transform:none!important;z-index:auto!important;display:flex!important;align-items:center!important;gap:4px!important;padding:5px 8px!important;border:1px solid var(--t-line)!important;border-radius:22px!important;background:color-mix(in srgb,var(--t-surface2) 72%,transparent)!important;box-shadow:none!important;backdrop-filter:none!important}
+body.os .bottom-dock .dock-item{width:42px!important;min-width:42px!important;height:42px!important;border-radius:14px!important;color:var(--t-soft)!important;background:transparent!important}
+body.os .bottom-dock .dock-item:hover,body.os .bottom-dock .dock-item.active{background:color-mix(in srgb,var(--accent-color) 34%,var(--t-surface))!important;color:var(--t-ink)!important;box-shadow:none!important}
+body .dock-item:hover,body .dock-item:active,body.os .bottom-dock .dock-item:hover{translate:none!important;scale:none!important;transform:none!important}
+body.os .bottom-dock #os-start{background:color-mix(in srgb,var(--accent-color) 40%,var(--t-surface))!important;color:var(--t-ink)!important}
+body.os .bottom-dock #dock-mute-btn{width:38px!important;min-width:38px!important;height:38px!important;background:var(--theme-secondary)!important;color:#14100e!important;border-radius:50%!important}
+.tray-chip{background:color-mix(in srgb,var(--accent-color) 26%,var(--t-surface))!important;color:var(--t-ink)!important}
+button.tray-chip:hover{background:color-mix(in srgb,var(--accent-color) 40%,var(--t-surface))!important}
+#battery-pill,.tray-chip[aria-label="Battery status"]{background:color-mix(in srgb,var(--theme-highlight) 88%,#fff)!important;color:#15131a!important}
+.tray-chip .tray-ico{display:inline-flex}
+.tray-clock b{color:var(--accent-light)!important}.tray-clock span{color:var(--t-soft)!important}
+.battery-popover,#os-startmenu,#user-menu,#os-ctx,.tour-card{background:color-mix(in srgb,var(--t-surface) 94%,transparent)!important;border-color:var(--t-line)!important}
+.sm-tile,.os-icon-tile{background:color-mix(in srgb,var(--accent-color) 38%,var(--t-surface))!important}
+
+/* Widgets */
+#os-widgets .ow-clock{background:color-mix(in srgb,var(--theme-secondary) 40%,#1a1216)!important}
+#os-widgets .ow-h{color:var(--accent-light)!important}#os-widgets .ow-m{color:var(--t-ink)!important}
+#os-widgets .ow-date{background:var(--t-surface)!important;color:var(--t-ink)!important}
+#os-widgets .ow-date b{color:var(--theme-tertiary)!important}#os-widgets .ow-date small{color:var(--t-soft)!important}
+#os-widgets .ow-wx{background:var(--t-deep)!important;color:var(--t-ink)!important}
+#os-widgets .ow-wx-t,#os-widgets .ow-wx-c{color:var(--t-ink)!important}
+#os-widgets .ow-notes{background:color-mix(in srgb,var(--theme-tertiary) 22%,#1d1913)!important;color:var(--t-ink)!important}
+#os-widgets .ow-nh b,#os-widgets .ow-note{color:var(--t-ink)!important}
+#os-widgets .ow-round{background:color-mix(in srgb,var(--theme-tertiary) 24%,#14110c)!important;color:var(--theme-tertiary)!important}
+#os-widgets .ow-wx-f input{background:var(--t-surface)!important;color:var(--t-ink)!important}
+
+/* Windows, dialogs, player */
+.container > .tab-content.os-win:not(#home){background:color-mix(in srgb,var(--t-surface) 92%,transparent)!important;border-color:var(--t-line)!important}
+.os-win > .win-bar{background:color-mix(in srgb,var(--accent-color) 10%,rgba(255,255,255,.03))!important}
+.gate-card{background:color-mix(in srgb,var(--t-surface) 90%,transparent)!important;border-color:var(--t-line)!important}
+#cxz-player{--player-surface:var(--t-surface);--player-panel:var(--t-surface2);background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--accent-color) 18%,transparent),transparent 54%),color-mix(in srgb,var(--t-bg) 94%,transparent)!important}
+
+/* Theme picker */
+.theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0 12px}
+.setup-card .theme-grid{grid-template-columns:repeat(4,1fr)}
+.theme-tile{display:flex;flex-direction:column;gap:7px;padding:8px;border:2px solid transparent;border-radius:14px;background:rgba(255,255,255,.07);color:var(--t-ink);font:700 12px var(--font-ui);text-align:left;cursor:pointer}
+.theme-tile:hover{background:rgba(255,255,255,.12)}
+.theme-tile[aria-pressed="true"]{border-color:var(--accent-color);background:rgba(255,255,255,.13)}
+.theme-strip{display:flex;height:22px;border-radius:8px;overflow:hidden}.theme-strip span{flex:1}
+@media(max-width:560px){.setup-card .theme-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script>
+(function(){
+  if(typeof COLOR_PALETTES==='undefined'||typeof setThemePalette!=='function')return;
+  var NAMES={ember:'Ember',ocean:'Ocean',amethyst:'Amethyst',forest:'Forest',rose:'Rose',midnight:'Midnight',candy:'Candy',mono:'Mono'};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+  var base=window.setThemePalette;
+  window.setThemePalette=function(n,silent){var ok=base(n,silent);if(ok)dispatchEvent(new Event('nebula-theme'));return ok};
+  if(!localStorage.getItem(PRE+'palette'))window.setThemePalette('ember',true);   // themes replace free-form accent colors
+
+  function mount(box){
+    box.textContent='';box.classList.add('theme-grid');
+    var tiles=Object.keys(COLOR_PALETTES).map(function(k){
+      var p=COLOR_PALETTES[k],b=el('button','theme-tile');b.type='button';b.dataset.theme=k;b.setAttribute('aria-pressed','false');
+      var strip=el('span','theme-strip');[p.main,p.light,p.secondary,p.tertiary].forEach(function(c){var x=el('span');x.style.background=c;strip.appendChild(x)});
+      b.append(strip,el('span','',NAMES[k]||k));
+      b.addEventListener('click',function(){window.setThemePalette(k)});
+      box.appendChild(b);return b;
+    });
+    function mark(){var cur=document.documentElement.dataset.colorTheme;tiles.forEach(function(t){t.setAttribute('aria-pressed',String(t.dataset.theme===cur))})}
+    addEventListener('nebula-theme',mark);mark();
+  }
+  window.NebulaThemes={mount:mount};
+
+  /* Settings > Appearance: accent swatches and hex field are replaced by the theme grid */
+  var sel=document.getElementById('palette-theme-select');
+  if(sel){
+    var col=sel.closest('.settings-col');
+    col.querySelectorAll('.color-swatches-grid').forEach(function(n){n.remove()});
+    var hex=document.getElementById('accent-hex-input');if(hex){var row=hex.closest('.btn-row');if(row)row.remove()}
+    col.querySelectorAll('.setting-subhead').forEach(function(h){
+      if(/accent color/i.test(h.textContent))h.remove();
+      else if(/color themes/i.test(h.textContent)){h.textContent='Theme';var g=el('div');h.after(g);mount(g)}
+    });
+    sel.style.display='none';var pv=col.querySelector('.palette-preview');if(pv)pv.style.display='none';
+  }
+
+  /* Legacy onboarding card (accounts created before the setup flow) */
+  var sw=document.getElementById('ob-swatches'),lab=document.getElementById('ob-accent-label');
+  if(sw){sw.classList.remove('ob-swatches');mount(sw)}
+  if(lab)lab.textContent='Theme';
 })();
 </script>
