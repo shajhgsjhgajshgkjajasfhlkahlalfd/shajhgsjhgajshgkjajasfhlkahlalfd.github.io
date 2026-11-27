@@ -6612,8 +6612,8 @@ body:not([data-tab="home"]) .live-datetime{justify-content:flex-end;align-items:
 (function(){
   'use strict';
   var STEPS=[
-    {tab:'home',sel:'.search-box',title:'Search everything',body:'Type a game name to find it from anywhere on the site.'},
-    {tab:'home',sel:'#featured-grid',title:'Your desktop',body:'These are suggested games. Click an icon and the game opens in the built-in player.'},
+    {tab:'home',sel:'#os-icons',title:'Your desktop',body:'These are your apps. Double-click an icon to open it in its own window. You can drag windows around, resize them, and keep several open at once.'},
+    {tab:'home',sel:'#os-start',title:'Start menu',body:'Open every app from here, show the desktop, or reach your account settings and sign out.'},
     {tab:'home',sel:'.bottom-dock',title:'The dock',body:'This is how you move around. Each icon opens a different part of the site, and hovering shows its name.'},
     {tab:'games',sel:'#games .provider-tabs',title:'Games',body:'Two libraries live here. Classroom-X-Zone is the main collection, and GN-Math loads a second catalog you can filter by tag.'},
     {tab:'movies',sel:'#cinema-featured',title:'Cinema',body:'Browse and watch movies in the built-in player.'},
@@ -7607,5 +7607,79 @@ body.os .container{display:block!important;position:fixed!important;inset:0!impo
   [head,box,home].forEach(function(n){if(n)desk.appendChild(n)});
   document.body.insertBefore(desk,c);
   document.body.insertBefore(bar,desk);
+})();
+</script>
+
+<style id="nebula-os-shell">
+/* No search or suggested games on the desktop: wallpaper, icons, clock widget, taskbar */
+#os-desktop .search-box,#os-desktop #home{display:none!important}
+#os-desktop{padding:0;pointer-events:none}
+#os-desktop .header{position:fixed!important;top:50px!important;right:20px!important;left:auto!important}
+#os-desktop .live-datetime{display:flex!important;flex-direction:column!important;align-items:center!important;gap:0!important;padding:14px 22px!important;background:rgba(20,20,30,.5)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:20px!important;backdrop-filter:blur(24px) saturate(1.4)!important;-webkit-backdrop-filter:blur(24px) saturate(1.4)!important;box-shadow:0 12px 34px rgba(0,0,0,.28)!important;text-shadow:none!important}
+#os-desktop #current-weekday{font:600 12px/1.3 var(--font-ui)!important;letter-spacing:.08em!important;text-transform:uppercase!important;color:rgba(255,255,255,.7)!important}
+#os-desktop .datetime-detail-row{display:flex!important;flex-direction:column-reverse!important;align-items:center!important;gap:0!important}
+#os-desktop #current-time{font:800 34px/1.1 var(--font-ui)!important;letter-spacing:-.03em!important;color:#fff!important}
+#os-desktop #current-date{font:500 13px/1.4 var(--font-ui)!important;color:rgba(255,255,255,.75)!important}
+#os-desktop .datetime-separator{display:none!important}
+@media(max-width:759px){#os-desktop .header{top:44px!important;right:12px!important}#os-desktop #current-time{font-size:26px!important}}
+@media(min-width:760px){#os-icons{display:grid!important;top:50px!important;left:20px!important;bottom:calc(var(--dock-h,96px) + 10px)!important}}
+/* Start menu */
+#os-start img{width:26px;height:26px;border-radius:8px;object-fit:cover}
+#os-startmenu{position:fixed;left:50%;bottom:calc(var(--dock-h,96px) + 4px);transform:translateX(-50%);z-index:230000;width:min(420px,calc(100vw - 24px));padding:18px;background:rgba(20,20,28,.88);backdrop-filter:blur(30px) saturate(1.4);-webkit-backdrop-filter:blur(30px) saturate(1.4);border:1px solid rgba(255,255,255,.14);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+#os-startmenu[hidden]{display:none}
+.sm-user{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sm-av{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--accent-color);color:#fff;font:800 17px var(--font-ui)}
+.sm-name{font:700 15px var(--font-ui);color:var(--ink)}
+.sm-sub{font:500 12px var(--font-ui);color:var(--ink-soft)}
+.sm-label{margin:0 0 8px;font:700 11px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.sm-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px}
+.sm-app{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 6px;border:0;border-radius:14px;background:transparent;color:var(--ink);font:600 12px var(--font-ui);cursor:pointer}
+.sm-app:hover{background:rgba(255,255,255,.09)}
+.sm-tile{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:color-mix(in srgb,var(--accent-color) 38%,#1a1a24);border:1px solid rgba(255,255,255,.12)}
+.sm-tile svg{width:22px;height:22px;color:#fff}
+.sm-foot{display:flex;flex-wrap:wrap;gap:6px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+.sm-foot button{flex:1 1 auto;padding:9px 12px;border:0;border-radius:10px;background:rgba(255,255,255,.07);color:var(--ink);font:600 12px var(--font-ui);cursor:pointer}
+.sm-foot button:hover{background:rgba(255,255,255,.14)}
+.sm-foot .sm-out:hover{background:#e5484d;color:#fff}
+</style>
+<script>
+(function(){
+  var dockEl=document.querySelector('.bottom-dock');if(!dockEl||document.getElementById('os-start'))return;
+  var APPS=[['games','Games'],['movies','Cinema'],['tools','Tools'],['partners','Partners'],['suggest','Suggest'],['settings','Settings']];
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+  var logo=document.querySelector('.brand-banner img');
+  var btn=el('button','dock-item');btn.type='button';btn.id='os-start';btn.title='Start';btn.setAttribute('aria-label','Start menu');btn.setAttribute('aria-expanded','false');
+  if(logo){var im=document.createElement('img');im.alt='';im.src=logo.src;btn.appendChild(im)}
+  dockEl.prepend(btn);
+
+  var menu=el('div');menu.id='os-startmenu';menu.hidden=true;menu.setAttribute('role','dialog');menu.setAttribute('aria-label','Start menu');
+  document.body.appendChild(menu);
+  function close(){menu.hidden=true;btn.setAttribute('aria-expanded','false')}
+  function build(){
+    menu.textContent='';
+    var name=(document.getElementById('uc-name')||{}).textContent||'Guest';
+    var u=el('div','sm-user'),av=el('div','sm-av',(name.charAt(0)||'?').toUpperCase()),who=el('div');
+    who.append(el('div','sm-name',name),el('div','sm-sub','Signed in on this device'));u.append(av,who);
+    var apps=el('div','sm-apps');
+    APPS.forEach(function(a){
+      var src=document.querySelector('.dock-item[onclick*="switchTab(\''+a[0]+'\'"]'),ic=src&&(src.querySelector('svg')||src.querySelector('i'));
+      var b=el('button','sm-app');b.type='button';var t=el('span','sm-tile');if(ic)t.appendChild(ic.cloneNode(true));b.append(t,el('span','',a[1]));
+      b.addEventListener('click',function(){close();switchTab(a[0])});apps.appendChild(b);
+    });
+    var foot=el('div','sm-foot');
+    function act(label,fn,cls){var b=el('button',cls||'',label);b.type='button';b.addEventListener('click',function(){close();fn()});foot.appendChild(b)}
+    act('Show desktop',function(){switchTab('home')});
+    act('Account',function(){var x=document.getElementById('um-acct');if(x)x.click()});
+    act('Replay tour',function(){var x=document.getElementById('um-tour');if(x)x.click()});
+    act('Sign out',function(){var x=document.getElementById('um-out');if(x)x.click()},'sm-out');
+    menu.append(u,el('p','sm-label','Apps'),apps,foot);
+    if(window.lucide&&lucide.createIcons)try{lucide.createIcons()}catch(e){}
+  }
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(menu.hidden){build();menu.hidden=false;btn.setAttribute('aria-expanded','true')}else close();
+  });
+  document.addEventListener('pointerdown',function(e){if(!menu.hidden&&!menu.contains(e.target)&&!btn.contains(e.target))close()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
 })();
 </script>
