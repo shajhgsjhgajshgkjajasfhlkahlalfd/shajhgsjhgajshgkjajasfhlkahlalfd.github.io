@@ -1850,6 +1850,22 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
 }
 </style>
 
+<style id="coordinated-color-themes">
+.palette-preview{display:flex;gap:7px;margin:7px 0 10px;align-items:center}
+.palette-preview span{display:block;width:25px;height:12px;border-radius:99px;box-shadow:0 0 0 1px rgba(255,255,255,.13)}
+#palette-theme-select{width:100%;margin:2px 0 4px}
+:root{--theme-secondary:#f06b59;--theme-tertiary:#ffd166;--theme-highlight:#ffe0a3}
+button:hover,.btn-action:hover,.swatch-box:hover{border-color:var(--accent-border)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline-color:var(--accent-color)}
+.progress-bar,.loading-progress,.progress-fill{background:linear-gradient(90deg,var(--accent-color),var(--theme-secondary),var(--theme-tertiary))}
+.header .active,.tab-btn.active,.nav-item.active,.sidebar a.active{color:var(--accent-light)}
+a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
+#os-widgets .ow-clock .ow-clock-min,#os-widgets .ow-date strong{color:var(--accent-light)}
+#os-widgets .ow-round:hover,#os-widgets button:hover{border-color:var(--accent-border)}
+#os-widgets .ow-round:focus-visible{outline:2px solid var(--theme-tertiary)}
+.tray-chip:focus-visible{outline:2px solid var(--theme-secondary)}
+</style>
+
 </body></html>', token);
                 }, 5000);
             } catch (e) {
@@ -2224,6 +2240,20 @@ aria-label="Fullscreen">
                         <div class="swatch-box" style="background:#ffffff;" onclick="setThemeAccent('#ffffff')"></div>
                     </div>
 
+                    <div class="setting-subhead" style="text-align:left; margin-top:12px;">Color Themes</div>
+                    <select id="palette-theme-select" onchange="setThemePalette(this.value)">
+                        <option value="ember">Ember · orange / coral / gold</option>
+                        <option value="ocean">Ocean · blue / cyan / teal</option>
+                        <option value="amethyst">Amethyst · violet / lavender / pink</option>
+                        <option value="forest">Forest · green / mint / lime</option>
+                        <option value="rose">Rose · pink / rose / peach</option>
+                        <option value="midnight">Midnight · indigo / blue / ice</option>
+                        <option value="candy">Candy · magenta / purple / aqua</option>
+                        <option value="mono">Monochrome · silver / white / slate</option>
+                    </select>
+                    <div class="palette-preview" aria-label="Theme color preview">
+                        <span style="background:#ff8a3d"></span><span style="background:#ffb36b"></span><span style="background:#ffd166"></span><span style="background:#f06b59"></span>
+                    </div>
                     <div class="btn-row">
                         <input type="text" id="accent-hex-input" value="#ff6600">
                         <button class="btn-action" style="width:80px;" onclick="setThemeAccent(document.getElementById('accent-hex-input').value)">Apply</button>
@@ -3012,10 +3042,20 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
                 return false;
             }
             const normalized = color.toLowerCase();
-            document.documentElement.style.setProperty('--accent-color', normalized);
-            document.documentElement.style.setProperty('--accent-glow', `0 10px 30px color-mix(in srgb, ${normalized} 22%, transparent)`);
-            document.documentElement.style.setProperty('--border-color', normalized);
-            document.documentElement.style.setProperty('--text-color', normalized);
+            const root = document.documentElement;
+            root.style.setProperty('--accent-color', normalized);
+            root.style.setProperty('--accent-light', normalized);
+            root.style.setProperty('--theme-secondary', normalized);
+            root.style.setProperty('--theme-tertiary', normalized);
+            root.style.setProperty('--theme-highlight', normalized);
+            root.style.setProperty('--accent-glow', `0 10px 30px color-mix(in srgb, ${normalized} 22%, transparent)`);
+            root.style.setProperty('--accent-dim', `color-mix(in srgb, ${normalized} 13%, transparent)`);
+            root.style.setProperty('--accent-border', `color-mix(in srgb, ${normalized} 42%, transparent)`);
+            root.style.setProperty('--border-color', normalized);
+            root.style.setProperty('--text-color', normalized);
+            root.dataset.colorTheme = 'custom';
+            const paletteSelect = byId('palette-theme-select');
+            if (paletteSelect) paletteSelect.value = 'custom';
             const input = byId('accent-hex-input');
             if (input) input.value = normalized;
             localStorage.setItem(PRE + 'accent', normalized);
@@ -3024,6 +3064,43 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
                 renderHomeSearch(q && byId('home').classList.contains('active') ? q.value : '');
             }
             if (!silent) showToast(`Accent set to ${normalized}`);
+            return true;
+        }
+
+        // Coordinated accent palettes. All colors are applied as CSS variables
+        // so buttons, focus rings, highlights, progress bars and widgets stay in sync.
+        const COLOR_PALETTES = {
+            ember:     { main:'#ff8a3d', light:'#ffb36b', secondary:'#f06b59', tertiary:'#ffd166', highlight:'#ffe0a3' },
+            ocean:     { main:'#38a6ff', light:'#83d0ff', secondary:'#16c6c2', tertiary:'#5478ff', highlight:'#c2f4ff' },
+            amethyst:  { main:'#9b78ff', light:'#c4aaff', secondary:'#e18bff', tertiary:'#f18bb8', highlight:'#eadcff' },
+            forest:    { main:'#42c98a', light:'#8be0ad', secondary:'#18a999', tertiary:'#b5d95b', highlight:'#d8f5bb' },
+            rose:      { main:'#f078a8', light:'#ffb0c8', secondary:'#e85d75', tertiary:'#ffc18e', highlight:'#ffe0e9' },
+            midnight:  { main:'#657dff', light:'#a4b1ff', secondary:'#48c4ef', tertiary:'#8b75ef', highlight:'#d8e0ff' },
+            candy:     { main:'#ed5bd7', light:'#ff9beb', secondary:'#8f68ff', tertiary:'#48d9d0', highlight:'#ffd7f6' },
+            mono:      { main:'#c0c7d4', light:'#eef2f8', secondary:'#8793a8', tertiary:'#ffffff', highlight:'#dce3ed' }
+        };
+        function setThemePalette(name, silent = false) {
+            const palette = COLOR_PALETTES[name];
+            if (!palette) return false;
+            const root = document.documentElement;
+            root.dataset.colorTheme = name;
+            root.style.setProperty('--accent-color', palette.main);
+            root.style.setProperty('--accent-light', palette.light);
+            root.style.setProperty('--theme-secondary', palette.secondary);
+            root.style.setProperty('--theme-tertiary', palette.tertiary);
+            root.style.setProperty('--theme-highlight', palette.highlight);
+            root.style.setProperty('--accent-glow', `0 10px 30px color-mix(in srgb, ${palette.main} 24%, transparent)`);
+            root.style.setProperty('--accent-dim', `color-mix(in srgb, ${palette.main} 14%, transparent)`);
+            root.style.setProperty('--accent-border', `color-mix(in srgb, ${palette.main} 45%, transparent)`);
+            root.style.setProperty('--border-color', palette.main);
+            root.style.setProperty('--text-color', palette.main);
+            localStorage.setItem(PRE + 'palette', name);
+            localStorage.setItem(PRE + 'accent', palette.main);
+            const hex = byId('accent-hex-input');
+            if (hex) hex.value = palette.main;
+            const picker = byId('palette-theme-select');
+            if (picker) picker.value = name;
+            if (!silent) showToast(name.charAt(0).toUpperCase() + name.slice(1) + ' theme applied');
             return true;
         }
 
@@ -3727,9 +3804,14 @@ const btnIdx = ['home', 'games', 'movies', 'tools', 'partners', 'suggest', 'sett
         // 14. LOAD ALL SAVED SETTINGS
         function loadAllSettings() {
             // Accent
-            let accent = localStorage.getItem(PRE + 'accent') || '#ff6600';
-            if (!/^#[\da-f]{6}$/i.test(accent)) accent = '#ff6600';
-            setThemeAccent(accent, true);
+            const savedPalette = localStorage.getItem(PRE + 'palette');
+            if (savedPalette && COLOR_PALETTES[savedPalette]) {
+                setThemePalette(savedPalette, true);
+            } else {
+                let accent = localStorage.getItem(PRE + 'accent') || '#ff6600';
+                if (!/^#[\da-f]{6}$/i.test(accent)) accent = '#ff6600';
+                setThemeAccent(accent, true);
+            }
 
             // Cloak
             const ct = localStorage.getItem(PRE + 'cloak_title');
