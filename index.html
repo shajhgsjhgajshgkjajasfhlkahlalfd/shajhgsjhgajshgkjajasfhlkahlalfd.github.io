@@ -1832,14 +1832,16 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
                     renderBlockScreen('<!doctype html><html><body style="margin:0;background:#090d18;color:#e8edf8;font:16px system-ui;display:grid;place-items:center;min-height:100vh"><main style="padding:2rem;text-align:center"><h2>Block screen timed out</h2><p>Continuing to Classroom-X-Zone…</p></main>
 <style id="cxz-dock-apps">
 #os-icons, .os-icon { display: none !important; }
+
+/* Dock stays at the bottom, always clickable, never covering window content. */
 body.os .bottom-dock,
 body.os .bottom-dock.dock-ready {
   display: flex !important;
   position: fixed !important;
   left: 50% !important;
-  bottom: 18px !important;
+  bottom: 14px !important;
   transform: translateX(-50%) !important;
-  z-index: 250000 !important;
+  z-index: 300000 !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
@@ -1870,6 +1872,16 @@ body.os .dock-item.active::before, body.os .dock-item.os-running::before {
   content: "" !important; display: block !important; position: absolute !important;
   bottom: 4px !important; left: 50% !important; width: 5px !important; height: 5px !important;
   margin-left: -2.5px !important; border-radius: 50% !important; background: var(--accent-color) !important;
+}
+
+/* Windows stop above the dock so the dock never covers app content. */
+body.os .container > .tab-content.os-win:not(#home):not(.os-max) {
+  max-height: calc(100vh - 110px) !important;
+}
+body.os .container > .tab-content.os-win.os-max:not(#home) {
+  top: 0 !important;
+  height: calc(100vh - 96px) !important;
+  padding-bottom: 16px !important;
 }
 </style>
 </body></html>', token);
@@ -5869,7 +5881,7 @@ refreshCXZIcons(); button.setAttribute('aria-label', document.fullscreenElement 
     background: #050509;
 }
 #cxz-player .cxz-window::before {
-    content: "CLASSROOM-X-ZONE     /     GAME PLAYER";
+    content: "NEBULA ARCADE     /     GAME PLAYER";
     flex: 0 0 43px;
     display: flex;
     align-items: center;
@@ -7118,8 +7130,9 @@ body.os .container{padding-left:116px}
   function clearPos(w){['left','top','width','height'].forEach(function(k){w.style.removeProperty(k)})}
   function place(w,id){
     if(mobile()||w.classList.contains('os-max'))return;
-    var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*30,W=Math.min(a.w,innerWidth-24),H=Math.min(a.h,innerHeight-140);
-    put(w,{width:W,height:H,left:clamp((innerWidth-W)/2-90+o,8,innerWidth-W-8),top:clamp((innerHeight-H)/2-30+o,40,innerHeight-H-90)});
+    var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*18,dockH=100;
+    var W=Math.min(a.w,innerWidth-32),H=Math.min(a.h,innerHeight-dockH-48);
+    put(w,{width:W,height:H,left:clamp((innerWidth-W)/2+o,16,innerWidth-W-16),top:clamp((innerHeight-dockH-H)/2+o,24,innerHeight-dockH-H-8)});
   }
   function topVisible(){for(var i=order.length-1;i>=0;i--)if(!$(order[i]).classList.contains('os-min'))return order[i];return null}
   function sync(){
