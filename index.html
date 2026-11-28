@@ -6256,6 +6256,12 @@ a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
   #cxz-music-inline-title{max-width:32px}
 }
 body:has(#cxz-music-app.open) .bottom-dock{z-index:250005!important}
+
+#cxz-music-presets .cxz-music-loading{grid-column:1/-1;padding:18px;border:1px dashed var(--music-line);border-radius:14px;color:var(--music-muted);text-align:center}
+#cxz-music-presets .cxz-music-preset{display:block;min-width:0}
+#cxz-music-presets .cxz-music-preset-art{display:block;overflow:hidden;padding:0;aspect-ratio:1}
+#cxz-music-presets .cxz-music-preset-art img{display:block}
+#cxz-music-presets .cxz-music-preset small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;font-size:9px}
 </style>
 
 <section id="cxz-music-app" aria-label="Music app" aria-hidden="true">
@@ -6274,18 +6280,7 @@ body:has(#cxz-music-app.open) .bottom-dock{z-index:250005!important}
         <button id="cxz-music-search" type="submit">Search</button>
       </form>
       <h3 id="cxz-music-section-title">TOP PLAYLISTS</h3>
-      <div id="cxz-music-presets">
-        <button class="cxz-music-preset" type="button" data-query="Christmas classics"><span class="cxz-music-preset-art">Christmas<br>Classics</span><b>Christmas Classics</b></button>
-        <button class="cxz-music-preset" type="button" data-query="Christmas hits"><span class="cxz-music-preset-art">CHRISTMAS<br>HITS</span><b>Christmas Hits</b></button>
-        <button class="cxz-music-preset" type="button" data-query="calm piano music"><span class="cxz-music-preset-art">Calm<br>Piano</span><b>Calm Piano</b></button>
-        <button class="cxz-music-preset" type="button" data-query="video game soundtrack"><span class="cxz-music-preset-art">GAME<br>MUSIC</span><b>Game Soundtracks</b></button>
-        <button class="cxz-music-preset" type="button" data-query="lofi hip hop"><span class="cxz-music-preset-art">LOFI<br>HIP HOP</span><b>Lofi Hip Hop</b></button>
-        <button class="cxz-music-preset" type="button" data-query="piano meditation"><span class="cxz-music-preset-art">PIANO<br>CALM</span><b>Piano Meditation</b></button>
-        <button class="cxz-music-preset" type="button" data-query="relaxing music"><span class="cxz-music-preset-art">Relaxation</span><b>Relaxation</b></button>
-        <button class="cxz-music-preset" type="button" data-query="jazz music"><span class="cxz-music-preset-art">JAZZY</span><b>Jazz</b></button>
-        <button class="cxz-music-preset" type="button" data-query="happy folk music"><span class="cxz-music-preset-art">Happy<br>Folk</span><b>Happy Folk</b></button>
-        <button class="cxz-music-preset" type="button" data-query="sleepy lofi"><span class="cxz-music-preset-art">Sleepy<br>Lofi</span><b>Sleepy Lofi</b></button>
-      </div>
+      <div id="cxz-music-presets"><div class="cxz-music-loading">Loading popular playlists…</div></div>
       <div id="cxz-music-status" role="status">Search for a song, or choose a collection above.</div>
       <div id="cxz-music-results"></div>
     </main>
@@ -6324,6 +6319,62 @@ body:has(#cxz-music-app.open) .bottom-dock{z-index:250005!important}
   const nowTitle=document.getElementById('cxz-music-now-title');
   if(!app||!form||!openBtn)return;
   let items=[],current=-1;
+  let playlists=[];
+  const presets=document.getElementById('cxz-music-presets');
+  // One search request per page load to avoid burning through the YouTube API quota.
+  const playlistQueries=['popular music playlists'];
+  async function loadPopularPlaylists(){
+    if(!presets)return;
+    presets.innerHTML='<div class="cxz-music-loading">Loading playlists from YouTube…</div>';
+    try{
+      const batches=await Promise.all(playlistQueries.map(async q=>{
+        const response=await fetch(WORKER_URL+'?type=playlists&q='+encodeURIComponent(q));
+        if(!response.ok)throw new Error('Playlist request failed ('+response.status+').');
+        const data=await response.json();
+        return Array.isArray(data.playlists)?data.playlists:[];
+      }));
+      const seen=new Set();
+      playlists=batches.flat().filter(p=>{
+        if(!p.playlistId||seen.has(p.playlistId))return false;
+        seen.add(p.playlistId);return true;
+      }).slice(0,20);
+      presets.replaceChildren();
+      if(!playlists.length){
+        presets.textContent='No public playlists found. Try searching for a playlist.';
+        return;
+      }
+      playlists.forEach(p=>{
+        const button=document.createElement('button');
+        button.type='button';button.className='cxz-music-preset';
+        const art=document.createElement('span');art.className='cxz-music-preset-art';
+        if(p.thumbnail){
+          const img=document.createElement('img');img.src=p.thumbnail;img.alt='';
+          img.loading='lazy';img.style.cssText='width:100%;height:100%;aspect-ratio:1;object-fit:cover;border-radius:9px';
+          art.textContent='';art.append(img);
+        }else{art.textContent='♫';}
+        const title=document.createElement('b');title.textContent=p.title||'Music playlist';
+        const owner=document.createElement('small');owner.textContent=p.channel||'YouTube playlist';
+        button.append(art,title,owner);
+        button.addEventListener('click',()=>playPlaylist(p));
+        presets.append(button);
+      });
+      status.textContent='Popular public playlists from YouTube. Select one to play.';
+    }catch(error){
+      presets.textContent='Could not load playlists. Check that your Worker has the playlist endpoint enabled.';
+      status.textContent=error.message||'Playlist loading failed.';
+    }
+  }
+  function playPlaylist(p){
+    if(!p||!p.playlistId)return;
+    items=[];current=-1;
+    frame.src='https://www.youtube-nocookie.com/embed/videoseries?list='+encodeURIComponent(p.playlistId)+'&autoplay=1';
+    frame.hidden=false;empty.hidden=true;
+    nowTitle.textContent=p.title||'Playlist';
+    track.textContent=p.title||'Playing playlist';
+    dockPlay.textContent='♫';
+    [...results.children].forEach(node=>node.classList.remove('active'));
+    status.textContent='Playing playlist by '+(p.channel||'YouTube');
+  }
   function setOpen(value){app.classList.toggle('open',value);app.setAttribute('aria-hidden',String(!value));if(value)input.focus();}
   openBtn.addEventListener('click',()=>setOpen(!app.classList.contains('open')));
   document.getElementById('cxz-music-close').addEventListener('click',()=>setOpen(false));
@@ -6363,8 +6414,36 @@ body:has(#cxz-music-app.open) .bottom-dock{z-index:250005!important}
       });
     }catch(error){status.textContent=error.message||'Search failed. Please try again.';}
   }
-  form.addEventListener('submit',event=>{event.preventDefault();search(input.value);});
-  document.querySelectorAll('.cxz-music-preset').forEach(button=>button.addEventListener('click',()=>search(button.dataset.query)));
+  form.addEventListener('submit',event=>{
+    event.preventDefault();
+    const value=input.value.trim();
+    if(/^playlist:\s*/i.test(value)){
+      const q=value.replace(/^playlist:\s*/i,'');
+      searchPlaylists(q);
+    }else search(value);
+  });
+  async function searchPlaylists(q){
+    q=(q||'').trim();if(!q||q.length>100)return;
+    setOpen(true);input.value='playlist: '+q;status.textContent='Searching playlists…';results.replaceChildren();
+    try{
+      const response=await fetch(WORKER_URL+'?type=playlists&q='+encodeURIComponent(q));
+      if(!response.ok)throw new Error('Playlist search failed ('+response.status+').');
+      const data=await response.json();
+      const found=Array.isArray(data.playlists)?data.playlists:[];
+      presets.replaceChildren();
+      if(!found.length){status.textContent='No playlists found. Try another search.';return;}
+      found.forEach(p=>{
+        const button=document.createElement('button');button.type='button';button.className='cxz-music-preset';
+        const art=document.createElement('span');art.className='cxz-music-preset-art';
+        if(p.thumbnail){const img=document.createElement('img');img.src=p.thumbnail;img.alt='';img.loading='lazy';img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:9px';art.textContent='';art.append(img);}else art.textContent='♫';
+        const title=document.createElement('b');title.textContent=p.title||'Music playlist';
+        const owner=document.createElement('small');owner.textContent=p.channel||'YouTube playlist';
+        button.append(art,title,owner);button.addEventListener('click',()=>playPlaylist(p));presets.append(button);
+      });
+      status.textContent=found.length+' playlists found — choose one to play.';
+    }catch(error){status.textContent=error.message||'Playlist search failed.';}
+  }
+  loadPopularPlaylists();
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&app.classList.contains('open'))setOpen(false);});
 })();
 </script>
