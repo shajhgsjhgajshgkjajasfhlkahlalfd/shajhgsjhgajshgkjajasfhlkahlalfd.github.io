@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classroom-X-Zone</title>
     <meta name="color-scheme" content="dark">
+    <meta name="cxz-site-version" content="2026.11.28.1">
     <meta name="description" content="Play, explore, and discover games and useful tools in one place.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Classroom-X-Zone">
@@ -1751,6 +1752,20 @@ input,select,textarea{color:var(--ink)}select,textarea,input:not([type="checkbox
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 
+<style id="cxz-update-notification-style">
+#cxz-update-button{display:none;align-items:center;gap:7px;height:32px;padding:0 11px;border:1px solid color-mix(in srgb,var(--accent-color) 55%,transparent);border-radius:16px;background:color-mix(in srgb,var(--accent-color) 20%,var(--t-surface,rgba(20,20,30,.9)));color:var(--ink,#fff);font:700 11px var(--font-ui,system-ui);white-space:nowrap;cursor:pointer;position:relative}
+#cxz-update-button.available{display:flex}
+#cxz-update-button .cxz-update-dot{width:7px;height:7px;border-radius:50%;background:#75e6a2;box-shadow:0 0 0 3px rgba(117,230,162,.13)}
+#cxz-update-popover{position:fixed;z-index:500000;right:16px;bottom:calc(var(--shelf-h,56px) + 14px);width:min(340px,calc(100vw - 24px));padding:17px;border:1px solid var(--t-line,var(--line,rgba(255,255,255,.15)));border-radius:17px;background:color-mix(in srgb,var(--t-surface, #171722) 96%,transparent);color:var(--ink,#fff);box-shadow:0 18px 55px rgba(0,0,0,.42);backdrop-filter:blur(24px);font:500 13px/1.5 var(--font-ui,system-ui)}
+#cxz-update-popover[hidden]{display:none!important}
+#cxz-update-popover h3{font:800 15px var(--font-display,var(--font-ui,system-ui));margin:0 0 5px;color:var(--ink,#fff)}
+#cxz-update-popover p{margin:0;color:var(--ink-soft,#aaa);font-size:12px}
+#cxz-update-popover .cxz-update-actions{display:flex;gap:8px;margin-top:14px}
+#cxz-update-popover button{height:34px;padding:0 13px;border:1px solid var(--t-line,rgba(255,255,255,.15));border-radius:10px;background:var(--t-surface2,rgba(255,255,255,.08));color:var(--ink,#fff);font:700 11px var(--font-ui,system-ui);cursor:pointer}
+#cxz-update-popover #cxz-update-now{background:var(--accent-color,#7865e8);border-color:transparent;color:white}
+#cxz-update-popover button:hover{filter:brightness(1.12)}
+@media(max-width:759px){#cxz-update-button{height:29px;padding:0 8px;font-size:10px}#cxz-update-popover{right:10px;bottom:calc(var(--shelf-h,56px) + 10px)}}
+</style>
 </head>
 <body data-tab="home">
     <!-- Startup block screen: shown in an iframe, then dismissed automatically -->
@@ -8259,3 +8274,55 @@ body.os .bottom-dock .shelf-center .dock-item.active{background:color-mix(in srg
   body.os .bottom-dock .shelf-center .dock-item{width:40px!important;min-width:40px!important;height:40px!important}
 }
 </style>
+
+<script id="cxz-update-notification-script">
+(function(){
+  'use strict';
+  var CURRENT_VERSION='2026.11.28.1';
+  var DISMISS_KEY='cxz-update-dismissed-version';
+  var checkInProgress=false,latestVersion='';
+  function make(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  function mount(){
+    var right=document.querySelector('.bottom-dock .shelf-right');
+    if(!right||document.getElementById('cxz-update-button'))return !!right;
+    var btn=make('button');btn.type='button';btn.id='cxz-update-button';btn.innerHTML='<span class="cxz-update-dot"></span><span>Update available</span>';btn.setAttribute('aria-label','A site update is available');btn.title='A new site update is available';
+    var pop=make('section');pop.id='cxz-update-popover';pop.hidden=true;pop.setAttribute('role','dialog');pop.setAttribute('aria-labelledby','cxz-update-heading');
+    var h=make('h3','', 'A new update is ready');var p=make('p','', 'A newer version is available. Choose Update now when you are ready, or Stay on this version to keep browsing without reloading.');
+    var actions=make('div','cxz-update-actions');var now=make('button','', 'Update now');now.type='button';now.id='cxz-update-now';var later=make('button','', 'Stay on this version');later.type='button';later.id='cxz-update-later';actions.append(now,later);pop.append(h,p,actions);document.body.appendChild(pop);
+    btn.addEventListener('click',function(){pop.hidden=!pop.hidden});
+    later.addEventListener('click',function(){try{localStorage.setItem(DISMISS_KEY,latestVersion)}catch(e){}pop.hidden=true;btn.classList.remove('available');btn.style.display='none'});
+    now.addEventListener('click',function(){
+      var target=new URL(location.href);target.searchParams.set('cxz_refresh',Date.now().toString());
+      target.hash=location.hash;location.replace(target.href);
+    });
+    document.addEventListener('pointerdown',function(e){if(!pop.hidden&&!pop.contains(e.target)&&!btn.contains(e.target))pop.hidden=true});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')pop.hidden=true});
+    right.insertBefore(btn,right.firstChild);
+    return true;
+  }
+  // Passive check only: detecting a new deployment never reloads or replaces this page.
+  async function check(){
+    if(checkInProgress||document.visibilityState==='hidden')return;
+    if(!mount())return;
+    checkInProgress=true;
+    try{
+      var url=new URL(location.href);url.searchParams.set('cxz_update_check',Date.now().toString());url.hash='';
+      var response=await fetch(url.href,{cache:'no-store',credentials:'same-origin',headers:{'Cache-Control':'no-cache'}});
+      if(!response.ok)throw new Error('Update check returned '+response.status);
+      var html=await response.text();
+      var doc=new DOMParser().parseFromString(html,'text/html');
+      var meta=doc.querySelector('meta[name="cxz-site-version"]');
+      var remote=meta&&meta.content?meta.content.trim():'';
+      if(!remote||remote===CURRENT_VERSION)return;
+      latestVersion=remote;
+      var dismissed='';try{dismissed=localStorage.getItem(DISMISS_KEY)||''}catch(e){}
+      if(dismissed===remote)return;
+      var btn=document.getElementById('cxz-update-button');if(btn){btn.classList.add('available');btn.style.display='flex';btn.setAttribute('aria-label','Update available: version '+remote);btn.title='New version '+remote+' available';}
+    }catch(err){/* Update checks are optional; never interrupt normal site use. */}
+    finally{checkInProgress=false}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(check,3500)});else setTimeout(check,3500);
+  setInterval(check,5*60*1000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)check()});
+})();
+</script>
