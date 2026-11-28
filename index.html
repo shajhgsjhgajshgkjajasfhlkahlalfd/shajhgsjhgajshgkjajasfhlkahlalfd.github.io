@@ -167,9 +167,11 @@ body.dock-autohide.dock-right #dock-hot{top:0;left:auto;width:6px;height:auto}
 .t-game{background:#222}
 
 /* ---------- Desktop: icons + widgets ---------- */
-#desk-icons{position:absolute;top:14px;right:14px;display:grid;grid-auto-flow:row;grid-template-rows:repeat(auto-fill,96px);gap:4px;max-height:calc(100% - 120px)}
+#desk-icons{position:absolute;top:14px;right:14px;bottom:calc(var(--dock-size) + 34px);display:grid;grid-auto-flow:column;grid-template-rows:repeat(auto-fill,96px);grid-auto-columns:90px;gap:4px;direction:rtl;align-content:start}
+#desk-icons>*{direction:ltr}
 .desk-icon{width:90px;padding:6px 4px;border:0;border-radius:8px;background:none;display:flex;flex-direction:column;align-items:center;gap:5px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);font-size:12px;font-weight:500}
-.desk-icon .tile{width:54px;height:54px}
+.desk-icon .tile{width:54px;height:54px;flex:0 0 auto}
+.desk-icon span:last-child{line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:center}
 .desk-icon span:last-child{padding:1px 6px;border-radius:4px}
 .desk-icon.sel .tile{outline:2px solid rgba(255,255,255,.5);outline-offset:3px;border-radius:14px}
 .desk-icon.sel span:last-child{background:var(--sel);text-shadow:none}
@@ -806,6 +808,54 @@ body.liquid-glass .win{--win:rgba(30,30,36,.55)}
 }
 @media (max-width:760px){ #chat #chat-status{display:none} #chat .chat-status{padding:0 4px} }
 
+/* Short screens (Chromebooks, small laptops) */
+@media (min-width:761px) and (max-height:760px){
+  :root{--dock-size:48px}
+  #desk-icons{top:10px;grid-template-rows:repeat(auto-fill,90px);grid-auto-columns:84px;gap:2px}
+  .desk-icon{width:84px;height:88px;padding:4px;gap:4px;font-size:11.5px;justify-content:flex-start}
+  .desk-icon .tile{width:46px;height:46px}
+  #launchpad{padding-top:calc(var(--menubar-h) + 12px)}
+  .lp-tabs{margin-bottom:calc(var(--dock-size) + 18px)}
+  .lp-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:16px 8px;padding-bottom:30px}
+  .lp-app{gap:6px;font-size:12px}
+  .lp-app .tile{width:64px;height:64px}
+  .lp-top{margin-bottom:4px}
+}
+
+/* Chat: friends + private chats */
+.chat-fr .ico.av{position:relative;border-radius:50%;font-size:11px;font-weight:700;color:#fff}
+.chat-fr .fn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.fdot{position:absolute;right:-2px;bottom:-2px;width:9px;height:9px;border-radius:50%;background:var(--ink-3);border:2px solid var(--side,#2a2a30);display:none}
+.fdot.on{display:block;background:#30d158}
+.side-i .cnt.req:not(:empty){min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ff3b30;color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.chat-friends{flex:1;min-height:0;overflow-y:auto;padding:16px 18px 20px;display:flex;flex-direction:column;gap:8px}
+.fr-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border-radius:14px;background:var(--fill-2)}
+.fr-card small{font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-3)}
+.fr-card p{margin:4px 0 0;font-size:12px;color:var(--ink-2)}
+.fr-code{font:600 24px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.08em;margin-top:2px;user-select:all}
+.fr-card .btn svg{width:14px;height:14px}
+.fr-add{display:flex;gap:8px;margin-top:2px}
+.fr-add .field{flex:1;max-width:none;text-transform:uppercase;letter-spacing:.04em}
+.fr-add .field::placeholder{text-transform:none;letter-spacing:0}
+.fr-h{margin:10px 2px 0;font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.02em}
+.fr-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--fill)}
+.fr-av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:0 0 auto}
+.fr-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.fr-t b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-t small{font-size:11.5px;color:var(--ink-3)}
+.btn.sm{height:26px;padding:0 10px;font-size:12px}
+.fr-empty{margin:2px;font-size:12.5px;color:var(--ink-2)}
+.fr-note{display:flex;gap:6px;align-items:flex-start;margin:12px 2px 0;font-size:11.5px;line-height:1.4;color:var(--ink-3)}
+.fr-note svg{width:13px;height:13px;flex:0 0 auto;margin-top:1px}
+.chat-pop{min-width:180px}
+.chat-pop svg{width:14px;height:14px}
+@media (max-width:760px){
+  .fr-card{flex-direction:column;align-items:flex-start}
+  .fr-add{flex-direction:column}
+  #chat .chat-fr{width:auto}
+  #chat .chat-fr .fn{max-width:90px}
+}
+
 </style>
 </head>
 <body data-win="desktop">
@@ -915,9 +965,12 @@ body.liquid-glass .win{--win:rgba(30,30,36,.55)}
       <button class="side-i" data-room="general" aria-current="true"><span class="ico" style="background:#0a84ff"><i data-lucide="message-circle"></i></span>General<span class="cnt" data-unread="general"></span></button>
       <button class="side-i" data-room="games"><span class="ico" style="background:#bf5af2"><i data-lucide="gamepad-2"></i></span>Games<span class="cnt" data-unread="games"></span></button>
       <button class="side-i" data-room="help"><span class="ico" style="background:#30d158"><i data-lucide="life-buoy"></i></span>Help<span class="cnt" data-unread="help"></span></button>
+      <div class="side-h">Friends</div>
+      <div class="chat-flist" id="chat-flist"></div>
+      <button class="side-i" data-room="friends"><span class="ico" style="background:#ff9f0a"><i data-lucide="user-plus"></i></span>Add Friends<span class="cnt req" data-unread="friends"></span></button>
       <div class="side-h">Status</div>
       <div class="chat-status"><span class="chat-dot" id="chat-dot"></span><span id="chat-status">Offline</span></div>
-      <p class="chat-note">Rooms are public. Don't share personal info. Click a name to mute someone.</p>
+      <p class="chat-note">Rooms are public. Don't share personal info. Click a name to add or mute someone. Private chats with friends are end-to-end encrypted.</p>
       <button class="side-i chat-unmute" type="button" id="chat-unmute" hidden><i data-lucide="volume-2"></i>Unmute All</button>
     </nav>
     <div class="win-main">
@@ -927,6 +980,7 @@ body.liquid-glass .win{--win:rgba(30,30,36,.55)}
         <span class="chat-online" id="chat-online" title="People online now"><i data-lucide="users"></i><b>0</b></span>
       </div>
       <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Messages"></div>
+      <div class="chat-friends" id="chat-friends" hidden></div>
       <form class="chat-compose" id="chat-form" autocomplete="off">
         <input class="field" id="chat-input" maxlength="400" placeholder="Message #general" aria-label="Message">
         <button class="chat-send" type="submit" id="chat-send" aria-label="Send"><i data-lucide="arrow-up"></i></button>
@@ -3899,19 +3953,30 @@ const NebulaWidgets = (() => {
     box.append(...cards);
     let saved = lsJSON(KEY, {}) || {};
     function defaults(i) {
-        const x = 20, y = 16;
+        const x = 20, y = 16, H = box.clientHeight || innerHeight;
+        // Short screens (Chromebooks): put Notes beside Weather instead of under it
+        const stack = y + 360 + 164 + 90 <= H;
         if (i === 0) return { x, y };
         if (i === 1) return { x: x + 180, y };
         if (i === 2) return { x, y: y + 180 };
-        return { x, y: y + 360 };
+        return stack ? { x, y: y + 360 } : { x: x + 360, y: y + 180 };
     }
     function clampPos(e, x, y) {
         const H = box.clientHeight || innerHeight;
         return { x: Math.min(Math.max(x, 0), Math.max(0, innerWidth - e.offsetWidth - 4)), y: Math.min(Math.max(y, 4), Math.max(4, H - e.offsetHeight - 80)) };
     }
+    const hit = (a, b) => a.x < b.x + b.w - 8 && b.x < a.x + a.w - 8 && a.y < b.y + b.h - 8 && b.y < a.y + a.h - 8;
     function apply() {
         if (isMobile()) { cards.forEach(c => { c.style.left = ''; c.style.top = ''; }); return; }
-        cards.forEach((e, i) => { let p = saved[NAMES[i]] || defaults(i); p = clampPos(e, p.x, p.y); e.style.left = Math.round(p.x) + 'px'; e.style.top = Math.round(p.y) + 'px'; });
+        const placed = [];
+        cards.forEach((e, i) => {
+            const box2 = p => ({ x: p.x, y: p.y, w: e.offsetWidth, h: e.offsetHeight });
+            let p = clampPos(e, ...Object.values(saved[NAMES[i]] || defaults(i)));
+            // If squeezing onto a small screen made widgets overlap, fall back to the default spot
+            if (placed.some(b => hit(box2(p), b))) p = clampPos(e, defaults(i).x, defaults(i).y);
+            placed.push(box2(p));
+            e.style.left = Math.round(p.x) + 'px'; e.style.top = Math.round(p.y) + 'px';
+        });
     }
     cards.forEach((e, i) => {
         e.addEventListener('pointerdown', ev => {
@@ -4893,7 +4958,8 @@ window.startAdminLive = startAdminLive;
 window.adminClearErrors = adminClearErrors;
 
 /* =====================================================================
-   Chat: public real-time rooms over MQTT (free public brokers, no keys)
+   Chat: public real-time rooms + friends with end-to-end encrypted
+   private chats, over MQTT (free public brokers, no keys or accounts).
    ===================================================================== */
 const Chat = (() => {
     const ROOMS = {
@@ -4906,19 +4972,113 @@ const Chat = (() => {
     const LIB = 'https://unpkg.com/mqtt@5/dist/mqtt.min.js';
     const MAX_KEEP = 120, MAX_HIST = 50, MAX_LEN = 400;
     const win = byId('chat'), log = byId('chat-log'), input = byId('chat-input'), form = byId('chat-form');
-    let room = ROOMS[lsGet('cxz_chat_room', 'general')] ? lsGet('cxz_chat_room', 'general') : 'general';
+    const fpanel = byId('chat-friends'), flist = byId('chat-flist');
+    const isDM = r => typeof r === 'string' && r.startsWith('dm:');
+    let room = lsGet('cxz_chat_room', 'general');
     let client = null, state = 'off', broker = 0, attempts = 0, beat = null, everConnected = false;
-    const msgs = { general: [], games: [], help: [] }, seen = new Set(), unread = { general: 0, games: 0, help: 0 }, presence = {};
+    const msgs = { general: [], games: [], help: [] }, seen = new Set(), unread = { general: 0, games: 0, help: 0 }, presence = {}, onlineCodes = {};
     const sid = (() => { const a = new Uint8Array(8); crypto.getRandomValues(a); return [...a].map(x => x.toString(16).padStart(2, '0')).join(''); })();
     let sent = [];
     const ownIds = new Set(lsJSON('cxz_chat_own', []).filter(x => typeof x === 'string'));
     const muted = () => lsJSON('cxz_chat_muted', []).filter(x => typeof x === 'string');
+    const CRYPTO = !!(window.crypto && crypto.subtle && window.isSecureContext !== false);
 
-    // Cached history so the log appears instantly
+    /* ---------- Small helpers ---------- */
+    const enc = new TextEncoder(), dec = new TextDecoder();
+    const b64 = buf => { const b = new Uint8Array(buf); let s = ''; for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return btoa(s); };
+    const unb64 = s => { const r = atob(s), b = new Uint8Array(r.length); for (let i = 0; i < r.length; i++) b[i] = r.charCodeAt(i); return b; };
+    const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+    const B32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+    async function codeOf(pub) {
+        const h = new Uint8Array(await crypto.subtle.digest('SHA-256', unb64(pub)));
+        let bits = 0, val = 0, out = '';
+        for (let i = 0; i < 5; i++) { val = (val << 8) | h[i]; bits += 8; while (bits >= 5) { out += B32[(val >>> (bits - 5)) & 31]; bits -= 5; } }
+        return out; // 8 characters
+    }
+    const prettyCode = c => c.slice(0, 4) + '-' + c.slice(4);
+    const normCode = s => String(s || '').toUpperCase().replace(/[^0-9A-Z]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1').replace(/U/g, 'V');
+    const okCode = c => typeof c === 'string' && /^[0-9A-HJKMNP-TV-Z]{8}$/.test(c);
+
+    function me() {
+        const a = window.NebulaAuth && NebulaAuth.account();
+        const u = (window.NebulaAuth && NebulaAuth.user()) || 'guest';
+        return { u, n: String((a && a.display) || u).slice(0, 24) };
+    }
+
+    /* ---------- Identity (one key pair per account on this device) ---------- */
+    let ident = null, identP = null;
+    function identity() {
+        const u = me().u;
+        if (ident && ident.u === u) return Promise.resolve(ident);
+        if (!CRYPTO) return Promise.resolve(null);
+        if (identP && identP.u === u) return identP.p;
+        const p = (async () => {
+            const KEY = 'cxz_chat_key_' + u;
+            const st = lsJSON(KEY, null);
+            let priv = null, pub = null;
+            if (st && st.priv && st.pub) {
+                try { priv = await crypto.subtle.importKey('jwk', st.priv, { name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']); pub = st.pub; } catch (e) { priv = null; }
+            }
+            if (!priv) {
+                const kp = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
+                const jwk = await crypto.subtle.exportKey('jwk', kp.privateKey);
+                pub = b64(await crypto.subtle.exportKey('raw', kp.publicKey));
+                lsSet(KEY, JSON.stringify({ priv: jwk, pub }));
+                priv = kp.privateKey;
+            }
+            ident = { u, priv, pub, code: await codeOf(pub) };
+            return ident;
+        })().catch(() => null);
+        identP = { u, p };
+        return p;
+    }
+
+    /* ---------- Friends store (per account) ---------- */
+    const fKey = () => 'cxz_friends_' + me().u, oKey = () => 'cxz_friend_out_' + me().u;
+    const friends = () => { const f = lsJSON(fKey(), {}); return f && typeof f === 'object' ? f : {}; };
+    const saveFriends = f => lsSet(fKey(), JSON.stringify(f));
+    const outgoing = () => { const o = lsJSON(oKey(), {}); return o && typeof o === 'object' ? o : {}; };
+    const saveOut = o => lsSet(oKey(), JSON.stringify(o));
+    let incoming = {};          // code -> { n, pub, ts }
+    const shared = new Map();   // code -> { key, tid }
+
+    async function sharedFor(code, pub) {
+        const have = shared.get(code); if (have) return have;
+        const id = await identity(); if (!id) return null;
+        const theirs = await crypto.subtle.importKey('raw', unb64(pub), { name: 'ECDH', namedCurve: 'P-256' }, false, []);
+        const bits = await crypto.subtle.deriveBits({ name: 'ECDH', public: theirs }, id.priv, 256);
+        const key = await crypto.subtle.importKey('raw', bits, 'AES-GCM', false, ['encrypt', 'decrypt']);
+        const tag = new Uint8Array(bits.byteLength + 6); tag.set(new Uint8Array(bits)); tag.set(enc.encode('cxz-dm'), bits.byteLength);
+        const tid = hex(await crypto.subtle.digest('SHA-256', tag)).slice(0, 32);
+        const s = { key, tid }; shared.set(code, s); return s;
+    }
+    async function seal(key, obj) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
+        return { iv: b64(iv), ct: b64(ct) };
+    }
+    async function unseal(key, box) {
+        if (!box || typeof box.iv !== 'string' || typeof box.ct !== 'string' || box.ct.length > 80000) return null;
+        try { return JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(box.iv) }, key, unb64(box.ct)))); } catch (e) { return null; }
+    }
+
+    /* ---------- Cached history so the log appears instantly ---------- */
     const cache = lsJSON('cxz_chat_cache', {}) || {};
     Object.keys(ROOMS).forEach(r => { (Array.isArray(cache[r]) ? cache[r] : []).forEach(m => { if (valid(m)) { msgs[r].push(m); seen.add(m.id); } }); });
+    const dmCacheKey = () => 'cxz_dm_cache_' + me().u;
+    function loadDMCache() {
+        const c = lsJSON(dmCacheKey(), {}) || {};
+        Object.keys(c).forEach(r => { if (!isDM(r) || !Array.isArray(c[r])) return; msgs[r] = msgs[r] || []; c[r].forEach(m => { if (valid(m) && !seen.has(m.id)) { msgs[r].push(m); seen.add(m.id); } }); msgs[r].sort((a, b) => a.ts - b.ts); });
+    }
     let saveTimer = null;
-    function saveCache() { clearTimeout(saveTimer); saveTimer = setTimeout(() => { const o = {}; Object.keys(ROOMS).forEach(r => { o[r] = msgs[r].slice(-60); }); lsSet('cxz_chat_cache', JSON.stringify(o)); }, 400); }
+    function saveCache() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+            const o = {}, d = {};
+            Object.keys(msgs).forEach(r => { if (isDM(r)) d[r] = msgs[r].slice(-80); else if (ROOMS[r]) o[r] = msgs[r].slice(-60); });
+            lsSet('cxz_chat_cache', JSON.stringify(o)); lsSet(dmCacheKey(), JSON.stringify(d));
+        }, 400);
+    }
 
     function valid(m) {
         if (!m || typeof m !== 'object') return false;
@@ -4926,16 +5086,14 @@ const Chat = (() => {
         if (typeof m.n !== 'string' || !m.n.trim() || m.n.length > 24) return false;
         if (typeof m.u !== 'string' || m.u.length > 24) return false;
         if (typeof m.t !== 'string' || !m.t.trim() || m.t.length > MAX_LEN) return false;
+        if (m.c != null && !okCode(m.c)) return false;
         const now = Date.now();
-        return typeof m.ts === 'number' && m.ts > now - 7 * 864e5 && m.ts < now + 5 * 60e3;
-    }
-    function me() {
-        const a = window.NebulaAuth && NebulaAuth.account();
-        const u = (window.NebulaAuth && NebulaAuth.user()) || 'guest';
-        return { u, n: String((a && a.display) || u).slice(0, 24) };
+        return typeof m.ts === 'number' && m.ts > now - 30 * 864e5 && m.ts < now + 5 * 60e3;
     }
     function hue(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h % 360; }
     const visible = () => OS.isOpen('chat') && !OS.isMin('chat') && !document.hidden;
+    const label = r => ROOMS[r] ? '#' + ROOMS[r][0].toLowerCase() : isDM(r) ? ((friends()[r.slice(3)] || {}).n || 'Friend') : 'Friends';
+    const friendOnline = code => onlineCodes[code] && Date.now() - onlineCodes[code] < 55e3;
 
     /* ---------- Rendering ---------- */
     function linkify(t) {
@@ -4950,18 +5108,22 @@ const Chat = (() => {
         return d.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
     }
     function render() {
+        if (room === 'friends') { renderFriends(); return; }
         const near = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
-        const mine = me().u, mute = muted();
-        const list = msgs[room].filter(m => !mute.includes(m.u));
+        const mine = me().u, mute = muted(), dm = isDM(room);
+        const myCode = ident && ident.code;
+        const list = (msgs[room] || []).filter(m => dm || !mute.includes(m.u));
         let html = '', prev = null, day = '';
-        if (!list.length) html = '<div class="chat-empty">' + icon('message-circle') + '<b>No messages yet</b><span>Be the first to say something in #' + esc(ROOMS[room][0].toLowerCase()) + '.</span></div>';
+        if (!list.length) html = dm
+            ? '<div class="chat-empty">' + icon('lock') + '<b>Private chat with ' + esc(label(room)) + '</b><span>Only the two of you can read these messages.</span></div>'
+            : '<div class="chat-empty">' + icon('message-circle') + '<b>No messages yet</b><span>Be the first to say something in ' + esc(label(room)) + '.</span></div>';
         list.forEach(m => {
             const d = dayLabel(m.ts);
             if (d !== day) { html += '<div class="chat-day">' + esc(d) + '</div>'; day = d; prev = null; }
-            const own = m.u === mine && (m.s === sid || ownIds.has(m.id));
+            const own = dm ? (m.c && m.c === myCode) : (m.u === mine && (m.s === sid || ownIds.has(m.id)));
             const grouped = prev && prev.u === m.u && prev.n === m.n && m.ts - prev.ts < 5 * 60e3;
             html += '<div class="chat-msg' + (own ? ' me' : '') + (grouped ? ' grouped' : '') + '" data-id="' + esc(m.id) + '">' +
-                (grouped || own ? '' : '<button class="chat-name" type="button" data-user="' + esc(m.u) + '" data-name="' + esc(m.n) + '" style="--h:' + hue(m.u) + '">' + esc(m.n) + '</button>') +
+                (grouped || own || dm ? '' : '<button class="chat-name" type="button" data-user="' + esc(m.u) + '" data-name="' + esc(m.n) + '"' + (m.c ? ' data-code="' + esc(m.c) + '"' : '') + ' style="--h:' + hue(m.u) + '">' + esc(m.n) + '</button>') +
                 '<div class="chat-bubble" title="' + esc(fmt(m.ts)) + '">' + linkify(m.t) + '</div></div>';
             prev = m;
         });
@@ -4969,21 +5131,60 @@ const Chat = (() => {
         refreshCXZIcons();
         if (near || !log.dataset.ready) { log.scrollTop = log.scrollHeight; log.dataset.ready = '1'; }
     }
+    function renderFriendList() {
+        const f = friends(), codes = Object.keys(f).sort((a, b) => String(f[a].n).localeCompare(String(f[b].n)));
+        flist.innerHTML = codes.map(c => {
+            const r = 'dm:' + c, n = String(f[c].n || 'Friend');
+            return '<button class="side-i chat-fr" type="button" data-room="' + r + '" aria-current="' + (room === r) + '">' +
+                '<span class="ico av" style="background:hsl(' + hue(c) + ' 55% 46%)">' + esc(n.charAt(0).toUpperCase()) + '<i class="fdot' + (friendOnline(c) ? ' on' : '') + '"></i></span>' +
+                '<span class="fn">' + esc(n) + '</span><span class="cnt" data-unread="' + r + '"></span></button>';
+        }).join('');
+        badges();
+    }
+    function renderFriends() {
+        const f = friends(), o = outgoing(), codes = Object.keys(f);
+        const inc = Object.keys(incoming), outs = Object.keys(o).filter(c => !f[c]);
+        const row = (c, n, btns, sub) => '<div class="fr-row"><span class="fr-av" style="background:hsl(' + hue(c) + ' 55% 46%)">' + esc(String(n || '?').charAt(0).toUpperCase()) + '</span><div class="fr-t"><b>' + esc(n || prettyCode(c)) + '</b><small>' + esc(sub) + '</small></div>' + btns + '</div>';
+        let h = '';
+        if (!CRYPTO) {
+            h = '<div class="fr-card"><b>Friends aren’t available here</b><p>Private chats need a secure (https) page. Open the site from its normal web address to use them.</p></div>';
+        } else {
+            h += '<div class="fr-card fr-me"><div><small>Your friend code</small><div class="fr-code" id="fr-code">' + (ident ? prettyCode(ident.code) : '…') + '</div><p>Share this code with a friend so they can add you.</p></div><button class="btn" type="button" data-act="copy">' + icon('copy') + 'Copy</button></div>';
+            h += '<form class="fr-add" data-act="add"><input class="field" id="fr-input" maxlength="12" placeholder="Enter a friend code, like 7K3D-Q9XA" aria-label="Friend code" autocomplete="off" spellcheck="false"><button class="btn primary" type="submit">Send Request</button></form>';
+            if (inc.length) h += '<div class="fr-h">Friend Requests</div>' + inc.map(c => row(c, incoming[c].n, '<button class="btn primary sm" type="button" data-act="accept" data-code="' + c + '">Accept</button><button class="btn sm" type="button" data-act="decline" data-code="' + c + '">Decline</button>', prettyCode(c) + ' wants to be friends')).join('');
+            if (outs.length) h += '<div class="fr-h">Sent</div>' + outs.map(c => row(c, o[c].n || prettyCode(c), '<button class="btn sm" type="button" data-act="cancel" data-code="' + c + '">Cancel</button>', 'Waiting for them to accept')).join('');
+            h += '<div class="fr-h">Friends' + (codes.length ? ' · ' + codes.length : '') + '</div>';
+            h += codes.length ? codes.map(c => row(c, f[c].n, '<button class="btn primary sm" type="button" data-act="open" data-code="' + c + '">Message</button><button class="btn sm" type="button" data-act="remove" data-code="' + c + '">Remove</button>', (friendOnline(c) ? 'Online · ' : '') + prettyCode(c))).join('')
+                : '<p class="fr-empty">No friends yet. Send a request with a friend code, or click someone’s name in a room.</p>';
+            h += '<p class="fr-note">' + icon('lock') + 'Private chats are end-to-end encrypted, so only you and your friend can read them. Your friends list is saved to this account on this device.</p>';
+        }
+        fpanel.innerHTML = h;
+        refreshCXZIcons();
+    }
     function setRoom(r) {
-        if (!ROOMS[r]) return;
+        if (isDM(r) && !friends()[r.slice(3)]) r = 'friends';
+        if (!ROOMS[r] && !isDM(r) && r !== 'friends') r = 'general';
         room = r; lsSet('cxz_chat_room', r);
         win.querySelectorAll('[data-room]').forEach(b => b.setAttribute('aria-current', String(b.dataset.room === r)));
-        byId('chat-title').textContent = '# ' + ROOMS[r][0];
-        byId('chat-sub').textContent = ROOMS[r][1];
-        input.placeholder = 'Message #' + ROOMS[r][0].toLowerCase();
-        unread[r] = 0; badges();
+        const fr = r === 'friends', dm = isDM(r);
+        fpanel.hidden = !fr; log.hidden = fr; form.hidden = fr;
+        byId('chat-online').hidden = fr || dm;
+        if (ROOMS[r]) { byId('chat-title').textContent = '# ' + ROOMS[r][0]; byId('chat-sub').textContent = ROOMS[r][1]; }
+        else if (fr) { byId('chat-title').textContent = 'Friends'; byId('chat-sub').textContent = 'Add friends and chat privately'; }
+        else { const c = r.slice(3); byId('chat-title').textContent = label(r); byId('chat-sub').textContent = (friendOnline(c) ? 'Online · ' : '') + 'Private · end-to-end encrypted'; }
+        input.placeholder = dm ? 'Message ' + label(r) : 'Message ' + label(r);
+        if (!fr) { msgs[r] = msgs[r] || []; unread[r] = 0; }
+        badges();
         log.dataset.ready = '';
         render();
-        if (!isMobile()) input.focus({ preventScroll: true });
+        if (!isMobile() && !fr) input.focus({ preventScroll: true });
     }
     function badges() {
-        Object.keys(ROOMS).forEach(r => { const b = win.querySelector('[data-unread="' + r + '"]'); if (b) b.textContent = unread[r] ? String(Math.min(unread[r], 99)) : ''; });
-        const total = Object.values(unread).reduce((a, b) => a + b, 0);
+        win.querySelectorAll('[data-unread]').forEach(b => {
+            const r = b.dataset.unread, n = r === 'friends' ? Object.keys(incoming).length : (unread[r] || 0);
+            b.textContent = n ? String(Math.min(n, 99)) : '';
+        });
+        const total = Object.values(unread).reduce((a, b) => a + b, 0) + Object.keys(incoming).length;
         const d = document.querySelector('.dock-item[data-id="chat"]');
         if (d) {
             let bd = d.querySelector('.dock-badge');
@@ -5002,46 +5203,138 @@ const Chat = (() => {
         Object.keys(presence).forEach(k => { if (now - presence[k] > 55e3) delete presence[k]; });
         byId('chat-online').querySelector('b').textContent = String(Math.max(1, Object.keys(presence).length));
     }
+    let frTimer = null;
+    function friendsChanged() { clearTimeout(frTimer); frTimer = setTimeout(() => { renderFriendList(); if (room === 'friends') renderFriends(); else if (isDM(room)) { const c = room.slice(3); byId('chat-sub').textContent = (friendOnline(c) ? 'Online · ' : '') + 'Private · end-to-end encrypted'; } }, 60); }
 
     /* ---------- Messages ---------- */
     function add(r, m, live) {
-        if (!ROOMS[r] || !valid(m) || seen.has(m.id)) return;
+        if ((!ROOMS[r] && !isDM(r)) || !valid(m) || seen.has(m.id)) return;
         seen.add(m.id);
-        const list = msgs[r];
-        list.push({ id: m.id, n: m.n.trim(), u: m.u, t: m.t.trim(), ts: m.ts, s: typeof m.s === 'string' ? m.s : '' });
+        const list = msgs[r] = msgs[r] || [];
+        list.push({ id: m.id, n: m.n.trim(), u: m.u, t: m.t.trim(), ts: m.ts, s: typeof m.s === 'string' ? m.s : '', c: m.c || '' });
         list.sort((a, b) => a.ts - b.ts);
         if (list.length > MAX_KEEP) list.splice(0, list.length - MAX_KEEP);
         saveCache();
+        const fromMe = m.s === sid || (isDM(r) && ident && m.c === ident.code);
         if (r === room && visible()) render();
-        else if (live && m.s !== sid && !muted().includes(m.u)) {
-            unread[r]++; badges();
+        else if (live && !fromMe && (isDM(r) || !muted().includes(m.u))) {
+            unread[r] = (unread[r] || 0) + 1; badges();
             if (r === room && OS.isOpen('chat')) render();
-            if (!OS.isOpen('chat')) showToast(m.n + ': ' + m.t.slice(0, 80), 'Chat · #' + ROOMS[r][0].toLowerCase());
+            if (!OS.isOpen('chat') || isDM(r)) showToast(m.n + ': ' + m.t.slice(0, 80), isDM(r) ? 'Chat · private message' : 'Chat · ' + label(r));
         }
     }
     function publish(topic, obj, retain) {
         if (!client || state !== 'on') return false;
-        try { client.publish(topic, JSON.stringify(obj), { qos: 0, retain: !!retain }); return true; } catch (e) { return false; }
+        try { client.publish(topic, obj === '' ? '' : JSON.stringify(obj), { qos: obj === '' ? 1 : 0, retain: !!retain }); return true; } catch (e) { return false; }
     }
-    function send(text) {
-        text = String(text || '').replace(/\s+\n/g, '\n').trim().slice(0, MAX_LEN);
-        if (!text) return;
-        if (state !== 'on') { showToast('Chat is still connecting…'); return; }
+    function rateOK() {
         const now = Date.now();
         sent = sent.filter(t => now - t < 15e3);
-        if (sent.length && now - sent[sent.length - 1] < 1200) { showToast('Slow down a little.', 'Chat'); return; }
-        if (sent.length >= 6) { showToast('You are sending messages too fast. Wait a few seconds.', 'Chat'); return; }
-        sent.push(now);
-        const who = me();
+        if (sent.length && now - sent[sent.length - 1] < 1200) { showToast('Slow down a little.', 'Chat'); return false; }
+        if (sent.length >= 6) { showToast('You are sending messages too fast. Wait a few seconds.', 'Chat'); return false; }
+        sent.push(now); return true;
+    }
+    async function send(text) {
+        text = String(text || '').replace(/\s+\n/g, '\n').trim().slice(0, MAX_LEN);
+        if (!text || room === 'friends') return;
+        if (state !== 'on') { showToast('Chat is still connecting…'); return; }
+        if (!rateOK()) return;
+        const who = me(), now = Date.now(), r = room;
         const m = { id: now.toString(36) + '-' + Math.random().toString(36).slice(2, 8), n: who.n, u: who.u, t: text, ts: now, s: sid };
-        if (!publish(NS + 'room/' + room, m)) { showToast('Message could not be sent.', 'Chat'); return; }
-        ownIds.add(m.id); lsSet('cxz_chat_own', JSON.stringify([...ownIds].slice(-200)));
-        add(room, m, false);
-        // Keep a short retained history so people who join later see recent messages.
-        publish(NS + 'hist/' + room, msgs[room].slice(-MAX_HIST).map(x => ({ id: x.id, n: x.n, u: x.u, t: x.t, ts: x.ts })), true);
+        if (ident) m.c = ident.code;
         input.value = '';
+        if (isDM(r)) {
+            const c = r.slice(3), f = friends()[c];
+            const sh = f && await sharedFor(c, f.pub);
+            if (!sh) { showToast('Message could not be sent.', 'Chat'); return; }
+            if (!publish(NS + 'dm/' + sh.tid, await seal(sh.key, m))) { showToast('Message could not be sent.', 'Chat'); input.value = text; return; }
+            add(r, m, false);
+            const hist = msgs[r].slice(-MAX_HIST).map(x => ({ id: x.id, n: x.n, u: x.u, t: x.t, ts: x.ts, c: x.c }));
+            publish(NS + 'dmh/' + sh.tid, await seal(sh.key, hist), true);
+        } else {
+            if (!publish(NS + 'room/' + r, m)) { showToast('Message could not be sent.', 'Chat'); input.value = text; return; }
+            ownIds.add(m.id); lsSet('cxz_chat_own', JSON.stringify([...ownIds].slice(-200)));
+            add(r, m, false);
+            // Keep a short retained history so people who join later see recent messages.
+            publish(NS + 'hist/' + r, msgs[r].slice(-MAX_HIST).map(x => ({ id: x.id, n: x.n, u: x.u, t: x.t, ts: x.ts, c: x.c || undefined })), true);
+        }
         render();
         log.scrollTop = log.scrollHeight;
+    }
+
+    /* ---------- Friends: requests over retained inbox topics ---------- */
+    async function subscribeFriend(code) {
+        const f = friends()[code]; if (!f || !client) return;
+        const sh = await sharedFor(code, f.pub); if (!sh) return;
+        client.subscribe([NS + 'dm/' + sh.tid, NS + 'dmh/' + sh.tid], { qos: 0 });
+    }
+    function addFriend(code, n, pub) {
+        const f = friends(); f[code] = { n: String(n || 'Friend').slice(0, 24), pub, since: (f[code] && f[code].since) || Date.now() }; saveFriends(f);
+        const o = outgoing(); if (o[code]) { delete o[code]; saveOut(o); }
+        delete incoming[code];
+        subscribeFriend(code);
+        friendsChanged(); badges();
+    }
+    async function request(code) {
+        code = normCode(code);
+        if (!okCode(code)) { showToast('That friend code doesn’t look right. It has 8 letters and numbers.', 'Chat'); return false; }
+        const id = await identity(); if (!id) return false;
+        if (code === id.code) { showToast('That’s your own friend code.', 'Chat'); return false; }
+        if (friends()[code]) { showToast('You’re already friends.', 'Chat'); return false; }
+        if (state !== 'on') { showToast('Chat is still connecting…', 'Chat'); return false; }
+        if (incoming[code]) { await accept(code); return true; }
+        publish(NS + 'inbox/' + code + '/' + id.code, { k: 'req', pub: id.pub, n: me().n, ts: Date.now() }, true);
+        const o = outgoing(); o[code] = { ts: Date.now(), n: o[code] && o[code].n }; saveOut(o);
+        showToast('Friend request sent to ' + prettyCode(code), 'Chat');
+        friendsChanged();
+        return true;
+    }
+    async function accept(code) {
+        const r = incoming[code], id = await identity(); if (!r || !id) return;
+        publish(NS + 'inbox/' + code + '/' + id.code, { k: 'acc', pub: id.pub, n: me().n, ts: Date.now() }, true);
+        publish(NS + 'inbox/' + id.code + '/' + code, '', true);
+        addFriend(code, r.n, r.pub);
+        showToast('You and ' + r.n + ' are now friends', 'Chat');
+    }
+    async function decline(code) {
+        const id = await identity(); if (!id) return;
+        publish(NS + 'inbox/' + id.code + '/' + code, '', true);
+        delete incoming[code]; friendsChanged(); badges();
+    }
+    async function onInbox(from, data) {
+        if (!okCode(from) || !data || typeof data !== 'object' || typeof data.pub !== 'string' || data.pub.length > 200) return;
+        if (typeof data.ts !== 'number' || data.ts < Date.now() - 60 * 864e5) return;
+        let code; try { code = await codeOf(data.pub); } catch (e) { return; }
+        if (code !== from) return; // the sender must own the key behind the code
+        const n = String(data.n || 'Friend').trim().slice(0, 24) || 'Friend';
+        const id = await identity(); if (!id) return;
+        if (data.k === 'acc') {
+            if (!outgoing()[from] && !friends()[from]) return;
+            publish(NS + 'inbox/' + id.code + '/' + from, '', true);
+            const was = !!friends()[from];
+            addFriend(from, n, data.pub);
+            if (!was) showToast(n + ' accepted your friend request', 'Chat');
+        } else if (data.k === 'req') {
+            if (friends()[from] || outgoing()[from]) {
+                // Already friends, or we both sent requests: accept straight away
+                incoming[from] = { n, pub: data.pub, ts: data.ts };
+                await accept(from);
+                return;
+            }
+            const isNew = !incoming[from];
+            incoming[from] = { n, pub: data.pub, ts: data.ts };
+            friendsChanged(); badges();
+            if (isNew) showToast(n + ' sent you a friend request', 'Chat');
+        }
+    }
+    async function onDM(tid, data, hist) {
+        let code = null;
+        for (const [c, s] of shared) if (s.tid === tid) { code = c; break; }
+        if (!code || !friends()[code]) return;
+        const body = await unseal(shared.get(code).key, data); if (!body) return;
+        const r = 'dm:' + code, okFrom = x => x && (x.c === code || (ident && x.c === ident.code));
+        if (hist) { if (Array.isArray(body)) { body.slice(-MAX_HIST).forEach(m => { if (okFrom(m)) add(r, m, false); }); if (room === r) render(); } }
+        else if (okFrom(body)) add(r, body, true);
     }
 
     /* ---------- Connection ---------- */
@@ -5058,7 +5351,7 @@ const Chat = (() => {
     function connect() {
         if (client || state === 'connecting') return;
         status('connecting', 'Connecting…');
-        loadLib().then(() => {
+        Promise.all([loadLib(), identity()]).then(([, id]) => {
             const url = BROKERS[broker];
             const c = window.mqtt.connect(url, { clientId: 'cxz_' + sid + '_' + attempts, clean: true, connectTimeout: 8000, reconnectPeriod: 4000, keepalive: 30 });
             client = c;
@@ -5066,18 +5359,30 @@ const Chat = (() => {
             c.on('connect', () => {
                 opened = true; everConnected = true; attempts = 0;
                 status('on', 'Connected');
-                c.subscribe([NS + 'room/+', NS + 'hist/+', NS + 'presence'], { qos: 0 });
+                const topics = [NS + 'room/+', NS + 'hist/+', NS + 'presence'];
+                if (id) topics.push(NS + 'inbox/' + id.code + '/+');
+                c.subscribe(topics, { qos: 0 });
+                Object.keys(friends()).forEach(subscribeFriend);
+                // Re-send pending requests so they reach people even if a broker lost them
+                if (id) Object.keys(outgoing()).forEach(code => { if (!friends()[code]) publish(NS + 'inbox/' + code + '/' + id.code, { k: 'req', pub: id.pub, n: me().n, ts: Date.now() }, true); });
                 clearInterval(beat);
-                const ping = () => { if (!document.hidden) publish(NS + 'presence', { s: sid, ts: Date.now() }); presence[sid] = Date.now(); online(); };
-                ping(); beat = setInterval(ping, 20e3);
+                const ping = () => { if (!document.hidden) publish(NS + 'presence', { s: sid, c: id ? id.code : undefined, ts: Date.now() }); presence[sid] = Date.now(); online(); };
+                ping(); beat = setInterval(() => { ping(); friendsChanged(); }, 20e3);
+                if (room === 'friends') renderFriends();
             });
             c.on('message', (topic, payload) => {
-                if (!payload || payload.length > 60000) return;
+                if (!payload || !payload.length || payload.length > 90000) return;
                 let data; try { data = JSON.parse(payload.toString()); } catch (e) { return; }
                 const part = topic.slice(NS.length).split('/');
                 if (part[0] === 'room') add(part[1], data, true);
                 else if (part[0] === 'hist' && Array.isArray(data)) { data.slice(-MAX_HIST).forEach(m => add(part[1], m, false)); if (part[1] === room) render(); }
-                else if (part[0] === 'presence' && data && typeof data.s === 'string' && data.s.length < 40) { presence[data.s] = Date.now(); online(); }
+                else if (part[0] === 'presence' && data && typeof data.s === 'string' && data.s.length < 40) {
+                    presence[data.s] = Date.now(); online();
+                    if (okCode(data.c) && friends()[data.c]) { const was = friendOnline(data.c); onlineCodes[data.c] = Date.now(); if (!was) friendsChanged(); }
+                }
+                else if (part[0] === 'inbox' && part[2]) onInbox(part[2], data);
+                else if (part[0] === 'dm') onDM(part[1], data, false);
+                else if (part[0] === 'dmh') onDM(part[1], data, true);
             });
             c.on('reconnect', () => status('connecting', 'Reconnecting…'));
             c.on('offline', () => status('connecting', 'Reconnecting…'));
@@ -5093,6 +5398,47 @@ const Chat = (() => {
             });
         }).catch(() => { client = null; status('fail', 'Chat couldn’t load on this network'); });
     }
+    // A different account signed in on this device: start fresh with its identity and friends
+    let activeUser = me().u;
+    function checkAccount() {
+        if (me().u === activeUser) return;
+        activeUser = me().u;
+        if (client) { try { client.end(true); } catch (e) {} client = null; }
+        clearInterval(beat); state = 'off'; everConnected = false; ident = null; identP = null; shared.clear(); incoming = {};
+        Object.keys(msgs).forEach(r => { if (isDM(r)) { msgs[r].forEach(m => seen.delete(m.id)); delete msgs[r]; delete unread[r]; } });
+        loadDMCache(); renderFriendList();
+        if (isDM(room)) room = 'general';
+        status('off', 'Offline');
+    }
+
+    /* ---------- Name menu (add friend / mute) ---------- */
+    let pop = null;
+    function closePop() { if (pop) { pop.remove(); pop = null; } }
+    function nameMenu(btn) {
+        closePop();
+        const u = btn.dataset.user, n = btn.dataset.name, code = btn.dataset.code;
+        if (u === me().u && (!code || (ident && code === ident.code))) return;
+        pop = el('div', 'menu chat-pop'); pop.setAttribute('role', 'menu');
+        const item = (ic, t, fn, dis) => { const b = el('button', 'menu-i'); b.type = 'button'; b.innerHTML = icon(ic) + '<span>' + esc(t) + '</span>'; if (dis) b.disabled = true; b.addEventListener('click', () => { closePop(); fn && fn(); }); pop.appendChild(b); };
+        const isF = code && friends()[code];
+        if (isF) item('message-circle', 'Message ' + n, () => setRoom('dm:' + code));
+        else if (code && CRYPTO) item('user-plus', outgoing()[code] ? 'Request sent' : 'Add Friend', () => request(code), !!outgoing()[code]);
+        else item('user-plus', 'Can’t add yet (they need to refresh)', null, true);
+        item('volume-x', 'Mute ' + n, async () => {
+            const ok = await Dialog.confirm('Mute ' + n + '?', 'You won’t see their messages in rooms on this device. To undo this, use Unmute All under the room list.', { okText: 'Mute' });
+            if (!ok) return;
+            const list = muted(); if (!list.includes(u)) list.push(u);
+            lsSet('cxz_chat_muted', JSON.stringify(list.slice(-200)));
+            render(); syncUnmute(); showToast(n + ' muted', 'Chat');
+        });
+        document.body.appendChild(pop);
+        refreshCXZIcons();
+        const r = btn.getBoundingClientRect();
+        pop.style.left = Math.min(r.left, innerWidth - pop.offsetWidth - 8) + 'px';
+        pop.style.top = Math.min(r.bottom + 4, innerHeight - pop.offsetHeight - 8) + 'px';
+    }
+    document.addEventListener('pointerdown', e => { if (pop && !pop.contains(e.target)) closePop(); }, true);
+    document.addEventListener('keydown', e => { if (pop && e.key === 'Escape') closePop(); });
 
     /* ---------- Events ---------- */
     form.addEventListener('submit', e => { e.preventDefault(); send(input.value); });
@@ -5101,24 +5447,48 @@ const Chat = (() => {
         if (e.target.closest('#chat-status') && state === 'fail') { attempts = 0; connect(); }
         if (e.target.closest('#chat-unmute')) { lsSet('cxz_chat_muted', '[]'); syncUnmute(); render(); showToast('Everyone unmuted', 'Chat'); }
     });
-    log.addEventListener('click', async e => {
-        const n = e.target.closest('.chat-name'); if (!n) return;
-        const u = n.dataset.user;
-        if (u === me().u) return;
-        const ok = await Dialog.confirm('Mute ' + n.dataset.name + '?', 'You won’t see their messages on this device. To undo this, use Unmute All under the room list.', { okText: 'Mute' });
-        if (!ok) return;
-        const list = muted(); if (!list.includes(u)) list.push(u);
-        lsSet('cxz_chat_muted', JSON.stringify(list.slice(-200)));
-        render(); syncUnmute(); showToast(n.dataset.name + ' muted', 'Chat');
+    log.addEventListener('click', e => { const n = e.target.closest('.chat-name'); if (n) nameMenu(n); });
+    fpanel.addEventListener('submit', async e => {
+        e.preventDefault();
+        const inp = byId('fr-input');
+        if (await request(inp.value)) inp.value = '';
     });
-    win.addEventListener('win-open', () => { connect(); unread[room] = 0; badges(); setRoom(room); });
-    document.addEventListener('visibilitychange', () => { if (!document.hidden && visible()) { unread[room] = 0; badges(); render(); } });
+    fpanel.addEventListener('click', async e => {
+        const b = e.target.closest('[data-act]'); if (!b || b.tagName === 'FORM') return;
+        const c = b.dataset.code, act = b.dataset.act;
+        if (act === 'copy' && ident) {
+            const t = prettyCode(ident.code);
+            try { await navigator.clipboard.writeText(t); showToast('Friend code copied', 'Chat'); }
+            catch (err) { const r = document.createRange(); r.selectNodeContents(byId('fr-code')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); showToast('Press Ctrl+C to copy your code', 'Chat'); }
+        }
+        else if (act === 'accept') accept(c);
+        else if (act === 'decline') decline(c);
+        else if (act === 'open') setRoom('dm:' + c);
+        else if (act === 'cancel') {
+            const o = outgoing(); delete o[c]; saveOut(o);
+            const id = await identity(); if (id) publish(NS + 'inbox/' + c + '/' + id.code, '', true);
+            friendsChanged();
+        }
+        else if (act === 'remove') {
+            const f = friends(), n = (f[c] || {}).n || 'this friend';
+            if (!await Dialog.confirm('Remove ' + n + '?', 'They’ll be removed from your friends list and your private chat history with them will be deleted from this device.', { okText: 'Remove', danger: true })) return;
+            delete f[c]; saveFriends(f);
+            const s = shared.get(c); if (s && client) { try { client.unsubscribe([NS + 'dm/' + s.tid, NS + 'dmh/' + s.tid]); } catch (err) {} }
+            shared.delete(c); delete msgs['dm:' + c]; delete unread['dm:' + c]; saveCache();
+            friendsChanged(); badges();
+        }
+    });
+    win.addEventListener('win-open', () => { checkAccount(); connect(); if (room !== 'friends') unread[room] = 0; renderFriendList(); setRoom(room); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && visible() && room !== 'friends') { unread[room] = 0; badges(); render(); } });
     function syncUnmute() { byId('chat-unmute').hidden = !muted().length; }
     syncUnmute();
+    loadDMCache();
+    renderFriendList();
     setRoom(room);
     status('off', 'Offline');
     byId('chat-send').disabled = true;
-    return { connect, setRoom };
+    if (window.NebulaAuth && NebulaAuth.user()) identity().then(() => { if (room === 'friends') renderFriends(); });
+    return { connect, setRoom, request };
 })();
 window.Chat = Chat;
 
