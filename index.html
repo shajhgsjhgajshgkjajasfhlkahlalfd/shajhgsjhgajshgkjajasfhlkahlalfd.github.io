@@ -6177,13 +6177,87 @@ a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
 }
 @media(max-width:420px){#cxz-music-presets{grid-template-columns:repeat(2,minmax(0,1fr))}#cxz-music-dock{left:8px;bottom:8px;max-width:calc(100vw - 16px)}}
 </style>
-<div id="cxz-music-dock" role="region" aria-label="Music dock">
-  <button id="cxz-music-open" type="button" title="Open Music">♫</button>
-  <span id="cxz-music-track">Nothing playing</span>
-  <button class="cxz-music-control" id="cxz-music-prev" type="button" title="Previous result" aria-label="Previous result">|◂</button>
-  <button class="cxz-music-control" id="cxz-music-play" type="button" title="Open music player" aria-label="Open music player">▶</button>
-  <button class="cxz-music-control" id="cxz-music-next" type="button" title="Next result" aria-label="Next result">▸|</button>
-</div>
+
+<style id="cxz-music-site-integration">
+/* Music app inherits the active Classroom-X-Zone theme. */
+#cxz-music-app{
+  --music-bg:var(--bg,#11101b);
+  --music-panel:var(--glass-strong,rgba(22,18,38,.94));
+  --music-card:var(--bg-2,rgba(255,255,255,.06));
+  --music-line:var(--line,rgba(255,255,255,.14));
+  --music-text:var(--ink,#f4efff);
+  --music-muted:var(--ink-soft,#aaa0bd);
+  --music-accent:var(--accent-color,#9870ff);
+  background:color-mix(in srgb,var(--music-bg) 94%,#080710)!important;
+  color:var(--music-text)!important;
+  font-family:var(--font-ui,inherit)!important;
+  font-size:13px!important;
+}
+#cxz-music-top{background:var(--music-panel)!important;border-bottom:1px solid var(--music-line)!important;backdrop-filter:blur(18px)}
+#cxz-music-top strong{color:var(--music-accent)!important;font-family:var(--font-display,var(--font-ui,inherit))}
+#cxz-music-window-controls button{background:var(--music-card)!important;border:1px solid var(--music-line)!important;color:var(--music-text)!important}
+#cxz-music-window-controls button:last-child{background:#ef8d9c!important;color:#241019!important}
+#cxz-music-browse{background:color-mix(in srgb,var(--music-bg) 88%,transparent)!important;border-color:var(--music-line)!important}
+#cxz-music-query{background:var(--music-card)!important;border:1px solid var(--music-line)!important;color:var(--music-text)!important;border-radius:14px!important;font-family:inherit!important}
+#cxz-music-query:focus{border-color:var(--music-accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--music-accent) 20%,transparent)!important}
+#cxz-music-search{background:var(--music-accent)!important;color:#fff!important;border-radius:12px!important;font-family:inherit!important}
+#cxz-music-section-title{color:var(--music-accent)!important;font-family:var(--font-display,var(--font-ui,inherit))}
+.cxz-music-preset,.cxz-music-result{background:var(--music-card)!important;border:1px solid var(--music-line)!important;color:var(--music-text)!important;border-radius:15px!important}
+.cxz-music-preset:hover,.cxz-music-result:hover,.cxz-music-result.active{border-color:var(--music-accent)!important;background:color-mix(in srgb,var(--music-accent) 13%,var(--music-card))!important}
+.cxz-music-preset-art{background:linear-gradient(145deg,color-mix(in srgb,var(--music-accent) 75%,#fff),var(--music-bg))!important;color:#fff!important}
+.cxz-music-preset:nth-child(2n) .cxz-music-preset-art,.cxz-music-preset:nth-child(3n) .cxz-music-preset-art{background:linear-gradient(145deg,var(--music-accent),var(--theme-secondary,#46306f))!important;color:#fff!important}
+.cxz-music-preset b,.cxz-music-result b{font-family:var(--font-display,var(--font-ui,inherit))}
+.cxz-music-preset small,.cxz-music-result small,#cxz-music-status{color:var(--music-muted)!important}
+#cxz-music-nowplaying{background:radial-gradient(ellipse at center,color-mix(in srgb,var(--music-accent) 13%,var(--music-bg)),var(--music-bg) 72%)!important}
+#cxz-music-empty .note{color:var(--music-accent)!important}
+#cxz-music-empty h2,#cxz-music-now-title{color:var(--music-text)!important}
+#cxz-music-iframe{box-shadow:0 18px 50px rgba(0,0,0,.28);border:1px solid var(--music-line)!important}
+#cxz-music-app.expanded #cxz-music-layout{grid-template-columns:minmax(320px,46%) minmax(0,1fr)}
+/* Keep the real site dock as the only bottom control bar; no detached floating pill. */
+.bottom-dock{
+  position:fixed!important;left:50%!important;right:auto!important;
+  bottom:max(12px,env(safe-area-inset-bottom))!important;
+  transform:translateX(-50%)!important;
+  width:max-content!important;max-width:calc(100vw - 20px)!important;
+  box-sizing:border-box!important;z-index:250005!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex-wrap:nowrap!important;gap:5px!important;overflow:visible!important;
+}
+.bottom-dock .dock-item{flex:0 0 auto!important}
+#cxz-music-launch{position:relative!important}
+#cxz-music-launch:after{content:"";position:absolute;right:5px;top:5px;width:5px;height:5px;border-radius:50%;background:var(--music-accent,#9870ff);opacity:.9}
+#cxz-music-inline{
+  display:flex;align-items:center;gap:5px;min-width:0;max-width:235px;
+  height:40px;padding:4px 6px 4px 10px;border:1px solid var(--line,rgba(255,255,255,.14));
+  border-radius:14px;background:var(--glass-strong,rgba(18,15,28,.92));
+  color:var(--ink,#fff);box-shadow:0 5px 18px rgba(0,0,0,.18);
+}
+#cxz-music-inline-title{display:block;min-width:50px;max-width:116px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 10px var(--font-ui,inherit);color:var(--ink,#fff)}
+#cxz-music-inline button{width:29px;height:29px;flex:0 0 29px;border:0;border-radius:9px;background:var(--bg-2,rgba(255,255,255,.08));color:var(--ink,#fff);display:grid;place-items:center;cursor:pointer}
+#cxz-music-inline button:hover{background:var(--accent-color,#9870ff);color:white}
+#cxz-music-inline #cxz-music-play{background:var(--accent-color,#9870ff);color:white;border-radius:50%}
+#cxz-music-dock{display:none!important}
+@media(max-width:760px){
+  .bottom-dock{max-width:calc(100vw - 12px)!important;gap:2px!important;padding:5px!important;bottom:max(7px,env(safe-area-inset-bottom))!important}
+  .bottom-dock .dock-item{width:34px!important;min-width:34px!important;height:36px!important;padding:0 4px!important}
+  #cxz-music-inline{height:36px;gap:3px;padding:3px 4px;max-width:148px}
+  #cxz-music-inline-title{max-width:54px;font-size:9px}
+  #cxz-music-inline button{width:25px;height:27px;flex-basis:25px}
+}
+@media(max-width:390px){
+  .bottom-dock .dock-item[title="Partners"],.bottom-dock .dock-item[title="Suggest a Game"]{display:none!important}
+  #cxz-music-inline{max-width:125px}
+  #cxz-music-inline-title{max-width:42px}
+  .bottom-dock .dock-item[title="Admin"]{display:none!important}
+}
+@media(max-width:360px){
+  .bottom-dock .dock-item[title="Movies"]{display:none!important}
+  #cxz-music-inline{max-width:108px}
+  #cxz-music-inline-title{max-width:32px}
+}
+body:has(#cxz-music-app.open) .bottom-dock{z-index:250005!important}
+</style>
+
 <section id="cxz-music-app" aria-label="Music app" aria-hidden="true">
   <header id="cxz-music-top">
     <strong>♫ Music</strong>
@@ -6227,9 +6301,20 @@ a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
   'use strict';
   const WORKER_URL='https://youtube-music-search.zprice720.workers.dev/';
   const app=document.getElementById('cxz-music-app');
-  const openBtn=document.getElementById('cxz-music-open');
+  const siteDock=document.querySelector('.bottom-dock');
+  if(siteDock && !document.getElementById('cxz-music-launch')){
+    const launch=document.createElement('button');
+    launch.type='button'; launch.id='cxz-music-launch'; launch.className='dock-item';
+    launch.title='Music'; launch.setAttribute('aria-label','Open Music');
+    launch.innerHTML='♫';
+    siteDock.appendChild(launch);
+    const inline=document.createElement('div'); inline.id='cxz-music-inline'; inline.setAttribute('aria-label','Music controls');
+    inline.innerHTML='<span id="cxz-music-inline-title">Nothing playing</span><button id="cxz-music-prev" type="button" title="Previous" aria-label="Previous">|◂</button><button id="cxz-music-play" type="button" title="Open Music" aria-label="Open Music">▶</button><button id="cxz-music-next" type="button" title="Next" aria-label="Next">▸|</button>';
+    siteDock.appendChild(inline);
+  }
+  const openBtn=document.getElementById('cxz-music-launch');
   const dockPlay=document.getElementById('cxz-music-play');
-  const track=document.getElementById('cxz-music-track');
+  const track=document.getElementById('cxz-music-inline-title');
   const form=document.getElementById('cxz-music-searchrow');
   const input=document.getElementById('cxz-music-query');
   const status=document.getElementById('cxz-music-status');
