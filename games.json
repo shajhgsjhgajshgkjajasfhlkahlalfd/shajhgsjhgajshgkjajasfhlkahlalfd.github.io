@@ -208,5 +208,11 @@
     "title": "Cluster Rush",
     "tagline": "jump on trucks.",
     "img": "./g/assets/Cluster-Rush.jpg"
+  },
+  {
+    "file": "googbaseball.html",
+    "title": "Google Doodle Baseball",
+    "tagline": "ea sports",
+    "img": "./g/assets/googbaseball.png"
   }
 ]
