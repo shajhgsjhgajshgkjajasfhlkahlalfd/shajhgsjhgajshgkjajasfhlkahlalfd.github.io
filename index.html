@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classroom-X-Zone</title>
     <meta name="color-scheme" content="dark">
-    <meta name="cxz-site-version" content="2026.11.28.2">
+    <meta name="cxz-site-version" content="2026.11.28.3">
     <meta name="description" content="Play, explore, and discover games and useful tools in one place.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Classroom-X-Zone">
@@ -6141,7 +6141,7 @@ a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
 #os-widgets .ow-round:focus-visible{outline:2px solid var(--theme-tertiary)}
 .tray-chip:focus-visible{outline:2px solid var(--theme-secondary)}
 </style>
-\n<!-- CXZ Music: dock mini-player + full-screen browse app, powered by the Cloudflare Worker. -->
+
 
 
 </body>
@@ -7052,7 +7052,7 @@ async function adminRefresh() {
         renderAdminErrors(er, localErrs, true);
         renderAdminStats(totals);
         const capped = data.totals && (data.totals.suggestions > sg.length || data.totals.errors > er.length);
-        setAdminStatus("Updated " + new Date().toLocaleTimeString() + (capped ? " · showing the newest entries" : ""));
+        setAdminStatus("Updated " + new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true}) + (capped ? " · showing the newest entries" : ""));
     } else {
         const totals = { suggestions: localSugg.length + adminReadJSON("cxz_suggestions").filter(s => s.sent).length, errors: localErrs.length };
         renderAdminLive(null, totals);
@@ -7577,7 +7577,7 @@ body input:focus:not([type=checkbox]):not([type=radio]),body select:focus,body t
   function lockScreen(){
     var o=document.getElementById('auth-overlay');if(!o||document.getElementById('lock-clock'))return;
     var c=document.createElement('div');c.id='lock-clock';var t=document.createElement('b'),d=document.createElement('span');c.append(t,d);o.prepend(c);
-    var tick=function(){var n=new Date();t.textContent=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});d.textContent=n.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})};tick();setInterval(tick,15000);
+    var tick=function(){var n=new Date();t.textContent=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true});d.textContent=n.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})};tick();setInterval(tick,15000);
     var logo=document.querySelector('.brand-banner img'),card=o.querySelector('.gate-card');
     if(logo&&card){var a=document.createElement('img');a.className='lock-avatar';a.alt='';a.src=logo.src;card.prepend(a)}
   }
@@ -7998,7 +7998,7 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
     }
     function attach(m){
       if(mgr===m)return;mgr=m;
-      ['levelchange','chargingchange','chargingtimechange','dischargingtimechange'].forEach(function(ev){m.addEventListener(ev,function(){lastEvt=new Date().toLocaleTimeString()+' ('+ev+')';render()})});
+      ['levelchange','chargingchange','chargingtimechange','dischargingtimechange'].forEach(function(ev){m.addEventListener(ev,function(){lastEvt=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true})+' ('+ev+')';render()})});
     }
     function read(){
       if(!navigator.getBattery){failure='';render();return}
@@ -8016,7 +8016,7 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
   }
   batteryPill();
   var ck=el('div','tray-clock'),ct=el('b'),cd=el('span');ck.append(ct,cd);R.appendChild(ck);
-  function tick(){var n=new Date(),w=window.__nebulaWx;ct.textContent=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});cd.textContent=n.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})+(w?' · '+w.t+'°'+w.u:'')}
+  function tick(){var n=new Date(),w=window.__nebulaWx;ct.textContent=n.toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true});cd.textContent=n.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})+(w?' · '+w.t+'°'+w.u:'')}
   tick();setInterval(tick,10000);addEventListener('nebula-wx',tick);
   var chip=document.getElementById('user-chip');if(chip)R.appendChild(chip);
 })();
@@ -8033,7 +8033,7 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
   var clock=el('div','ow ow-clock'),h=el('b','ow-h'),m=el('b','ow-m'),ap=el('span','ow-ap');clock.append(h,m,ap);
   var dw=el('div','ow ow-date'),wd=el('small'),dn=el('b'),mo=el('small');dw.append(wd,dn,mo);
   function tick(){
-    var n=new Date(),p={};new Intl.DateTimeFormat([],{hour:'numeric',minute:'2-digit'}).formatToParts(n).forEach(function(x){p[x.type]=x.value});
+    var n=new Date(),p={};new Intl.DateTimeFormat([],{hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(n).forEach(function(x){p[x.type]=x.value});
     h.textContent=p.hour;m.textContent=p.minute;ap.textContent=(p.dayPeriod||'').toUpperCase();
     wd.textContent=n.toLocaleDateString([],{weekday:'short'}).toUpperCase();dn.textContent=n.getDate();mo.textContent=n.toLocaleDateString([],{month:'short'});
   }
@@ -8067,7 +8067,7 @@ body.os .container > .tab-content.os-win.os-max:not(#home){top:0!important;heigh
       mid.appendChild(hl);var wi=el('div','ow-wx-i');wi.innerHTML='<i data-lucide="'+info[1]+'"></i>';top.append(t,mid,wi);wb.appendChild(top);if(window.lucide&&lucide.createIcons)lucide.createIcons();
       var times=d.hourly.time,now=c.time.slice(0,13),i0=0;for(var i=0;i<times.length;i++){if(times[i].slice(0,13)>=now){i0=i;break}}
       var hr=el('div','ow-wx-h');
-      [0,3,6,9].forEach(function(o){var k=i0+o;if(k>=times.length)return;var cell=el('div'),sm=el('small',null,times[k].slice(11,13)+':00');cell.append(sm,el('span','',Math.round(d.hourly.temperature_2m[k])+'°'));hr.appendChild(cell)});
+      [0,3,6,9].forEach(function(o){var k=i0+o;if(k>=times.length)return;var cell=el('div'),hour=Number(times[k].slice(11,13)),label=(hour%12||12)+(hour<12?' AM':' PM'),sm=el('small',null,label);cell.append(sm,el('span','',Math.round(d.hourly.temperature_2m[k])+'°'));hr.appendChild(cell)});
       wb.appendChild(hr);
       var ch=el('button','ow-link',loc.name+' · change');ch.type='button';ch.addEventListener('click',function(){form()});wb.appendChild(ch);
     }).catch(function(){wb.textContent='';wb.append(el('div','ow-meta','Weather is unavailable right now.'));var r=el('button','ow-link','Try again');r.type='button';r.addEventListener('click',load);wb.appendChild(r)});
@@ -8278,7 +8278,7 @@ body.os .bottom-dock .shelf-center .dock-item.active{background:color-mix(in srg
 <script id="cxz-update-notification-script">
 (function(){
   'use strict';
-  var CURRENT_VERSION='2026.11.28.2';
+  var CURRENT_VERSION='2026.11.28.3';
   var DISMISS_KEY='cxz-update-dismissed-version';
   var checkInProgress=false,latestVersion='';
   function make(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
