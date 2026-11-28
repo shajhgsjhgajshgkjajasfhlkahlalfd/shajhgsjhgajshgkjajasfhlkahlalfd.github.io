@@ -6126,77 +6126,161 @@ a:hover,.link:hover,.hero-kicker,.section-kicker{color:var(--theme-secondary)}
 #os-widgets .ow-round:focus-visible{outline:2px solid var(--theme-tertiary)}
 .tray-chip:focus-visible{outline:2px solid var(--theme-secondary)}
 </style>
-\n<!-- CXZ YouTube Music Player: searches through the private Cloudflare Worker. -->
+\n<!-- CXZ Music: dock mini-player + full-screen browse app, powered by the Cloudflare Worker. -->
 <style id="cxz-youtube-music-styles">
-#cxz-ytm-launch{position:fixed;right:22px;bottom:92px;z-index:250000;width:54px;height:54px;border:1px solid var(--accent-border,rgba(139,92,246,.4));border-radius:18px;background:var(--bg-card,rgba(20,22,32,.96));color:var(--ink,#fff);box-shadow:0 10px 32px rgba(0,0,0,.38);display:grid;place-items:center;cursor:pointer;font-size:23px}
-#cxz-ytm-launch:hover{transform:translateY(-2px);border-color:var(--accent-color,#8b5cf6)}
-#cxz-ytm-panel{position:fixed;right:22px;bottom:156px;z-index:250001;width:min(390px,calc(100vw - 28px));max-height:min(690px,calc(100vh - 185px));overflow:auto;padding:15px;border:1px solid var(--line-solid,rgba(255,255,255,.14));border-radius:18px;background:var(--bg-card,rgba(15,18,26,.98));color:var(--ink,#f0f2f7);box-shadow:0 22px 70px rgba(0,0,0,.5);font-family:var(--font-ui,system-ui,sans-serif);display:none}
-#cxz-ytm-panel.open{display:block}
-#cxz-ytm-panel *{box-sizing:border-box}
-#cxz-ytm-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-#cxz-ytm-head strong{font-size:15px}
-#cxz-ytm-close{border:0;background:transparent;color:inherit;font-size:22px;cursor:pointer;padding:2px 7px}
-#cxz-ytm-searchrow{display:flex;gap:7px}
-#cxz-ytm-query{min-width:0;flex:1;height:40px;padding:0 11px;border:1px solid var(--line-solid,rgba(255,255,255,.15));border-radius:10px;background:var(--bg-2,#10141f);color:var(--ink,#fff);font:inherit;outline:none}
-#cxz-ytm-search{height:40px;padding:0 13px;border:0;border-radius:10px;background:var(--accent-color,#8b5cf6);color:#fff;font-weight:700;cursor:pointer}
-#cxz-ytm-status{min-height:20px;margin:9px 1px;color:var(--ink-soft,#9aa2b5);font-size:12px}
-#cxz-ytm-results{display:grid;gap:7px;margin:8px 0 12px}
-.cxz-ytm-result{display:flex;align-items:center;gap:10px;width:100%;padding:7px;border:1px solid var(--line,rgba(255,255,255,.08));border-radius:11px;background:rgba(255,255,255,.035);color:inherit;text-align:left;cursor:pointer}
-.cxz-ytm-result:hover{border-color:var(--accent-color,#8b5cf6);background:rgba(255,255,255,.07)}
-.cxz-ytm-result img{width:104px;height:59px;flex:0 0 104px;object-fit:cover;border-radius:7px;background:#222}
-.cxz-ytm-result span{min-width:0;font-size:12px;line-height:1.4}
-.cxz-ytm-result b{display:block;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.cxz-ytm-result small{display:block;margin-top:3px;color:var(--ink-soft,#9aa2b5)}
-#cxz-ytm-player{width:100%;aspect-ratio:16/9;border:0;border-radius:11px;background:#000;display:none}
-@media(max-width:600px){#cxz-ytm-launch{right:14px;bottom:84px}#cxz-ytm-panel{right:10px;bottom:146px;width:calc(100vw - 20px)}}
+#cxz-music-dock{position:fixed;left:12px;bottom:12px;z-index:250000;height:42px;max-width:min(440px,calc(100vw - 24px));display:flex;align-items:center;gap:7px;padding:4px 7px;border:1px solid rgba(255,255,255,.12);border-radius:15px;background:rgba(13,13,10,.96);color:#f2eee0;box-shadow:0 8px 28px rgba(0,0,0,.4);font-family:var(--font-mono,monospace)}
+#cxz-music-dock button{height:30px;min-width:30px;padding:0 7px;border:0;border-radius:10px;background:rgba(255,255,255,.07);color:inherit;cursor:pointer;display:grid;place-items:center}
+#cxz-music-dock button:hover{background:var(--accent-color,#c6d66b);color:#10110b}
+#cxz-music-open{width:31px!important;min-width:31px!important;border-radius:50%!important;background:var(--accent-color,#c6d66b)!important;color:#111!important;font-size:17px}
+#cxz-music-track{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:700;padding:0 3px}
+#cxz-music-dock .cxz-music-control{font-size:12px}
+#cxz-music-app{position:fixed;inset:0;z-index:250010;display:none;background:#0d0e08;color:#f0efdf;font-family:var(--font-mono,monospace);font-size:12px}
+#cxz-music-app.open{display:grid;grid-template-rows:34px minmax(0,1fr)}
+#cxz-music-app *{box-sizing:border-box}
+#cxz-music-top{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-bottom:1px solid rgba(255,255,255,.1);background:#10110b}
+#cxz-music-top strong{color:#d7df83;font-size:12px}
+#cxz-music-window-controls{display:flex;gap:6px}
+#cxz-music-window-controls button{width:30px;height:26px;border:0;border-radius:7px;background:#24251d;color:#eee;cursor:pointer}
+#cxz-music-window-controls button:last-child{background:#ffaaa0;color:#27120e}
+#cxz-music-layout{min-height:0;display:grid;grid-template-columns:minmax(360px,55%) minmax(0,1fr)}
+#cxz-music-browse{min-width:0;min-height:0;overflow:auto;padding:12px;border-right:1px solid rgba(255,255,255,.1)}
+#cxz-music-searchrow{display:flex;gap:8px;margin:0 0 22px}
+#cxz-music-query{flex:1;min-width:0;height:38px;border:1px solid #b8c66a;border-radius:20px;background:#1b1c13;color:#f2f0dc;padding:0 13px;font:inherit;outline:none}
+#cxz-music-search{height:38px;padding:0 15px;border:0;border-radius:18px;background:#c8d77a;color:#14150d;font:inherit;font-weight:700;cursor:pointer}
+#cxz-music-section-title{margin:0 0 10px;color:#d8df8a;font-size:11px;letter-spacing:.08em}
+#cxz-music-presets{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-bottom:18px}
+.cxz-music-preset{min-width:0;padding:7px;border:1px solid rgba(255,255,255,.07);border-radius:15px;background:#1d1e17;color:inherit;text-align:left;cursor:pointer}
+.cxz-music-preset:hover{border-color:#c8d77a}
+.cxz-music-preset-art{display:grid;place-items:center;aspect-ratio:1;border-radius:9px;background:linear-gradient(145deg,#d5d77b,#59664b);color:#17180f;font-size:19px;font-weight:900;text-align:center;padding:5px}
+.cxz-music-preset:nth-child(2n) .cxz-music-preset-art{background:linear-gradient(145deg,#e6a8a0,#6e4647);color:#fff}
+.cxz-music-preset:nth-child(3n) .cxz-music-preset-art{background:linear-gradient(145deg,#a7c8d4,#41576a);color:#111}
+.cxz-music-preset b{display:block;margin-top:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+#cxz-music-status{min-height:18px;margin:8px 1px 10px;color:#b6b69f;font-size:11px}
+#cxz-music-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.cxz-music-result{min-width:0;padding:7px;border:1px solid rgba(255,255,255,.07);border-radius:13px;background:#1a1b14;color:inherit;text-align:left;cursor:pointer}
+.cxz-music-result:hover,.cxz-music-result.active{border-color:#c8d77a;background:#24261a}
+.cxz-music-result img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:#25251d}
+.cxz-music-result b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:6px;font-size:10px;line-height:1.4}
+.cxz-music-result small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px;color:#b5b49e;font-size:9px}
+#cxz-music-nowplaying{min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;background:#0d0e08}
+#cxz-music-nowplaying iframe{width:100%;max-width:850px;aspect-ratio:16/9;border:0;border-radius:12px;background:#080906}
+#cxz-music-empty{max-width:440px;text-align:left;color:#c9c8b2;line-height:1.9}
+#cxz-music-empty .note{display:block;margin-bottom:12px;color:#d6df83;font-size:38px}
+#cxz-music-now-title{max-width:850px;width:100%;margin:12px 0 0;font-size:13px;color:#f2efda;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:760px){
+ #cxz-music-app.open{grid-template-rows:34px minmax(0,1fr)}
+ #cxz-music-layout{grid-template-columns:1fr;grid-template-rows:minmax(230px,48%) minmax(220px,1fr)}
+ #cxz-music-browse{border-right:0;border-bottom:1px solid rgba(255,255,255,.1);padding:9px}
+ #cxz-music-presets{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #cxz-music-results{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #cxz-music-nowplaying{padding:12px}
+}
+@media(max-width:420px){#cxz-music-presets{grid-template-columns:repeat(2,minmax(0,1fr))}#cxz-music-dock{left:8px;bottom:8px;max-width:calc(100vw - 16px)}}
 </style>
-<button id="cxz-ytm-launch" type="button" aria-label="Open YouTube music player" title="YouTube Music">♫</button>
-<section id="cxz-ytm-panel" aria-label="YouTube music search" aria-hidden="true">
-  <div id="cxz-ytm-head"><strong>♫ YouTube Music Search</strong><button id="cxz-ytm-close" type="button" aria-label="Close">×</button></div>
-  <form id="cxz-ytm-searchrow"><input id="cxz-ytm-query" type="search" maxlength="100" placeholder="Search songs or artists…" autocomplete="off" required><button id="cxz-ytm-search" type="submit">Search</button></form>
-  <div id="cxz-ytm-status" role="status">Search YouTube to find music.</div>
-  <div id="cxz-ytm-results"></div>
-  <iframe id="cxz-ytm-player" title="YouTube music player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<div id="cxz-music-dock" role="region" aria-label="Music dock">
+  <button id="cxz-music-open" type="button" title="Open Music">♫</button>
+  <span id="cxz-music-track">Nothing playing</span>
+  <button class="cxz-music-control" id="cxz-music-prev" type="button" title="Previous result" aria-label="Previous result">|◂</button>
+  <button class="cxz-music-control" id="cxz-music-play" type="button" title="Open music player" aria-label="Open music player">▶</button>
+  <button class="cxz-music-control" id="cxz-music-next" type="button" title="Next result" aria-label="Next result">▸|</button>
+</div>
+<section id="cxz-music-app" aria-label="Music app" aria-hidden="true">
+  <header id="cxz-music-top">
+    <strong>♫ Music</strong>
+    <div id="cxz-music-window-controls">
+      <button id="cxz-music-min" type="button" title="Minimize">−</button>
+      <button id="cxz-music-max" type="button" title="Toggle full screen">⛶</button>
+      <button id="cxz-music-close" type="button" title="Close">×</button>
+    </div>
+  </header>
+  <div id="cxz-music-layout">
+    <main id="cxz-music-browse">
+      <form id="cxz-music-searchrow">
+        <input id="cxz-music-query" type="search" maxlength="100" placeholder="⌕  Search songs, artists, albums…" autocomplete="off" required>
+        <button id="cxz-music-search" type="submit">Search</button>
+      </form>
+      <h3 id="cxz-music-section-title">TOP PLAYLISTS</h3>
+      <div id="cxz-music-presets">
+        <button class="cxz-music-preset" type="button" data-query="Christmas classics"><span class="cxz-music-preset-art">Christmas<br>Classics</span><b>Christmas Classics</b></button>
+        <button class="cxz-music-preset" type="button" data-query="Christmas hits"><span class="cxz-music-preset-art">CHRISTMAS<br>HITS</span><b>Christmas Hits</b></button>
+        <button class="cxz-music-preset" type="button" data-query="calm piano music"><span class="cxz-music-preset-art">Calm<br>Piano</span><b>Calm Piano</b></button>
+        <button class="cxz-music-preset" type="button" data-query="video game soundtrack"><span class="cxz-music-preset-art">GAME<br>MUSIC</span><b>Game Soundtracks</b></button>
+        <button class="cxz-music-preset" type="button" data-query="lofi hip hop"><span class="cxz-music-preset-art">LOFI<br>HIP HOP</span><b>Lofi Hip Hop</b></button>
+        <button class="cxz-music-preset" type="button" data-query="piano meditation"><span class="cxz-music-preset-art">PIANO<br>CALM</span><b>Piano Meditation</b></button>
+        <button class="cxz-music-preset" type="button" data-query="relaxing music"><span class="cxz-music-preset-art">Relaxation</span><b>Relaxation</b></button>
+        <button class="cxz-music-preset" type="button" data-query="jazz music"><span class="cxz-music-preset-art">JAZZY</span><b>Jazz</b></button>
+        <button class="cxz-music-preset" type="button" data-query="happy folk music"><span class="cxz-music-preset-art">Happy<br>Folk</span><b>Happy Folk</b></button>
+        <button class="cxz-music-preset" type="button" data-query="sleepy lofi"><span class="cxz-music-preset-art">Sleepy<br>Lofi</span><b>Sleepy Lofi</b></button>
+      </div>
+      <div id="cxz-music-status" role="status">Search for a song, or choose a collection above.</div>
+      <div id="cxz-music-results"></div>
+    </main>
+    <aside id="cxz-music-nowplaying">
+      <div id="cxz-music-empty"><span class="note">♫</span><h2>Nothing playing</h2><p>Search for a song, or pick something from Browse. The YouTube player will appear here.</p></div>
+      <iframe id="cxz-music-iframe" title="YouTube music playback" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
+      <div id="cxz-music-now-title"></div>
+    </aside>
+  </div>
 </section>
 <script id="cxz-youtube-music-script">
 (function(){
   'use strict';
-  const WORKER_URL = 'https://youtube-music-search.zprice720.workers.dev/';
-  const launch = document.getElementById('cxz-ytm-launch');
-  const panel = document.getElementById('cxz-ytm-panel');
-  const close = document.getElementById('cxz-ytm-close');
-  const form = document.getElementById('cxz-ytm-searchrow');
-  const queryInput = document.getElementById('cxz-ytm-query');
-  const status = document.getElementById('cxz-ytm-status');
-  const results = document.getElementById('cxz-ytm-results');
-  const player = document.getElementById('cxz-ytm-player');
-  if (!launch || !panel || !form) return;
-  function setOpen(open){panel.classList.toggle('open',open);panel.setAttribute('aria-hidden',String(!open));if(open)queryInput.focus();}
-  launch.addEventListener('click',()=>setOpen(!panel.classList.contains('open')));
-  close.addEventListener('click',()=>setOpen(false));
-  function play(videoId){player.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(videoId)+'?autoplay=1&rel=0';player.style.display='block';}
-  form.addEventListener('submit',async function(event){
-    event.preventDefault();
-    const q=queryInput.value.trim();
-    if(!q || q.length>100)return;
-    status.textContent='Searching YouTube…';results.replaceChildren();
+  const WORKER_URL='https://youtube-music-search.zprice720.workers.dev/';
+  const app=document.getElementById('cxz-music-app');
+  const openBtn=document.getElementById('cxz-music-open');
+  const dockPlay=document.getElementById('cxz-music-play');
+  const track=document.getElementById('cxz-music-track');
+  const form=document.getElementById('cxz-music-searchrow');
+  const input=document.getElementById('cxz-music-query');
+  const status=document.getElementById('cxz-music-status');
+  const results=document.getElementById('cxz-music-results');
+  const frame=document.getElementById('cxz-music-iframe');
+  const empty=document.getElementById('cxz-music-empty');
+  const nowTitle=document.getElementById('cxz-music-now-title');
+  if(!app||!form||!openBtn)return;
+  let items=[],current=-1;
+  function setOpen(value){app.classList.toggle('open',value);app.setAttribute('aria-hidden',String(!value));if(value)input.focus();}
+  openBtn.addEventListener('click',()=>setOpen(!app.classList.contains('open')));
+  document.getElementById('cxz-music-close').addEventListener('click',()=>setOpen(false));
+  document.getElementById('cxz-music-min').addEventListener('click',()=>setOpen(false));
+  document.getElementById('cxz-music-max').addEventListener('click',()=>app.classList.toggle('expanded'));
+  dockPlay.addEventListener('click',()=>setOpen(true));
+  function playAt(index){
+    if(!items.length)return;
+    current=(index+items.length)%items.length;
+    const item=items[current];
+    frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(item.videoId)+'?autoplay=1&rel=0';
+    frame.hidden=false;empty.hidden=true;
+    nowTitle.textContent=item.title||'Now playing';
+    track.textContent=item.title||'Now playing';
+    dockPlay.textContent='♫';
+    [...results.children].forEach((node,i)=>node.classList.toggle('active',i===current));
+  }
+  document.getElementById('cxz-music-prev').addEventListener('click',()=>{if(items.length)playAt(current<=0?items.length-1:current-1);else setOpen(true);});
+  document.getElementById('cxz-music-next').addEventListener('click',()=>{if(items.length)playAt(current+1);else setOpen(true);});
+  async function search(q){
+    q=(q||'').trim();if(!q||q.length>100)return;
+    setOpen(true);input.value=q;status.textContent='Searching YouTube…';results.replaceChildren();
     try{
-      const response=await fetch(WORKER_URL+'?q='+encodeURIComponent(q),{method:'GET'});
-      if(!response.ok)throw new Error(response.status===403?'This website origin is not allowed by the Worker. Check ALLOWED_ORIGINS.':'Search request failed ('+response.status+').');
+      const response=await fetch(WORKER_URL+'?q='+encodeURIComponent(q));
+      if(!response.ok)throw new Error(response.status===403?'This site is not allowed by the Worker. Check ALLOWED_ORIGINS.':'YouTube search failed ('+response.status+').');
       const data=await response.json();
-      const items=Array.isArray(data.results)?data.results:[];
+      items=(Array.isArray(data.results)?data.results:[]).filter(x=>x&&x.videoId);
+      current=-1;
       if(!items.length){status.textContent='No videos found. Try another search.';return;}
-      status.textContent='Choose a result to play.';
-      items.forEach(item=>{
-        if(!item.videoId)return;
-        const button=document.createElement('button');button.type='button';button.className='cxz-ytm-result';
-        const img=document.createElement('img');img.src=item.thumbnail||'';img.alt='';img.loading='lazy';
-        const text=document.createElement('span');const title=document.createElement('b');title.textContent=item.title||'Untitled video';
-        const channel=document.createElement('small');channel.textContent=item.channel||'YouTube';text.append(title,channel);button.append(img,text);
-        button.addEventListener('click',()=>play(item.videoId));results.append(button);
+      status.textContent=items.length+' results — choose one to play.';
+      items.forEach((item,index)=>{
+        const button=document.createElement('button');button.type='button';button.className='cxz-music-result';
+        const img=document.createElement('img');img.loading='lazy';img.src=item.thumbnail||'';img.alt='';
+        const title=document.createElement('b');title.textContent=item.title||'Untitled video';
+        const channel=document.createElement('small');channel.textContent=item.channel||'YouTube';
+        button.append(img,title,channel);button.addEventListener('click',()=>playAt(index));results.append(button);
       });
-    }catch(error){status.textContent=error.message||'Could not search YouTube. Please try again.';}
-  });
+    }catch(error){status.textContent=error.message||'Search failed. Please try again.';}
+  }
+  form.addEventListener('submit',event=>{event.preventDefault();search(input.value);});
+  document.querySelectorAll('.cxz-music-preset').forEach(button=>button.addEventListener('click',()=>search(button.dataset.query)));
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&app.classList.contains('open'))setOpen(false);});
 })();
 </script>
 
