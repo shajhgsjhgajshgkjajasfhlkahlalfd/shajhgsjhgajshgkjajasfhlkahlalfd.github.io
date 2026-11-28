@@ -149,7 +149,8 @@ body.dock-autohide.dock-right #dock-hot{top:0;left:auto;width:6px;height:auto}
 .tile img{width:100%;height:100%;object-fit:cover}
 .t-desktop{background:linear-gradient(160deg,#1e3a8a,#0b1020)}
 .t-desktop img{width:86%;height:86%;border-radius:50%}
-.t-launch{background:linear-gradient(160deg,#9ca3af,#4b5563)}
+.t-launch{background:linear-gradient(150deg,#a855f7,#ec4899 60%,#f97316)}
+.t-chat{background:linear-gradient(160deg,#5ef08a,#1fb954)}
 .t-games{background:linear-gradient(150deg,#a855f7,#ec4899 60%,#f97316)}
 .t-movies{background:linear-gradient(160deg,#1f2937,#000)}
 .t-movies svg{color:#ff375f}
@@ -483,22 +484,66 @@ body.crosshair-enabled #cxz-game-window .cxz-frame-wrap::after{content:var(--cro
 .spot-r.on{background:var(--accent-color);color:#fff}
 .spot-r.on small{color:rgba(255,255,255,.8)}
 
-/* ---------- Launchpad ---------- */
-#launchpad{position:fixed;inset:0;z-index:9100;display:flex;flex-direction:column;align-items:center;padding:calc(var(--menubar-h) + 30px) 4vw 40px;background:rgba(10,10,16,.35);backdrop-filter:blur(40px) saturate(150%);-webkit-backdrop-filter:blur(40px) saturate(150%);animation:lpIn .25s var(--ease)}
-@keyframes lpIn{from{opacity:0;transform:scale(1.06)}}
+/* ---------- Launchpad (game library + app tabs) ---------- */
+#launchpad{position:fixed;inset:0;z-index:9100;display:flex;flex-direction:column;align-items:center;padding:calc(var(--menubar-h) + 22px) 4vw 0;background:rgba(10,10,16,.38);backdrop-filter:blur(40px) saturate(150%);-webkit-backdrop-filter:blur(40px) saturate(150%);animation:lpIn .25s var(--ease);color:#fff}
+#launchpad[hidden]{display:none}
+@keyframes lpIn{from{opacity:0;transform:scale(1.04)}}
 #launchpad.closing{animation:lpOut .18s var(--ease) forwards}
-@keyframes lpOut{to{opacity:0;transform:scale(1.06)}}
-.lp-search{position:relative;width:240px;margin-bottom:34px}
+@keyframes lpOut{to{opacity:0;transform:scale(1.04)}}
+body.lp-open #dock-wrap{z-index:9150}
+body.lp-open .dock-item[data-id="launchpad"]::after{content:"";position:absolute;bottom:-5px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--ink)}
+.lp-top{display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:26px;width:100%}
+.lp-top[hidden]{display:none}
+.lp-search{position:relative;width:260px}
 .lp-search svg{position:absolute;left:9px;top:7px;width:14px;height:14px;color:rgba(255,255,255,.7)}
 .lp-search input{width:100%;height:28px;padding:0 10px 0 28px;border-radius:8px;border:.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.14);color:#fff;outline:none;text-align:left}
+.lp-search input:focus{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.2)}
 .lp-search input::placeholder{color:rgba(255,255,255,.65)}
-.lp-grid{width:min(1100px,100%);display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:30px 10px;overflow-y:auto;padding:4px 4px 40px;flex:1;min-height:0;align-content:start;-webkit-mask-image:linear-gradient(#000 calc(100% - 60px),transparent);mask-image:linear-gradient(#000 calc(100% - 60px),transparent)}
-.lp-app{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;font-size:12.5px;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.6);min-width:0;animation:lpItem .35s var(--spring) backwards}
-@keyframes lpItem{from{opacity:0;transform:scale(.7)}}
-.lp-app .tile{width:84px;height:84px;border-radius:22%}
+.lp-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.lp-chip{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 11px;border-radius:13px;border:.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:600}
+.lp-chip svg{width:13px;height:13px}
+.lp-chip:hover{background:rgba(255,255,255,.18)}
+.lp-chip[aria-pressed="true"]{background:#fff;color:#111;border-color:#fff}
+.lp-cnt{font-weight:500;opacity:.6;font-variant-numeric:tabular-nums}
+.lp-cnt:empty{display:none}
+.lp-grid{width:min(1100px,100%);display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:28px 10px;overflow-y:auto;padding:6px 4px 50px;flex:1;min-height:0;align-content:start;-webkit-mask-image:linear-gradient(#000 calc(100% - 50px),transparent);mask-image:linear-gradient(#000 calc(100% - 50px),transparent);scrollbar-width:none}
+.lp-grid[hidden]{display:none}
+.lp-grid::-webkit-scrollbar{display:none}
+.lp-app{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;font-size:12.5px;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.6);min-width:0;cursor:pointer;border-radius:16px;outline:none;animation:lpItem .32s var(--spring) backwards}
+@keyframes lpItem{from{opacity:0;transform:scale(.75)}}
+.lp-app .tile{width:84px;height:84px;border-radius:22%;transition:transform .15s var(--ease)}
 .lp-app .tile.img{background:#222}
-.lp-app span:last-child{max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lp-app:active .tile{filter:brightness(.8)}
+.lp-app:hover .tile{transform:scale(1.05)}
+.lp-app:active .tile{filter:brightness(.8);transform:scale(.97)}
+.lp-app:focus-visible .tile{box-shadow:0 0 0 3px var(--accent-color)}
+.lp-name{max-width:112px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lp-fav{position:absolute;top:-6px;left:calc(50% + 28px);width:26px;height:26px;border-radius:50%;border:0;display:grid;place-items:center;background:rgba(30,30,34,.85);color:#fff;opacity:0;transform:scale(.8);transition:opacity .15s,transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.lp-fav svg{width:13px;height:13px}
+.lp-app:hover .lp-fav,.lp-app:focus-within .lp-fav,.lp-fav[aria-pressed="true"]{opacity:1;transform:none}
+.lp-fav[aria-pressed="true"]{background:#ff375f}
+.lp-fav[aria-pressed="true"] svg{fill:#fff}
+@media (hover:none){.lp-fav{opacity:1;transform:none}}
+.lp-empty{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:8vh;color:rgba(255,255,255,.85);text-align:center}
+.lp-empty[hidden]{display:none}
+.lp-empty svg{width:34px;height:34px;opacity:.7}
+.lp-empty span{font-size:13px;color:rgba(255,255,255,.65)}
+/* Apps opened from a tab */
+.lp-panel{flex:1;min-height:0;width:min(1080px,100%);display:flex;padding-bottom:14px}
+.lp-panel[hidden]{display:none}
+.win.embedded{position:relative;inset:auto;flex:1;width:auto;height:auto;min-height:0;animation:lpPanel .22s var(--ease);text-shadow:none}
+@keyframes lpPanel{from{opacity:0;transform:translateY(10px) scale(.99)}}
+.win.embedded .traffic,.win.embedded .grip{display:none}
+.win.embedded.nosidebar .win-bar{padding-left:18px}
+.win.embedded .win-side{padding-top:14px}
+/* Tab bar */
+.lp-tabs{flex:0 0 auto;display:flex;gap:2px;padding:4px;margin:6px 0 calc(var(--dock-size) + 26px);border-radius:16px;background:rgba(255,255,255,.12);border:.5px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:100%;overflow-x:auto;scrollbar-width:none}
+.lp-tabs::-webkit-scrollbar{display:none}
+body.dock-left .lp-tabs,body.dock-right .lp-tabs,body.dock-autohide .lp-tabs{margin-bottom:18px}
+.lp-tab{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:72px;padding:6px 10px 5px;border:0;border-radius:12px;background:none;color:rgba(255,255,255,.78);font-size:11px;font-weight:600;flex:0 0 auto}
+.lp-tab svg{width:18px;height:18px}
+.lp-tab:hover{background:rgba(255,255,255,.1);color:#fff}
+.lp-tab[aria-selected="true"]{background:rgba(255,255,255,.92);color:#111}
+.lp-tab:focus-visible{outline:2px solid var(--accent-color);outline-offset:1px}
 
 /* ---------- Control Center / popovers ---------- */
 .popover{position:fixed;z-index:9500;top:calc(var(--menubar-h) + 6px);right:8px;width:320px;padding:12px;border-radius:16px;background:var(--menu);color:var(--ink);text-shadow:none;
@@ -665,6 +710,44 @@ body.liquid-glass .btn,body.liquid-glass .chip{backdrop-filter:blur(8px);box-sha
 body.liquid-glass .win{--win:rgba(30,30,36,.55)}
 :root[data-appearance="light"] body.liquid-glass .win{--win:rgba(250,250,252,.6)}
 
+/* ---------- Chat ---------- */
+#chat .win-main{min-height:0}
+.chat-status{display:flex;align-items:center;gap:7px;padding:4px 8px;font-size:12px;color:var(--ink-2)}
+.chat-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex:0 0 auto}
+.chat-dot.on{background:#30d158;box-shadow:0 0 0 3px rgba(48,209,88,.2)}
+.chat-dot.connecting{background:#ff9f0a;animation:chatPulse 1.2s infinite}
+.chat-dot.fail{background:#ff453a}
+#chat-status{cursor:default}
+.chat-dot.fail + #chat-status{cursor:pointer;text-decoration:underline}
+@keyframes chatPulse{50%{opacity:.35}}
+.chat-note{margin:8px 8px 4px;font-size:11px;line-height:1.4;color:var(--ink-3)}
+.chat-unmute{margin-top:2px}
+.chat-online{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:12px;background:var(--fill-2);font-size:12px;color:var(--ink-2)}
+.chat-online svg{width:13px;height:13px}
+.chat-online b{color:var(--ink);font-variant-numeric:tabular-nums}
+.chat-log{flex:1;min-height:0;overflow-y:auto;padding:14px 18px 10px;display:flex;flex-direction:column;gap:2px;overscroll-behavior:contain}
+.chat-day{align-self:center;margin:12px 0 6px;font-size:11px;font-weight:600;color:var(--ink-3)}
+.chat-msg{display:flex;flex-direction:column;align-items:flex-start;max-width:72%;margin-top:8px}
+.chat-msg.grouped{margin-top:0}
+.chat-msg.me{align-self:flex-end;align-items:flex-end}
+.chat-name{border:0;background:none;padding:0 12px 2px;font-size:11.5px;font-weight:700;color:hsl(var(--h) 75% 62%)}
+:root[data-appearance="light"] .chat-name{color:hsl(var(--h) 70% 38%)}
+.chat-name:hover{text-decoration:underline}
+.chat-bubble{padding:7px 12px;border-radius:18px;background:var(--fill-2);color:var(--ink);font-size:13.5px;line-height:1.38;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere}
+.chat-msg.me .chat-bubble{background:var(--accent-color);color:#fff}
+.chat-msg:not(.grouped):not(.me) .chat-bubble{border-top-left-radius:6px}
+.chat-msg.me:not(.grouped) .chat-bubble{border-top-right-radius:6px}
+.chat-bubble a{color:inherit;text-decoration:underline}
+.chat-empty{margin:auto;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;color:var(--ink-2)}
+.chat-empty svg{width:34px;height:34px;color:var(--ink-3)}
+.chat-empty span{font-size:12.5px}
+.chat-compose{display:flex;align-items:center;gap:8px;padding:10px 14px 12px;border-top:.5px solid var(--line)}
+.chat-compose .field{flex:1;max-width:none;height:34px;border-radius:17px;padding:0 14px}
+.chat-send{width:32px;height:32px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--accent-color);color:#fff;flex:0 0 auto}
+.chat-send svg{width:16px;height:16px}
+.chat-send:disabled{opacity:.4}
+.dock-badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ff3b30;color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.3);pointer-events:none}
+
 /* ---------- Responsive ---------- */
 @media (max-width:760px){
   :root{--dock-size:44px;--menubar-h:32px}
@@ -694,11 +777,34 @@ body.liquid-glass .win{--win:rgba(30,30,36,.55)}
   .row{flex-wrap:wrap}
   .row .field{max-width:none}
   .setup-body{padding:28px 20px 16px}
-  .lp-grid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:22px 6px}
-  .lp-app .tile{width:62px;height:62px}
+  #launchpad{padding:calc(var(--menubar-h) + 12px) 10px 0}
+  .lp-top{margin-bottom:16px;gap:10px}
+  .lp-search{width:100%;max-width:320px}
+  .lp-chips{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:100%;scrollbar-width:none}
+  .lp-chip{flex:0 0 auto}
+  .lp-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:20px 4px}
+  .lp-app .tile{width:60px;height:60px}
+  .lp-name{max-width:80px;font-size:11.5px}
+  .lp-fav{left:calc(50% + 18px);width:22px;height:22px}
+  .lp-tab{min-width:58px;padding:5px 6px 4px;font-size:10px}
+  .lp-panel{padding-bottom:8px}
+  .win.embedded{left:auto!important;top:auto!important;width:auto!important;height:auto!important;border-radius:14px}
+  .chat-msg{max-width:88%}
   .popover{left:8px;right:8px;width:auto}
 }
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+@media (max-width:760px){
+  #chat .win-side{padding:44px 10px 6px;align-items:center;gap:6px;overflow-x:auto}
+  #chat .side-i{min-height:30px;height:30px;flex:0 0 auto}
+  #chat .chat-note,#chat .side-h{display:none}
+  #chat .chat-status{font-size:0;flex:0 0 auto;margin-left:auto}
+  #chat .chat-status *{font-size:11px}
+  .lp-tabs{width:calc(100% - 12px);justify-content:space-between;gap:0;padding:4px}
+  .lp-tab{flex:1 1 0;min-width:0;padding:6px 1px}
+  .lp-tab span{font-size:9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+@media (max-width:760px){ #chat #chat-status{display:none} #chat .chat-status{padding:0 4px} }
 
 </style>
 </head>
@@ -802,29 +908,29 @@ body.liquid-glass .win{--win:rgba(30,30,36,.55)}
 <!-- Windows -->
 <div id="windows">
 
-<section class="win" id="games" data-app="games" aria-label="Games">
+<section class="win" id="chat" data-app="chat" aria-label="Chat">
   <div class="win-row">
-    <nav class="win-side" data-drag aria-label="Game library">
-      <div class="side-h">Library</div>
-      <button class="side-i" data-view="all" aria-current="true"><i data-lucide="gamepad-2"></i>All Games<span class="cnt" id="cxz-game-count">0</span></button>
-      <button class="side-i" data-view="suggested"><i data-lucide="sparkles"></i>Suggested</button>
-      <button class="side-i" data-view="recent"><i data-lucide="clock-3"></i>Recently Played<span class="cnt" id="recent-count"></span></button>
-      <button class="side-i" data-view="favorites"><i data-lucide="heart"></i>Favorites<span class="cnt" id="fav-count"></span></button>
-      <div class="side-h">Quick</div>
-      <button class="side-i" data-action="random"><i data-lucide="shuffle"></i>Random Game</button>
-      <button class="side-i" data-action="launchpad"><i data-lucide="layout-grid"></i>Launchpad</button>
-      <button class="side-i" data-action="suggest"><i data-lucide="lightbulb"></i>Suggest a Game</button>
+    <nav class="win-side" data-drag aria-label="Chat rooms">
+      <div class="side-h">Rooms</div>
+      <button class="side-i" data-room="general" aria-current="true"><span class="ico" style="background:#0a84ff"><i data-lucide="message-circle"></i></span>General<span class="cnt" data-unread="general"></span></button>
+      <button class="side-i" data-room="games"><span class="ico" style="background:#bf5af2"><i data-lucide="gamepad-2"></i></span>Games<span class="cnt" data-unread="games"></span></button>
+      <button class="side-i" data-room="help"><span class="ico" style="background:#30d158"><i data-lucide="life-buoy"></i></span>Help<span class="cnt" data-unread="help"></span></button>
+      <div class="side-h">Status</div>
+      <div class="chat-status"><span class="chat-dot" id="chat-dot"></span><span id="chat-status">Offline</span></div>
+      <p class="chat-note">Rooms are public. Don't share personal info. Click a name to mute someone.</p>
+      <button class="side-i chat-unmute" type="button" id="chat-unmute" hidden><i data-lucide="volume-2"></i>Unmute All</button>
     </nav>
     <div class="win-main">
       <div class="win-bar" data-drag>
-        <div class="wt"><b id="games-view-title">All Games</b><small id="games-view-sub">Classroom-X-Zone</small></div>
+        <div class="wt"><b id="chat-title"># General</b><small id="chat-sub">Say hi to everyone online</small></div>
         <span class="grow"></span>
-        <label class="win-search"><i data-lucide="search"></i><input type="search" id="games-search" placeholder="Search" aria-label="Search games" autocomplete="off" spellcheck="false"></label>
+        <span class="chat-online" id="chat-online" title="People online now"><i data-lucide="users"></i><b>0</b></span>
       </div>
-      <div class="win-body">
-        <div class="grid" id="all-games-grid" aria-live="polite"></div>
-        <div class="empty" id="games-empty" hidden></div>
-      </div>
+      <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Messages"></div>
+      <form class="chat-compose" id="chat-form" autocomplete="off">
+        <input class="field" id="chat-input" maxlength="400" placeholder="Message #general" aria-label="Message">
+        <button class="chat-send" type="submit" id="chat-send" aria-label="Send"><i data-lucide="arrow-up"></i></button>
+      </form>
     </div>
   </div>
 </section>
@@ -1070,7 +1176,7 @@ body.liquid-glass .win{--win:rgba(30,30,36,.55)}
           <div class="about-card"><img src="./g/assets/favicon-96x96.png" alt=""><h3>Classroom-X-Zone</h3><p>made by zach ❤</p><p class="help" id="version-tag">Version 2026.11.28.5</p></div>
           <div class="group" style="margin-top:18px">
             <div class="row"><div class="rl">Games in catalog</div><span id="about-games">0</span></div>
-            <div class="row"><div class="rl">Keyboard shortcuts<small>Spotlight <span class="kbd">Ctrl</span> <span class="kbd">K</span> · Launchpad <span class="kbd">F4</span> · Close window <span class="kbd">Esc</span> in Launchpad and Spotlight</small></div></div>
+            <div class="row"><div class="rl">Keyboard shortcuts<small>Spotlight <span class="kbd">Ctrl</span> <span class="kbd">K</span> · Launchpad (games) <span class="kbd">F4</span> · Close window <span class="kbd">Esc</span> in Launchpad and Spotlight</small></div></div>
             <div class="row"><div class="rl">Liquid Glass effect</div><span>muffled_lemon</span></div>
           </div>
         </div>
@@ -2635,9 +2741,10 @@ $('cxz-movie-player').addEventListener('touchstart', () => { if (cxzActiveVideo)
    Window manager, Dock, menu bar, desktop, Spotlight and Launchpad
    ===================================================================== */
 const APPS = {
-    games:    { name: 'Games',          icon: 'gamepad-2',    tile: 't-games',    w: 1000, h: 660 },
+    launchpad:{ name: 'Launchpad',      icon: 'layout-grid',  tile: 't-launch' },
     movies:   { name: 'Cinema',         icon: 'clapperboard', tile: 't-movies',   w: 980,  h: 660 },
     tools:    { name: 'Tools',          icon: 'wrench',       tile: 't-tools',    w: 780,  h: 560 },
+    chat:     { name: 'Chat',           icon: 'message-circle', tile: 't-chat',   w: 820,  h: 600 },
     partners: { name: 'Partners',       icon: 'handshake',    tile: 't-partners', w: 760,  h: 540 },
     suggest:  { name: 'Suggest a Game', icon: 'lightbulb',    tile: 't-suggest',  w: 560,  h: 620 },
     settings: { name: 'System Settings', icon: 'settings',    tile: 't-settings', w: 860,  h: 620 },
@@ -2713,9 +2820,12 @@ const OS = (() => {
         if (window.Dock) Dock.sync();
     }
     function open(id) {
+        if (id === 'launchpad' || id === 'games') { Launchpad.open('games'); return; }
         if (id === 'admin' && !window.__cxzAdminUnlocked) { if (window.requestAdminAccess) requestAdminAccess(); return; }
         const w = winEl(id);
         if (!w) return;
+        // A window shown inside a Launchpad tab goes back to the desktop first.
+        if (w.classList.contains('embedded') && window.Launchpad) Launchpad.close(true);
         if (w.classList.contains('open') && !w.classList.contains('closing')) {
             if (w.classList.contains('min')) restoreMin(w);
             focus(id);
@@ -2730,7 +2840,7 @@ const OS = (() => {
         if (window.Dock) { Dock.sync(); Dock.bounce(id); }
         w.dispatchEvent(new CustomEvent('win-open'));
         const s = w.querySelector('.win-search input');
-        if (s && !isMobile() && (id === 'games' || id === 'movies')) setTimeout(() => { try { s.focus({ preventScroll: true }); } catch (e) {} }, 60);
+        if (s && !isMobile() && id === 'movies') setTimeout(() => { try { s.focus({ preventScroll: true }); } catch (e) {} }, 60);
     }
     function close(id) {
         const w = winEl(id);
@@ -2850,6 +2960,8 @@ window.OS = OS;
 function switchTab(id) {
     if (id === 'home' || id === 'desktop') { OS.showDesktop(); return; }
     if (id === 'admin-dashboard') id = 'admin';
+    if (id === 'games' || id === 'launchpad') { if (window.CXZPlayer && CXZPlayer.isVisible()) CXZPlayer.minimize(); Launchpad.open('games'); return; }
+    if (id === 'suggestions') id = 'suggest';
     if (!APPS[id]) return;
     if (window.CXZPlayer && CXZPlayer.isVisible()) CXZPlayer.minimize();
     if (window.Launchpad) Launchpad.close();
@@ -2863,7 +2975,7 @@ const Dock = (() => {
     const ITEMS = [
         { id: 'desktop', name: 'Desktop', tile: 't-desktop', img: true },
         { id: 'launchpad', name: 'Launchpad', tile: 't-launch', icon: 'layout-grid' },
-        { id: 'games' }, { id: 'movies' }, { id: 'tools' }, { id: 'partners' }, { id: 'suggest' }, { id: 'settings' }
+        { id: 'movies' }, { id: 'tools' }, { id: 'chat' }, { id: 'partners' }, { id: 'suggest' }, { id: 'settings' }
     ];
     let gameItem = null, sep2 = null;
     function render() {
@@ -2890,7 +3002,7 @@ const Dock = (() => {
         return b.getBoundingClientRect();
     }
     function sync() {
-        Object.keys(APPS).forEach(id => { const b = itemFor(id); if (b) b.classList.toggle('running', OS.isOpen(id)); });
+        Object.keys(APPS).forEach(id => { const b = itemFor(id); if (b) b.classList.toggle('running', id === 'launchpad' ? !!(window.Launchpad && Launchpad.isOpen()) : OS.isOpen(id)); });
     }
     function bounce(id) {
         const b = itemFor(id);
@@ -3076,7 +3188,7 @@ const Menubar = (() => {
             ];
         },
         go: () => [
-            ...['games', 'movies', 'tools', 'partners', 'suggest', 'settings'].map(id => ({ label: APPS[id].name, action: () => switchTab(id) })),
+            ...['launchpad', 'movies', 'tools', 'chat', 'partners', 'suggest', 'settings'].map(id => ({ label: APPS[id].name, action: () => switchTab(id) })),
             '-',
             { label: 'Random Game', action: randomGame },
             { label: 'Spotlight', k: 'Ctrl K', action: () => Spotlight.open() }
@@ -3151,7 +3263,7 @@ window.Popovers = Popovers;
 /* ---------- Desktop icons + context menu ---------- */
 const DeskIcons = (() => {
     const box = byId('desk-icons');
-    const LIST = ['games', 'movies', 'tools', 'partners', 'suggest', 'settings'];
+    const LIST = ['launchpad', 'movies', 'tools', 'chat', 'partners', 'suggest', 'settings'];
     function render() {
         box.innerHTML = LIST.map(id => '<button class="desk-icon" type="button" data-app="' + id + '">' + tileHTML(id) + '<span>' + esc(APPS[id].name) + '</span></button>').join('');
         refreshCXZIcons();
@@ -3193,52 +3305,170 @@ byId('desktop').addEventListener('contextmenu', e => {
     ], e.clientX, e.clientY);
 });
 
-/* ---------- Launchpad ---------- */
+/* ---------- Launchpad: the games library, with tabs for every app ---------- */
 const Launchpad = (() => {
-    let lp = null;
+    const TABS = [
+        ['games', 'Games', 'gamepad-2'], ['tools', 'Tools', 'wrench'], ['movies', 'Movies', 'clapperboard'], ['chat', 'Chat', 'message-circle'],
+        ['settings', 'Settings', 'settings'], ['partners', 'Partners', 'handshake'], ['suggest', 'Suggestions', 'lightbulb'], ['admin', 'Admin', 'shield']
+    ];
+    const VIEWS = [['all', 'All Games'], ['suggested', 'Suggested'], ['recent', 'Recently Played'], ['favorites', 'Favorites']];
+    let lp = null, tab = 'games', view = 'all', picks = [], embedded = null, closeTimer = null;
     function build() {
         lp = el('div'); lp.id = 'launchpad'; lp.hidden = true;
         lp.setAttribute('role', 'dialog'); lp.setAttribute('aria-label', 'Launchpad');
-        lp.innerHTML = '<label class="lp-search">' + icon('search') + '<input type="search" placeholder="Search" aria-label="Search Launchpad" autocomplete="off"></label><div class="lp-grid"></div>';
+        lp.innerHTML =
+            '<div class="lp-top"><label class="lp-search">' + icon('search') + '<input type="search" placeholder="Search games" aria-label="Search games" autocomplete="off" spellcheck="false"></label>' +
+            '<div class="lp-chips" role="group" aria-label="Game views">' + VIEWS.map(([v, n]) => '<button class="lp-chip" type="button" data-view="' + v + '" aria-pressed="' + (v === view) + '">' + n + '<span class="lp-cnt" data-cnt="' + v + '"></span></button>').join('') +
+            '<button class="lp-chip" type="button" data-random>' + icon('shuffle') + 'Random</button></div></div>' +
+            '<div class="lp-grid" aria-live="polite"></div><div class="lp-empty" hidden></div>' +
+            '<div class="lp-panel" hidden></div>' +
+            '<nav class="lp-tabs" role="tablist" aria-label="Apps">' + TABS.map(([id, n, ic]) => '<button class="lp-tab" type="button" role="tab" data-tab="' + id + '" aria-selected="false">' + icon(ic) + '<span>' + n + '</span></button>').join('') + '</nav>';
         document.body.appendChild(lp);
-        const input = lp.querySelector('input');
-        input.addEventListener('input', () => render(input.value));
+        const input = lp.querySelector('.lp-search input');
+        input.addEventListener('input', () => render());
         lp.addEventListener('click', e => {
-            const b = e.target.closest('.lp-app');
-            if (b) {
-                close();
-                if (b.dataset.app) switchTab(b.dataset.app);
-                else { const g = GAMES[Number(b.dataset.game)]; if (g) openGame(g); }
-                return;
+            const t = e.target.closest('.lp-tab[data-tab]');
+            if (t) { show(t.dataset.tab); return; }
+            const v = e.target.closest('[data-view]');
+            if (v) { setView(v.dataset.view); return; }
+            if (e.target.closest('[data-random]')) { randomGame(); return; }
+            const fav = e.target.closest('.lp-fav');
+            const app = e.target.closest('.lp-app');
+            if (fav && app) { e.stopPropagation(); toggleFav(GAMES[Number(app.dataset.game)], fav); return; }
+            if (app) { const g = GAMES[Number(app.dataset.game)]; if (g) openGame(g); return; }
+            // Clicking empty space closes Launchpad, like macOS
+            if (e.target === lp || e.target.classList.contains('lp-grid') || e.target.classList.contains('lp-top') || e.target.classList.contains('lp-panel') || e.target.classList.contains('lp-empty')) close();
+        });
+        lp.addEventListener('keydown', e => {
+            const app = e.target.closest && e.target.closest('.lp-app');
+            if (app && (e.key === 'Enter' || e.key === ' ') && e.target === app) { e.preventDefault(); const g = GAMES[Number(app.dataset.game)]; if (g) openGame(g); }
+            if (e.target.closest && e.target.closest('.lp-tabs') && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+                const i = TABS.findIndex(x => x[0] === tab), n = TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length][0];
+                show(n); const b = lp.querySelector('[data-tab="' + n + '"]'); if (b) b.focus();
             }
-            if (!e.target.closest('.lp-search')) close();
         });
     }
-    function render(q) {
-        q = String(q || '').trim().toLowerCase();
-        const apps = ['games', 'movies', 'tools', 'partners', 'suggest', 'settings'].filter(id => !q || APPS[id].name.toLowerCase().includes(q));
-        const games = GAMES.map((g, i) => [g, i]).filter(([g]) => !q || g.title.toLowerCase().includes(q));
-        lp.querySelector('.lp-grid').innerHTML =
-            apps.map(id => '<button class="lp-app" type="button" data-app="' + id + '">' + tileHTML(id) + '<span>' + esc(APPS[id].name) + '</span></button>').join('') +
-            games.map(([g, i]) => '<button class="lp-app" type="button" data-game="' + i + '"><span class="tile img"><img src="' + esc(g.img) + '" alt="" loading="lazy" onerror="this.src=placeholderImg(' + esc(JSON.stringify(g.title)) + ')"></span><span>' + esc(g.title) + '</span></button>').join('');
+    function favs() { return lsJSON('cxz_favorites', []).filter(t => typeof t === 'string'); }
+    function recents() { return lsJSON('cxz_recent', []).filter(t => typeof t === 'string'); }
+    const byTitle = t => GAMES.find(g => g.title === t);
+    function toggleFav(g, btn) {
+        if (!g) return;
+        let f = favs(); const on = !f.includes(g.title);
+        f = f.filter(t => t !== g.title); if (on) f.unshift(g.title);
+        lsSet('cxz_favorites', JSON.stringify(f));
+        btn.setAttribute('aria-pressed', String(on));
+        btn.setAttribute('aria-label', (on ? 'Remove ' : 'Add ') + g.title + (on ? ' from' : ' to') + ' favorites');
+        showToast(on ? g.title + ' added to Favorites' : g.title + ' removed from Favorites');
+        if (view === 'favorites') render(); else counts();
+    }
+    function counts() {
+        if (!lp) return;
+        const r = recents().filter(byTitle).length, f = favs().filter(byTitle).length;
+        const set = (v, n) => { const c = lp.querySelector('[data-cnt="' + v + '"]'); if (c) c.textContent = n ? String(n) : ''; };
+        set('all', GAMES.length); set('recent', r); set('favorites', f);
+    }
+    function setView(v) {
+        view = v;
+        if (v === 'suggested') picks = pickRandom(GAMES, 16);
+        lp.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+        render();
+        lp.querySelector('.lp-grid').scrollTop = 0;
+    }
+    function render() {
+        if (!lp || tab !== 'games') return;
+        const q = lp.querySelector('.lp-search input').value.trim().toLowerCase();
+        let list;
+        if (view === 'suggested') { if (!picks.length) picks = pickRandom(GAMES, 16); list = picks; }
+        else if (view === 'recent') list = recents().map(byTitle).filter(Boolean);
+        else if (view === 'favorites') list = favs().map(byTitle).filter(Boolean);
+        else list = GAMES.slice().sort((x, y) => x.title.localeCompare(y.title, undefined, { numeric: true }));
+        if (q) list = list.filter(g => (g.title + ' ' + (g.tagline || '')).toLowerCase().includes(q));
+        const f = favs();
+        lp.querySelector('.lp-grid').innerHTML = list.map(g => {
+            const i = GAMES.indexOf(g), on = f.includes(g.title);
+            return '<div class="lp-app" role="button" tabindex="0" data-game="' + i + '" aria-label="Play ' + esc(g.title) + '" title="' + esc(g.title + (g.tagline ? ' — ' + g.tagline : '')) + '">' +
+                '<span class="tile img"><img src="' + esc(g.img || placeholderImg(g.title)) + '" alt="" loading="lazy" decoding="async" data-ph="' + esc(g.title) + '"></span>' +
+                '<button class="lp-fav" type="button" aria-pressed="' + on + '" aria-label="' + (on ? 'Remove ' : 'Add ') + esc(g.title) + (on ? ' from' : ' to') + ' favorites">' + icon('heart') + '</button>' +
+                '<span class="lp-name">' + esc(g.title) + '</span></div>';
+        }).join('');
+        lp.querySelectorAll('.lp-grid img[data-ph]').forEach(img => { img.onerror = () => { img.onerror = null; img.src = placeholderImg(img.dataset.ph); }; });
+        let msg = '';
+        if (!GAMES.length) msg = icon('loader') + '<b>Loading games…</b>';
+        else if (!list.length && q) msg = icon('search') + '<b>No games match “' + esc(q) + '”</b><span>Try a different name.</span>';
+        else if (!list.length && view === 'recent') msg = icon('clock-3') + '<b>No recent games</b><span>Games you play show up here.</span>';
+        else if (!list.length && view === 'favorites') msg = icon('heart') + '<b>No favorites yet</b><span>Hover a game and tap the heart to save it.</span>';
+        const em = lp.querySelector('.lp-empty'); em.innerHTML = msg; em.hidden = !msg;
+        counts();
         refreshCXZIcons();
     }
-    function open() {
+    // Other tabs show the real app window inside Launchpad.
+    function release() {
+        if (!embedded) return;
+        const w = embedded; embedded = null;
+        w.className = w._prev.cls;
+        if (w._prev.style) w.setAttribute('style', w._prev.style); else w.removeAttribute('style');
+        byId('windows').appendChild(w);
+        if (window.Dock) Dock.sync();
+    }
+    function embed(id) {
+        const w = byId(id); if (!w) return;
+        w._prev = { cls: w.className, style: w.getAttribute('style') || '' };
+        w.className = 'win open focus embedded' + (w._prev.cls.includes('nosidebar') ? ' nosidebar' : '');
+        w.removeAttribute('style');
+        lp.querySelector('.lp-panel').appendChild(w);
+        embedded = w;
+        document.body.dataset.win = id;
+        if (window.Menubar) Menubar.setApp(APPS[id].name);
+        w.dispatchEvent(new CustomEvent('win-open'));
+        refreshCXZIcons();
+    }
+    function show(t) {
         if (!lp) build();
+        if (!TABS.some(x => x[0] === t)) t = 'games';
+        if (t === 'admin' && !window.__cxzAdminUnlocked) { requestAdminAccess(); return; }
+        release();
+        tab = t;
+        lp.dataset.tab = t;
+        lp.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+        const games = t === 'games';
+        lp.querySelector('.lp-top').hidden = !games;
+        lp.querySelector('.lp-grid').hidden = !games;
+        lp.querySelector('.lp-panel').hidden = games;
+        if (games) {
+            lp.querySelector('.lp-empty').hidden = true;
+            document.body.dataset.win = 'launchpad';
+            if (window.Menubar) Menubar.setApp('Launchpad');
+            render();
+        } else {
+            lp.querySelector('.lp-empty').hidden = true;
+            embed(t);
+            if (t === 'admin' && window.adminRefresh) { adminRefresh(); if (window.startAdminLive) startAdminLive(); }
+        }
+    }
+    function open(t) {
+        if (!lp) build();
+        clearTimeout(closeTimer);
         Menus.close(); Popovers.close();
+        if (window.Spotlight) Spotlight.close();
+        if (window.CXZPlayer && CXZPlayer.isVisible()) CXZPlayer.minimize();
         lp.classList.remove('closing');
+        const wasOpen = !lp.hidden;
         lp.hidden = false;
-        const input = lp.querySelector('input'); input.value = '';
-        render('');
-        if (!isMobile()) setTimeout(() => input.focus(), 30);
+        document.body.classList.add('lp-open');
+        if (!wasOpen) { lp.querySelector('.lp-search input').value = ''; }
+        show(t || (wasOpen ? tab : 'games'));
+        if (tab === 'games' && !isMobile() && !wasOpen) setTimeout(() => lp.querySelector('.lp-search input').focus(), 30);
+        if (window.Dock) Dock.sync();
     }
-    function close() {
+    function close(now) {
         if (!lp || lp.hidden) return;
+        const finish = () => { release(); lp.hidden = true; lp.classList.remove('closing'); document.body.classList.remove('lp-open'); OS.refocus(); };
+        if (now === true) { clearTimeout(closeTimer); finish(); return; }
         lp.classList.add('closing');
-        setTimeout(() => { lp.hidden = true; lp.classList.remove('closing'); }, 170);
+        closeTimer = setTimeout(finish, 170);
     }
-    function toggle() { if (lp && !lp.hidden) close(); else open(); }
-    return { open, close, toggle, isOpen: () => !!(lp && !lp.hidden) };
+    function toggle() { if (lp && !lp.hidden && !lp.classList.contains('closing')) close(); else open('games'); }
+    return { open, close, toggle, show, render, isOpen: () => !!(lp && !lp.hidden), tab: () => tab };
 })();
 window.Launchpad = Launchpad;
 
@@ -3281,7 +3511,7 @@ const Spotlight = (() => {
         const groups = [];
         const m = s => String(s || '').toLowerCase().includes(q);
         const apps = Object.keys(APPS).filter(id => id !== 'admin' && id !== 'about' && m(APPS[id].name)).map(id => ({ html: tileHTML(id), b: APPS[id].name, small: 'Application', run: () => switchTab(id) }));
-        apps.push(...[['Launchpad', 'layout-grid', 't-launch', () => Launchpad.open()], ['Random Game', 'shuffle', 't-games', randomGame], ['Show Desktop', 'monitor', 't-desktop', OS.showDesktop]].filter(x => m(x[0])).map(([b, ic, t, run]) => ({ html: '<span class="tile ' + t + '">' + icon(ic) + '</span>', b, small: 'Action', run })));
+        apps.push(...[['Random Game', 'shuffle', 't-games', randomGame], ['Show Desktop', 'monitor', 't-desktop', OS.showDesktop]].filter(x => m(x[0])).map(([b, ic, t, run]) => ({ html: '<span class="tile ' + t + '">' + icon(ic) + '</span>', b, small: 'Action', run })));
         if (apps.length) groups.push(['Applications', apps]);
         const games = GAMES.filter(g => m(g.title)).slice(0, 8).map(g => ({ html: '<img src="' + esc(g.img) + '" alt="">', b: g.title, small: 'Game', run: () => openGame(g) }));
         if (games.length) groups.push(['Games', games]);
@@ -3331,10 +3561,9 @@ document.addEventListener('keydown', e => {
 });
 
 /* =====================================================================
-   Apps: Games library, Tools, Partners, Suggestions
+   Apps: game launching, Tools, Partners, Suggestions
    ===================================================================== */
 const RECENT_KEY = 'cxz_recent', FAV_KEY = 'cxz_favorites';
-let gamesView = 'all', suggestedPicks = [];
 const recentList = () => lsJSON(RECENT_KEY, []).filter(t => typeof t === 'string');
 const favList = () => lsJSON(FAV_KEY, []).filter(t => typeof t === 'string');
 function gameByTitle(t) { return GAMES.find(g => g.title === t); }
@@ -3348,7 +3577,6 @@ function openGame(g) {
     if (window.Spotlight) Spotlight.close();
     CXZPlayer.open(g.file, g.title, g.img);
     updateGameCounts();
-    if (gamesView === 'recent') renderGamesView();
 }
 window.openGame = openGame;
 function openTool(t) {
@@ -3356,94 +3584,11 @@ function openTool(t) {
 }
 window.openTool = openTool;
 
-function gameCardHTML(g, i) {
-    const fav = favList().includes(g.title);
-    return '<div class="card" role="button" tabindex="0" data-gi="' + i + '" aria-label="Play ' + esc(g.title) + '">' +
-        '<div class="art"><img src="' + esc(g.img || placeholderImg(g.title)) + '" alt="" loading="lazy" decoding="async" data-ph="' + esc(g.title) + '">' +
-        '<button class="fav" type="button" aria-pressed="' + fav + '" aria-label="' + (fav ? 'Remove from' : 'Add to') + ' favorites">' + icon('heart') + '</button></div>' +
-        '<h3>' + esc(g.title) + '</h3><p>' + esc(g.tagline || 'Play now') + '</p></div>';
-}
 function updateGameCounts() {
-    $('cxz-game-count').textContent = String(GAMES.length);
-    const r = recentList().filter(gameByTitle).length, f = favList().filter(gameByTitle).length;
-    $('recent-count').textContent = r ? String(r) : '';
-    $('fav-count').textContent = f ? String(f) : '';
     const ag = $('about-games'); if (ag) ag.textContent = String(GAMES.length);
+    if (window.Launchpad && Launchpad.isOpen()) Launchpad.render();
 }
-const VIEW_META = {
-    all: ['All Games', n => n + ' games'],
-    suggested: ['Suggested', () => 'A fresh mix picked for you'],
-    recent: ['Recently Played', n => n ? n + ' recent' : 'Nothing yet'],
-    favorites: ['Favorites', n => n ? n + ' saved' : 'Nothing yet']
-};
-function renderGamesView() {
-    const grid = $('all-games-grid'), empty = $('games-empty');
-    const q = $('games-search').value.trim().toLowerCase();
-    let list;
-    if (gamesView === 'suggested') list = suggestedPicks;
-    else if (gamesView === 'recent') list = recentList().map(gameByTitle).filter(Boolean);
-    else if (gamesView === 'favorites') list = favList().map(gameByTitle).filter(Boolean);
-    else list = GAMES.slice().sort((x, y) => x.title.localeCompare(y.title, undefined, { numeric: true }));
-    if (q) list = (gamesView === 'all' ? list : list).filter(g => (g.title + ' ' + g.tagline).toLowerCase().includes(q));
-    const meta = VIEW_META[gamesView];
-    $('games-view-title').textContent = meta[0];
-    $('games-view-sub').textContent = q ? list.length + ' result' + (list.length === 1 ? '' : 's') : meta[1](list.length);
-    grid.innerHTML = list.map(g => gameCardHTML(g, GAMES.indexOf(g))).join('');
-    grid.querySelectorAll('img[data-ph]').forEach(img => { img.onerror = () => { img.onerror = null; img.src = placeholderImg(img.dataset.ph); }; });
-    let msg = '';
-    if (!GAMES.length) msg = '';
-    else if (!list.length && q) msg = icon('search') + '<b>No games match “' + esc(q) + '”</b><span>Try a different name.</span>';
-    else if (!list.length && gamesView === 'recent') msg = icon('clock-3') + '<b>No recent games</b><span>Games you play show up here.</span>';
-    else if (!list.length && gamesView === 'favorites') msg = icon('heart') + '<b>No favorites yet</b><span>Hover a game and tap the heart to save it.</span>';
-    empty.innerHTML = msg; empty.hidden = !msg;
-    refreshCXZIcons();
-}
-function setGamesView(v) {
-    gamesView = v;
-    if (v === 'suggested') suggestedPicks = pickRandom(GAMES, 12);
-    document.querySelectorAll('#games .side-i[data-view]').forEach(b => b.setAttribute('aria-current', String(b.dataset.view === v)));
-    renderGamesView();
-    $('games').querySelector('.win-body').scrollTop = 0;
-}
-$('games').addEventListener('click', e => {
-    const view = e.target.closest('[data-view]');
-    if (view) { setGamesView(view.dataset.view); return; }
-    const act = e.target.closest('[data-action]');
-    if (act) {
-        const a = act.dataset.action;
-        if (a === 'random') randomGame();
-        else if (a === 'launchpad') Launchpad.open();
-        else if (a === 'suggest') switchTab('suggest');
-        return;
-    }
-    const fav = e.target.closest('.fav');
-    const card = e.target.closest('.card[data-gi]');
-    if (!card) return;
-    const g = GAMES[Number(card.dataset.gi)];
-    if (!g) return;
-    if (fav) {
-        e.stopPropagation();
-        let f = favList();
-        const on = !f.includes(g.title);
-        f = f.filter(t => t !== g.title); if (on) f.unshift(g.title);
-        lsSet(FAV_KEY, JSON.stringify(f));
-        fav.setAttribute('aria-pressed', String(on));
-        fav.setAttribute('aria-label', (on ? 'Remove from' : 'Add to') + ' favorites');
-        updateGameCounts();
-        if (gamesView === 'favorites') renderGamesView();
-        showToast(on ? g.title + ' added to Favorites' : g.title + ' removed from Favorites');
-        return;
-    }
-    openGame(g);
-});
-$('all-games-grid').addEventListener('keydown', e => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('card')) { e.preventDefault(); const g = GAMES[Number(e.target.dataset.gi)]; if (g) openGame(g); }
-});
-$('games-search').addEventListener('input', renderGamesView);
-
 async function loadGames() {
-    const grid = $('all-games-grid');
-    grid.innerHTML = '<p class="empty">Loading games…</p>';
     try {
         let response = await fetch(CXZ_ORIGIN + 'games.json?t=' + Date.now(), { cache: 'no-store' }).catch(() => null);
         if (!response || !response.ok) response = await fetch('./games.json', { cache: 'no-cache' });
@@ -3456,12 +3601,10 @@ async function loadGames() {
             tagline: typeof g.tagline === 'string' ? g.tagline : '',
             img: absAsset(typeof g.img === 'string' ? g.img : '')
         }));
-        suggestedPicks = pickRandom(GAMES, 12);
         updateGameCounts();
-        renderGamesView();
     } catch (error) {
         console.warn('[CXZ] Could not load games.json:', error);
-        grid.innerHTML = '<p class="empty">Games could not be loaded. Check your connection, then reopen this window.</p>';
+        showToast('Games could not be loaded. Check your connection, then reload the page.');
         updateGameCounts();
     }
 }
@@ -4309,6 +4452,7 @@ const NebulaAuth = (() => {
         const u = user;
         if (CXZPlayer.isVisible()) CXZPlayer.minimize();
         closeMovie();
+        Launchpad.close(true);
         showAuth(u);
     }
     async function logout() {
@@ -4316,6 +4460,7 @@ const NebulaAuth = (() => {
         if (!ok) return;
         if (CXZPlayer.isOpen()) CXZPlayer.close();
         closeMovie();
+        Launchpad.close(true);
         OS.closeAll();
         localStorage.removeItem(SES); sessionStorage.removeItem(SES);
         const u = user; user = null;
@@ -4496,8 +4641,9 @@ const NebulaTour = (() => {
         { sel: '#dock', title: 'The Dock', body: 'Open apps from here. A dot means the app is running; click it again to hide its window. A running game also appears here when you minimize it.' },
         { sel: '.mb-logo', title: 'The Classroom-X-Zone menu', body: 'System Settings, Launchpad, Lock Screen and Log Out are all here. The other menus change depending on the window you are using.' },
         { sel: '#mb-spot', title: 'Spotlight', body: 'Search games, apps, tools and settings instantly. Press Ctrl + K (or ⌘ K) from anywhere.' },
-        { app: 'games', sel: '#games', title: 'Games', body: 'Browse every game, get a fresh set of suggestions, see what you played recently, and heart your favorites.' },
-        { app: 'movies', sel: '#movies', title: 'Cinema', body: 'Browse and watch movies in the built-in player.' },
+        { launch: 'games', sel: '#launchpad .lp-grid', title: 'Launchpad is your game library', body: 'Every game lives here. Search, get suggestions, see what you played recently, and tap the heart on a game to save it to Favorites. Press F4 to open it from anywhere.' },
+        { launch: 'games', sel: '#launchpad .lp-tabs', title: 'Tabs for everything', body: 'Use the tabs along the bottom to switch to Tools, Movies, Chat, Settings, Partners, Suggestions and the Admin dashboard without leaving Launchpad.' },
+        { app: 'chat', sel: '#chat', title: 'Chat', body: 'Talk with everyone else on Classroom-X-Zone in real time. Rooms are public, so never share personal info.' },
         { app: 'settings', sel: '#settings', title: 'System Settings', body: 'Change the appearance, wallpaper, Dock, tab cloak, panic key and more. Everything is saved in this browser.' },
         { sel: '#mb-cc', title: 'Control Center', body: 'Quick toggles for sound, dark mode, performance and full screen — plus a panic button.' }
     ];
@@ -4537,6 +4683,7 @@ const NebulaTour = (() => {
         if (n >= STEPS.length) { end(); return; }
         i = n; const s = STEPS[i];
         OS.openList().forEach(w => { if (w.id !== s.app) OS.close(w.id); });
+        if (s.launch) Launchpad.open(s.launch); else Launchpad.close(true);
         if (s.app) OS.open(s.app);
         card.querySelector('.tour-count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
         card.querySelector('.tour-title').textContent = s.title;
@@ -4544,7 +4691,7 @@ const NebulaTour = (() => {
         card.querySelector('[data-a="back"]').hidden = i === 0;
         const next = card.querySelector('[data-a="next"]'); next.textContent = i === STEPS.length - 1 ? 'Finish' : 'Next';
         clearTimeout(timer);
-        timer = setTimeout(() => { place(); next.focus({ preventScroll: true }); }, s.app ? 320 : 60);
+        timer = setTimeout(() => { place(); next.focus({ preventScroll: true }); }, s.app || s.launch ? 320 : 60);
     }
     function key(e) {
         if (!active) return;
@@ -4558,6 +4705,7 @@ const NebulaTour = (() => {
         [shield, spot, card].forEach(n => n && n.remove());
         document.removeEventListener('keydown', key, true);
         removeEventListener('resize', place);
+        Launchpad.close(true);
         OS.closeAll();
         const cb = onDone; onDone = null; if (cb) cb();
     }
@@ -4736,12 +4884,243 @@ async function adminClearErrors() {
 function openAdminPanel() {
     window.__cxzAdminUnlocked = true;
     if (CXZPlayer.isVisible()) CXZPlayer.minimize();
+    if (Launchpad.isOpen()) { Launchpad.show('admin'); return; }
     adminRefresh(); startAdminLive();
     OS.open('admin');
-    Dock.render();
 }
 window.adminRefresh = adminRefresh;
+window.startAdminLive = startAdminLive;
 window.adminClearErrors = adminClearErrors;
+
+/* =====================================================================
+   Chat: public real-time rooms over MQTT (free public brokers, no keys)
+   ===================================================================== */
+const Chat = (() => {
+    const ROOMS = {
+        general: ['General', 'Say hi to everyone online'],
+        games: ['Games', 'Talk about games and share high scores'],
+        help: ['Help', 'Ask questions about the site']
+    };
+    const NS = 'classroomxzone/chat/v1/';
+    const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081'];
+    const LIB = 'https://unpkg.com/mqtt@5/dist/mqtt.min.js';
+    const MAX_KEEP = 120, MAX_HIST = 50, MAX_LEN = 400;
+    const win = byId('chat'), log = byId('chat-log'), input = byId('chat-input'), form = byId('chat-form');
+    let room = ROOMS[lsGet('cxz_chat_room', 'general')] ? lsGet('cxz_chat_room', 'general') : 'general';
+    let client = null, state = 'off', broker = 0, attempts = 0, beat = null, everConnected = false;
+    const msgs = { general: [], games: [], help: [] }, seen = new Set(), unread = { general: 0, games: 0, help: 0 }, presence = {};
+    const sid = (() => { const a = new Uint8Array(8); crypto.getRandomValues(a); return [...a].map(x => x.toString(16).padStart(2, '0')).join(''); })();
+    let sent = [];
+    const ownIds = new Set(lsJSON('cxz_chat_own', []).filter(x => typeof x === 'string'));
+    const muted = () => lsJSON('cxz_chat_muted', []).filter(x => typeof x === 'string');
+
+    // Cached history so the log appears instantly
+    const cache = lsJSON('cxz_chat_cache', {}) || {};
+    Object.keys(ROOMS).forEach(r => { (Array.isArray(cache[r]) ? cache[r] : []).forEach(m => { if (valid(m)) { msgs[r].push(m); seen.add(m.id); } }); });
+    let saveTimer = null;
+    function saveCache() { clearTimeout(saveTimer); saveTimer = setTimeout(() => { const o = {}; Object.keys(ROOMS).forEach(r => { o[r] = msgs[r].slice(-60); }); lsSet('cxz_chat_cache', JSON.stringify(o)); }, 400); }
+
+    function valid(m) {
+        if (!m || typeof m !== 'object') return false;
+        if (typeof m.id !== 'string' || m.id.length > 40) return false;
+        if (typeof m.n !== 'string' || !m.n.trim() || m.n.length > 24) return false;
+        if (typeof m.u !== 'string' || m.u.length > 24) return false;
+        if (typeof m.t !== 'string' || !m.t.trim() || m.t.length > MAX_LEN) return false;
+        const now = Date.now();
+        return typeof m.ts === 'number' && m.ts > now - 7 * 864e5 && m.ts < now + 5 * 60e3;
+    }
+    function me() {
+        const a = window.NebulaAuth && NebulaAuth.account();
+        const u = (window.NebulaAuth && NebulaAuth.user()) || 'guest';
+        return { u, n: String((a && a.display) || u).slice(0, 24) };
+    }
+    function hue(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h % 360; }
+    const visible = () => OS.isOpen('chat') && !OS.isMin('chat') && !document.hidden;
+
+    /* ---------- Rendering ---------- */
+    function linkify(t) {
+        return esc(t).replace(/\bhttps?:\/\/[^\s<]+/g, u => '<a href="' + u + '" target="_blank" rel="noopener noreferrer nofollow">' + u + '</a>');
+    }
+    function fmt(ts) { return new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+    function dayLabel(ts) {
+        const d = new Date(ts), t = new Date();
+        if (d.toDateString() === t.toDateString()) return 'Today';
+        const y = new Date(t); y.setDate(t.getDate() - 1);
+        if (d.toDateString() === y.toDateString()) return 'Yesterday';
+        return d.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+    }
+    function render() {
+        const near = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
+        const mine = me().u, mute = muted();
+        const list = msgs[room].filter(m => !mute.includes(m.u));
+        let html = '', prev = null, day = '';
+        if (!list.length) html = '<div class="chat-empty">' + icon('message-circle') + '<b>No messages yet</b><span>Be the first to say something in #' + esc(ROOMS[room][0].toLowerCase()) + '.</span></div>';
+        list.forEach(m => {
+            const d = dayLabel(m.ts);
+            if (d !== day) { html += '<div class="chat-day">' + esc(d) + '</div>'; day = d; prev = null; }
+            const own = m.u === mine && (m.s === sid || ownIds.has(m.id));
+            const grouped = prev && prev.u === m.u && prev.n === m.n && m.ts - prev.ts < 5 * 60e3;
+            html += '<div class="chat-msg' + (own ? ' me' : '') + (grouped ? ' grouped' : '') + '" data-id="' + esc(m.id) + '">' +
+                (grouped || own ? '' : '<button class="chat-name" type="button" data-user="' + esc(m.u) + '" data-name="' + esc(m.n) + '" style="--h:' + hue(m.u) + '">' + esc(m.n) + '</button>') +
+                '<div class="chat-bubble" title="' + esc(fmt(m.ts)) + '">' + linkify(m.t) + '</div></div>';
+            prev = m;
+        });
+        log.innerHTML = html;
+        refreshCXZIcons();
+        if (near || !log.dataset.ready) { log.scrollTop = log.scrollHeight; log.dataset.ready = '1'; }
+    }
+    function setRoom(r) {
+        if (!ROOMS[r]) return;
+        room = r; lsSet('cxz_chat_room', r);
+        win.querySelectorAll('[data-room]').forEach(b => b.setAttribute('aria-current', String(b.dataset.room === r)));
+        byId('chat-title').textContent = '# ' + ROOMS[r][0];
+        byId('chat-sub').textContent = ROOMS[r][1];
+        input.placeholder = 'Message #' + ROOMS[r][0].toLowerCase();
+        unread[r] = 0; badges();
+        log.dataset.ready = '';
+        render();
+        if (!isMobile()) input.focus({ preventScroll: true });
+    }
+    function badges() {
+        Object.keys(ROOMS).forEach(r => { const b = win.querySelector('[data-unread="' + r + '"]'); if (b) b.textContent = unread[r] ? String(Math.min(unread[r], 99)) : ''; });
+        const total = Object.values(unread).reduce((a, b) => a + b, 0);
+        const d = document.querySelector('.dock-item[data-id="chat"]');
+        if (d) {
+            let bd = d.querySelector('.dock-badge');
+            if (total && !bd) { bd = el('span', 'dock-badge'); d.appendChild(bd); }
+            if (bd) { if (total) bd.textContent = total > 99 ? '99+' : String(total); else bd.remove(); }
+        }
+    }
+    function status(s, text) {
+        state = s;
+        byId('chat-dot').className = 'chat-dot ' + s;
+        byId('chat-status').textContent = text;
+        byId('chat-send').disabled = s !== 'on';
+    }
+    function online() {
+        const now = Date.now();
+        Object.keys(presence).forEach(k => { if (now - presence[k] > 55e3) delete presence[k]; });
+        byId('chat-online').querySelector('b').textContent = String(Math.max(1, Object.keys(presence).length));
+    }
+
+    /* ---------- Messages ---------- */
+    function add(r, m, live) {
+        if (!ROOMS[r] || !valid(m) || seen.has(m.id)) return;
+        seen.add(m.id);
+        const list = msgs[r];
+        list.push({ id: m.id, n: m.n.trim(), u: m.u, t: m.t.trim(), ts: m.ts, s: typeof m.s === 'string' ? m.s : '' });
+        list.sort((a, b) => a.ts - b.ts);
+        if (list.length > MAX_KEEP) list.splice(0, list.length - MAX_KEEP);
+        saveCache();
+        if (r === room && visible()) render();
+        else if (live && m.s !== sid && !muted().includes(m.u)) {
+            unread[r]++; badges();
+            if (r === room && OS.isOpen('chat')) render();
+            if (!OS.isOpen('chat')) showToast(m.n + ': ' + m.t.slice(0, 80), 'Chat · #' + ROOMS[r][0].toLowerCase());
+        }
+    }
+    function publish(topic, obj, retain) {
+        if (!client || state !== 'on') return false;
+        try { client.publish(topic, JSON.stringify(obj), { qos: 0, retain: !!retain }); return true; } catch (e) { return false; }
+    }
+    function send(text) {
+        text = String(text || '').replace(/\s+\n/g, '\n').trim().slice(0, MAX_LEN);
+        if (!text) return;
+        if (state !== 'on') { showToast('Chat is still connecting…'); return; }
+        const now = Date.now();
+        sent = sent.filter(t => now - t < 15e3);
+        if (sent.length && now - sent[sent.length - 1] < 1200) { showToast('Slow down a little.', 'Chat'); return; }
+        if (sent.length >= 6) { showToast('You are sending messages too fast. Wait a few seconds.', 'Chat'); return; }
+        sent.push(now);
+        const who = me();
+        const m = { id: now.toString(36) + '-' + Math.random().toString(36).slice(2, 8), n: who.n, u: who.u, t: text, ts: now, s: sid };
+        if (!publish(NS + 'room/' + room, m)) { showToast('Message could not be sent.', 'Chat'); return; }
+        ownIds.add(m.id); lsSet('cxz_chat_own', JSON.stringify([...ownIds].slice(-200)));
+        add(room, m, false);
+        // Keep a short retained history so people who join later see recent messages.
+        publish(NS + 'hist/' + room, msgs[room].slice(-MAX_HIST).map(x => ({ id: x.id, n: x.n, u: x.u, t: x.t, ts: x.ts })), true);
+        input.value = '';
+        render();
+        log.scrollTop = log.scrollHeight;
+    }
+
+    /* ---------- Connection ---------- */
+    function loadLib() {
+        if (window.mqtt) return Promise.resolve();
+        return new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = LIB; s.async = true;
+            s.onload = () => window.mqtt ? res() : rej(new Error('library missing'));
+            s.onerror = () => rej(new Error('blocked'));
+            document.head.appendChild(s);
+        });
+    }
+    function connect() {
+        if (client || state === 'connecting') return;
+        status('connecting', 'Connecting…');
+        loadLib().then(() => {
+            const url = BROKERS[broker];
+            const c = window.mqtt.connect(url, { clientId: 'cxz_' + sid + '_' + attempts, clean: true, connectTimeout: 8000, reconnectPeriod: 4000, keepalive: 30 });
+            client = c;
+            let opened = false;
+            c.on('connect', () => {
+                opened = true; everConnected = true; attempts = 0;
+                status('on', 'Connected');
+                c.subscribe([NS + 'room/+', NS + 'hist/+', NS + 'presence'], { qos: 0 });
+                clearInterval(beat);
+                const ping = () => { if (!document.hidden) publish(NS + 'presence', { s: sid, ts: Date.now() }); presence[sid] = Date.now(); online(); };
+                ping(); beat = setInterval(ping, 20e3);
+            });
+            c.on('message', (topic, payload) => {
+                if (!payload || payload.length > 60000) return;
+                let data; try { data = JSON.parse(payload.toString()); } catch (e) { return; }
+                const part = topic.slice(NS.length).split('/');
+                if (part[0] === 'room') add(part[1], data, true);
+                else if (part[0] === 'hist' && Array.isArray(data)) { data.slice(-MAX_HIST).forEach(m => add(part[1], m, false)); if (part[1] === room) render(); }
+                else if (part[0] === 'presence' && data && typeof data.s === 'string' && data.s.length < 40) { presence[data.s] = Date.now(); online(); }
+            });
+            c.on('reconnect', () => status('connecting', 'Reconnecting…'));
+            c.on('offline', () => status('connecting', 'Reconnecting…'));
+            c.on('error', () => {});
+            c.on('close', () => {
+                if (opened || everConnected) return;
+                // This broker could not be reached: try the next one.
+                try { c.end(true); } catch (e) {}
+                client = null; state = 'off'; attempts++;
+                if (attempts >= BROKERS.length * 2) { status('fail', 'Can’t connect — the network may block chat'); return; }
+                broker = (broker + 1) % BROKERS.length;
+                setTimeout(connect, 800);
+            });
+        }).catch(() => { client = null; status('fail', 'Chat couldn’t load on this network'); });
+    }
+
+    /* ---------- Events ---------- */
+    form.addEventListener('submit', e => { e.preventDefault(); send(input.value); });
+    win.querySelector('.win-side').addEventListener('click', e => {
+        const b = e.target.closest('[data-room]'); if (b) setRoom(b.dataset.room);
+        if (e.target.closest('#chat-status') && state === 'fail') { attempts = 0; connect(); }
+        if (e.target.closest('#chat-unmute')) { lsSet('cxz_chat_muted', '[]'); syncUnmute(); render(); showToast('Everyone unmuted', 'Chat'); }
+    });
+    log.addEventListener('click', async e => {
+        const n = e.target.closest('.chat-name'); if (!n) return;
+        const u = n.dataset.user;
+        if (u === me().u) return;
+        const ok = await Dialog.confirm('Mute ' + n.dataset.name + '?', 'You won’t see their messages on this device. To undo this, use Unmute All under the room list.', { okText: 'Mute' });
+        if (!ok) return;
+        const list = muted(); if (!list.includes(u)) list.push(u);
+        lsSet('cxz_chat_muted', JSON.stringify(list.slice(-200)));
+        render(); syncUnmute(); showToast(n.dataset.name + ' muted', 'Chat');
+    });
+    win.addEventListener('win-open', () => { connect(); unread[room] = 0; badges(); setRoom(room); });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && visible()) { unread[room] = 0; badges(); render(); } });
+    function syncUnmute() { byId('chat-unmute').hidden = !muted().length; }
+    syncUnmute();
+    setRoom(room);
+    status('off', 'Offline');
+    byId('chat-send').disabled = true;
+    return { connect, setRoom };
+})();
+window.Chat = Chat;
 
 /* =====================================================================
    Boot: restore settings, load catalogs, startup screen, sign-in
