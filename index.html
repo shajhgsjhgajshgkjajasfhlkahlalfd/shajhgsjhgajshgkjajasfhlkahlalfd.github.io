@@ -7229,7 +7229,7 @@ body.os .container{padding-left:116px}
   function clearPos(w){['left','top','width','height'].forEach(function(k){w.style.removeProperty(k)})}
   function place(w,id){
     if(mobile()||w.classList.contains('os-max'))return;
-    var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*18,dockH=100;
+    var a=APPS[id],o=(Math.max(order.indexOf(id),0)%6)*18,dockH=122;
     var W=Math.min(a.w,innerWidth-32),H=Math.min(a.h,innerHeight-dockH-48);
     put(w,{width:W,height:H,left:clamp((innerWidth-W)/2+o,16,innerWidth-W-16),top:clamp((innerHeight-dockH-H)/2+o,40,innerHeight-dockH-H-8)});
   }
@@ -8209,4 +8209,50 @@ button.tray-chip:hover{background:color-mix(in srgb,var(--accent-color) 40%,var(
 <style id="nebula-battery-diag">
 .battery-popover{width:min(310px,calc(100vw - 16px))}
 .battery-popover .battery-diag{display:block;margin-top:10px;padding-top:10px;border-top:1px solid var(--t-line);font:500 11px/1.55 var(--font-ui);color:var(--ink-soft);white-space:pre-line}
+</style>
+
+<style id="nebula-attached-pill">
+/* App capsule: sits above the bottom bar, attached to it like a tab growing out of the bar. */
+:root{--shelf-h:56px;--pill-h:56px;--dock-h:calc(var(--shelf-h) + var(--pill-h) + 6px);--shelf-bg:color-mix(in srgb,var(--t-surface) 92%,transparent)}
+@media(max-width:759px){:root{--pill-h:52px}}
+body.os .bottom-dock{background:var(--shelf-bg)!important}
+body.os .bottom-dock .shelf-left{grid-column:1}
+body.os .bottom-dock .shelf-right{grid-column:3;justify-self:end}
+body.os .bottom-dock .shelf-center{position:absolute!important;left:50%!important;bottom:100%!important;top:auto!important;transform:translateX(-50%)!important;z-index:2!important;display:flex!important;align-items:center!important;gap:4px!important;margin:0!important;padding:8px 12px 6px!important;background:var(--shelf-bg)!important;border:1px solid var(--t-line)!important;border-bottom:0!important;border-radius:24px 24px 0 0!important;box-shadow:0 -12px 32px rgba(0,0,0,.28)!important;backdrop-filter:blur(26px) saturate(1.4)!important;-webkit-backdrop-filter:blur(26px) saturate(1.4)!important}
+/* Curved joins where the capsule meets the bar */
+body.os .bottom-dock .shelf-center::before,
+body.os .bottom-dock .shelf-center::after{content:"";position:absolute;bottom:0;width:18px;height:18px;pointer-events:none}
+body.os .bottom-dock .shelf-center::before{right:calc(100% + 1px);background:radial-gradient(circle at 0 0,transparent 17px,var(--shelf-bg) 17.5px)}
+body.os .bottom-dock .shelf-center::after{left:calc(100% + 1px);background:radial-gradient(circle at 100% 0,transparent 17px,var(--shelf-bg) 17.5px)}
+#os-startmenu{bottom:calc(var(--shelf-h) + 8px)!important}
+@media(max-width:759px){
+  body.os .bottom-dock .shelf-center{max-width:calc(100vw - 16px);overflow-x:auto!important;padding:6px 8px 4px!important;border-radius:20px 20px 0 0!important}
+  body.os .bottom-dock .shelf-center::before,body.os .bottom-dock .shelf-center::after{display:none}
+}
+</style>
+
+<style id="nebula-attached-pill-v2">
+/* The bar and the app capsule are ONE solid shape: same color, no border or blur between them,
+   with concave curves where the capsule rises out of the bar. */
+:root{--shelf-solid:var(--t-surface);--shelf-h:56px;--pill-h:58px;--dock-h:calc(var(--shelf-h) + var(--pill-h) + 6px)}
+@media(max-width:759px){:root{--pill-h:54px}}
+body.os .bottom-dock{background:var(--shelf-solid)!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 -4px 24px rgba(0,0,0,.28)!important}
+body.os .bottom-dock .shelf-center{
+  position:absolute!important;left:50%!important;bottom:calc(100% - 1px)!important;top:auto!important;transform:translateX(-50%)!important;z-index:2!important;
+  display:flex!important;align-items:center!important;gap:6px!important;margin:0!important;padding:7px 10px 8px!important;
+  background:var(--shelf-solid)!important;border:0!important;border-radius:24px 24px 0 0!important;
+  box-shadow:0 -10px 26px rgba(0,0,0,.26)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body.os .bottom-dock .shelf-center::before,
+body.os .bottom-dock .shelf-center::after{content:"";position:absolute;bottom:0;width:24px;height:24px;pointer-events:none}
+body.os .bottom-dock .shelf-center::before{right:calc(100% - 1px);background:radial-gradient(circle at 0 0,transparent 23.5px,var(--shelf-solid) 24px)}
+body.os .bottom-dock .shelf-center::after{left:calc(100% - 1px);background:radial-gradient(circle at 100% 0,transparent 23.5px,var(--shelf-solid) 24px)}
+/* App buttons as rounded tiles, like the reference */
+body.os .bottom-dock .shelf-center .dock-item{width:44px!important;min-width:44px!important;height:44px!important;border-radius:14px!important;color:var(--t-ink)!important;background:color-mix(in srgb,var(--accent-color) 12%,var(--t-surface2))!important}
+body.os .bottom-dock .shelf-center .dock-item:hover{background:color-mix(in srgb,var(--accent-color) 28%,var(--t-surface2))!important}
+body.os .bottom-dock .shelf-center .dock-item.active{background:color-mix(in srgb,var(--accent-color) 46%,var(--t-surface2))!important}
+@media(max-width:759px){
+  body.os .bottom-dock .shelf-center{max-width:calc(100vw - 12px);overflow-x:auto!important;padding:6px 8px 7px!important;gap:4px!important;border-radius:20px 20px 0 0!important}
+  body.os .bottom-dock .shelf-center::before,body.os .bottom-dock .shelf-center::after{display:none}
+  body.os .bottom-dock .shelf-center .dock-item{width:40px!important;min-width:40px!important;height:40px!important}
+}
 </style>
