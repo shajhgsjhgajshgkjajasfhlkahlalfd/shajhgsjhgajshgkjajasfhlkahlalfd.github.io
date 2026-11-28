@@ -34,6 +34,12 @@
 <script>
 window.__auto = false;
 window.__power = 250000000; // launch speed for auto hits (m/s); 45 deg = max range
+document.addEventListener('keydown', function(e){
+  if ((e.key||'').toLowerCase()==='a' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    window.__auto = !window.__auto;
+    e.preventDefault();
+  }
+});
 </script>
 
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
