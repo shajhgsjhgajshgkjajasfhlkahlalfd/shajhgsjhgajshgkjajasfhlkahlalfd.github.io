@@ -34,15 +34,6 @@
 <script>
 window.__auto = true;
 window.__power = 250000000; // launch speed for auto hits (m/s); 45 deg = max range
-document.addEventListener('DOMContentLoaded', function(){
-  var b = document.createElement('div');
-  b.style.cssText = 'position:fixed;left:8px;top:8px;z-index:9;font:600 12px/1 system-ui,sans-serif;color:#fff;background:#0a7d2c;padding:6px 9px;border-radius:12px;opacity:.85;cursor:pointer;user-select:none';
-  function r(){ b.textContent = 'Auto-hit: ' + (window.__auto ? 'ON' : 'OFF') + '  (press A)'; b.style.background = window.__auto ? '#0a7d2c' : '#777'; }
-  function t(){ window.__auto = !window.__auto; r(); }
-  b.addEventListener('click', function(e){ e.stopPropagation(); t(); });
-  document.addEventListener('keydown', function(e){ if ((e.key||'').toLowerCase()==='a' && !e.ctrlKey && !e.metaKey) t(); });
-  r(); document.body.appendChild(b);
-});
 </script>
 
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
